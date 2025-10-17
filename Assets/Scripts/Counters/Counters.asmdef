@@ -1,0 +1,21 @@
+{
+    "name": "Counters",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0d9cd4fd935e0c241b331fe4a7de2170",
+        "GUID:14037573be593e34da847e1cc55b46c4",
+        "GUID:ae733cf3fcbb86847a62f45c20eb1e85",
+        "GUID:ba8c092d026123a418fb4bfb797a7bd8",
+        "GUID:4307f53044263cf4b835bd812fc161a4",
+        "GUID:343deaaf83e0cee4ca978e7df0b80d21"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

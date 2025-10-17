@@ -1,0 +1,19 @@
+{
+    "name": "OtherLogic",
+    "rootNamespace": "",
+    "references": [
+        "GUID:09dcc9c0126b6b34ab2a877b8f2277f5",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:14037573be593e34da847e1cc55b46c4",
+        "GUID:ae733cf3fcbb86847a62f45c20eb1e85"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

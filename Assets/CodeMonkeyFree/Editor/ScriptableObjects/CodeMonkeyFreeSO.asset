@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d777d270cee3a5c419cb21a828556f1a, type: 3}
+  m_Name: CodeMonkeyFreeSO
+  m_EditorClassIdentifier: 
+  currentVersion: 1.01
+  subtype: kitchenchaos
+  lastShownTimestamp: 1760611992
+  lastUpdateResponse:
+    version: 1.01
+    versionUrl: https://unitycodemonkey.com
+  checkedLastUpdateTimestamp: 1760611994
+  lastQOTDResponse:
+    questionId: 232
+    questionText: What is JSON and what is it useful for?
+    answerA: JavaScript Over Node, programming pattern
+    answerB: JavaScript Object Notation, data format
+    answerC: Jumping-Signal Over Nonce, crypto concept
+    answerD: 
+    answerE: 
+  lastQotdTimestamp: 1760611994
+  lastDynamicHeaderResponse:
+    topImageUrl: https://codemonkeyexternal.blob.core.windows.net/external/Misc/chrisZJun24_LastCall.png
+    topText: Learn how to get more WISHLISTS and Sell more COPIES of your Games!
+    topLink: howtomarketagame
+    bottomText: DONT MISS the latest important trends, sign up for my FREE Weekly
+      Newsletter!
+    bottomLink: gamedevreport
+  lastDynamicHeaderTimestamp: 1760611994
+  websiteLatestMessage:
+    text: <a href="https://cmonkey.co/freecourses">Check out all my FREE courses!
+      Click here!</a>
+  websiteLatestMessageTimestamp: 1760611994
+  websiteLatestVideos:
+    videos:
+    - youTubeId: bTQZU_CV9UY
+      title: TOP 10 FREE NEW Assets OCTOBER 2025!
+    - youTubeId: 6jjwMLflLOU
+      title: This AWESOME Tool MULTIPLIES all your assets!
+    - youTubeId: iTpoP8M6dxg
+      title: 8 QUICK Unity Tips to make BETTER Games!
+    - youTubeId: RBgFEaRn_jg
+      title: Is YouTube EASY MONEY compared to Game Dev?
+  websiteLatestVideosTimestamp: 1760611994
