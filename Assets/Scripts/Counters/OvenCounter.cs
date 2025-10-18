@@ -83,7 +83,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
             HighlightManager.Instance.OnObjectDrop();
             player.GetKitchenObject().DestroyMyself();
         }
-        if (!player.HasKitchenObject()) {
+        else if (!player.HasKitchenObject()) {
             ShowPopupText("У вас в руках ничего нет");
         }
         if (ready) {
@@ -197,7 +197,6 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
             DishVisual pizza = player.GetKitchenObject().GetComponent<DishVisual>();
             pizza.Ingredients = new List<KitchenObjectSO>(puttedIngredients);
-            player.visualPlate.SetActive(true);
             
             ClearData();
         }

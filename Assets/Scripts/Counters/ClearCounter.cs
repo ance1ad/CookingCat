@@ -21,11 +21,8 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
                     // Возвращаю в изначальное положение
                     _counterTopPoint.localRotation = Quaternion.Euler(0f, 0f, 0f);
                     _counterTopPoint.localPosition = new Vector3(0, 1.3f, 0);
-                    player.visualPlate.SetActive(false); // Взял поднос
                 }
-                else {
-                    player.visualPlate.SetActive(true);
-                }
+
                 GetKitchenObject().SetKitchenObjectParent(player);
 
             }
@@ -46,13 +43,15 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
         }
 
         else if (player.HasKitchenObject()) {
+            // положить тарелко
             if (player.GetKitchenObject() is Plate) {
                 // Выравниваем
                 _counterTopPoint.localRotation = Quaternion.Euler(0f, 90f, 0f);
                 _counterTopPoint.localPosition = new Vector3(-0.136f, 1.3f, 0.134f);
             }
             player.GetKitchenObject().SetKitchenObjectParent(this);
-
+            // кладет
+            UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);
         }
         else {
             ShowPopupText("У вас нет предмета который можно положить");

@@ -17,11 +17,20 @@ public class PlayerVisual : MonoBehaviour {
     }
 
     public void ShowIcon(Sprite icon) {
-        iconImage.sprite = icon;
-        newIcon.SetActive(true);
+        if (!newIcon.activeSelf) {
+            newIcon.SetActive(true);
+            Debug.Log("Смена иконки");
+        }
+
+        if (iconImage.sprite != icon) {
+            iconImage.sprite = icon;
+        }
     }
 
     public void HideIcon() {
-        newIcon.SetActive(false);
+        if (newIcon.activeSelf) {
+            newIcon.SetActive(false);
+            Debug.Log("Крыто сшито иконки");
+        }
     }
 }

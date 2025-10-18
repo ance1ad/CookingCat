@@ -96,7 +96,6 @@ public class StoveCounter : BaseCounter, IHasProgress {
             // В руки
             if (!player.HasKitchenObject()) {
                 GetKitchenObject().SetKitchenObjectParent(player);
-                player.visualPlate.SetActive(true);
                 ClearData();
             }
             // На тарелку

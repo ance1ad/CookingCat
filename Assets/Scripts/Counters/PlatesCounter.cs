@@ -45,7 +45,6 @@ public class PlatesCounter : BaseCounter {
             KitchenObject.CreateKitchenObject(_plate, player);
             HighlightManager.Instance.OnObjectTake(_plate);
 
-            player.visualPlate.SetActive(false);
              // самый верхний
             Destroy(topPoint.GetChild(topPoint.childCount-1).gameObject); // просто визуально удалить сверху
             nextLocalOffset -= stackOffset;

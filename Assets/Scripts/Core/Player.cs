@@ -6,6 +6,7 @@ using System;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
 using static Codice.Client.Commands.WkTree.WorkspaceTreeNode;
+using static ThiefCat;
 
 public class Player : MonoBehaviour, IKitchenObjectParent {
     [SerializeField] float _velocicy = 4f;
@@ -32,7 +33,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     private BaseCounter selectedCounter;
     private ThiefCat selectedThief;
     private KitchenObject _kitchenObject;
-
+    public bool _isFighting = false;
 
 
     // Для синглтона
@@ -43,6 +44,13 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     public class OnSelectedCounterChangedEventArgs : EventArgs {
         public BaseCounter selectedCounter;
     }
+
+    public event EventHandler<OnThiefInteractEventArgs> OnThiefInteract;
+    public class OnThiefInteractEventArgs : EventArgs {
+        public ThiefCat thief;
+    }
+
+
     
 
     // Для синглтона
@@ -57,7 +65,6 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     private void Update() {
         HandleMovement();
-        ThiefInteraction();
     }
 
     private void FixedUpdate() {
@@ -90,9 +97,11 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     private IEnumerator FightWithCat(ThiefCat newSelected) {
         StopWalking();
+        _isFighting = true;
+        newSelected.ForceStopCompletely();
+        newSelected.StopAllCoroutines();
         newSelected._readyToFight = false;
-        newSelected.stopWalking = true;
-
+        newSelected._state = CatState.Fighting;
         // Направление между котами 
         Vector3 dir = (newSelected.transform.position - transform.position).normalized;
         dir.y = 0f;
@@ -130,7 +139,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         CameraShake.Instance.Shake(0.5f, 0.8f);
 
         yield return new WaitForSeconds(1.5f);
+        _isFighting = false;
 
+        newSelected.EnableAgentAgain();
         newSelected.GetOut();
         _stopWalking = false;
 
@@ -141,6 +152,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             StartCoroutine(MoveToPoint(1f, pos));
         }
     }
+
+
+
 
     private IEnumerator ThiefSuccessInfo(ThiefCat newSelected) {
         yield return new WaitForSeconds(1f);
@@ -166,71 +180,61 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         }
     }
 
-    
 
+    private BaseCounter _lastCounter;
     private void HandleInteractions() {
+        Vector2 inputVector = _gameInput.GetMovementVectorNormalized();
+        Vector3 direction = new Vector3(inputVector.x, 0f, inputVector.y);
 
-        Vector2 _inputVector = _gameInput.GetMovementVectorNormalized();
-        Vector3 directoryVector = new Vector3(_inputVector.x, 0f, _inputVector.y);
+        if (direction != Vector3.zero)
+            lastDirection = direction;
 
+        if (Physics.Raycast(transform.position, lastDirection, out RaycastHit hit, _interactDistance, _countersLayerMask)) {
 
-        if (directoryVector != Vector3.zero) {
-            lastDirection = directoryVector;
+            // ---- Проверка кота ----
+            if (hit.transform.TryGetComponent(out ThiefCat thief)) {
+                SetSelectedThief(thief);
+                if (selectedThief != thief) {
+                    selectedThief = thief;
+                    selectedCounter = null;
+                    _lastCounter = null;
+                }
+                return; // не проверяем дальше, если нашли кота
+            }
+
+            // ---- Проверка столов ----
+            if (hit.transform.TryGetComponent(out BaseCounter counter)) {
+                selectedThief = null; // кота рядом нет
+
+                if (counter != _lastCounter) {
+                    SetSelectedCounter(counter);
+                    _lastCounter = counter;
+                }
+
+                ShowIcon(true);
+                return;
+            }
         }
 
-        if (Physics.Raycast(transform.position, lastDirection, out RaycastHit hitInfo, _interactDistance, _countersLayerMask)) {
-            if (hitInfo.transform.TryGetComponent(out BaseCounter baseCounter)) {
-                if (baseCounter != selectedCounter) {
-                    SetSelectedCounter(baseCounter);
-                }
-                if (HasKitchenObject()) {
-                    ShowIcon(true);
-                }
-                else {
-                    ShowIcon(false);
-                }
-            }
-            else {
-                ShowIcon(false);
-                SetSelectedCounter(null);
-                if (!(HasKitchenObject() && _kitchenObject is Plate)) {
-                    visualPlate.SetActive(true);
-                }
-            }
-        }
-        else {
-            ShowIcon(false);
+        // ---- Если никого не нашли ----
+        if (_lastCounter != null) {
             SetSelectedCounter(null);
-            if (!(HasKitchenObject() && _kitchenObject is Plate)) {
-                visualPlate.SetActive(true);
-            }
-
+            _lastCounter = null;
         }
+
+        selectedThief = null;
+        SetSelectedThief(null);
+        ShowIcon(false);
     }
 
-    private void ThiefInteraction() {
-        if (Physics.Raycast(transform.position, lastDirection, out RaycastHit hitCatInfo, _interactDistance, _countersLayerMask)) {
-            // С котом!
-            if (hitCatInfo.transform.TryGetComponent(out ThiefCat thief)) {
-                selectedThief = thief;
-                selectedCounter = null;
-            }
-            else {
-                selectedThief = null;
-            }
-        }
-        else {
-            selectedThief = null;
-        }
-    }
+
 
     public void ShowIcon(bool state) {
-        if (state) {
+        if (HasKitchenObject() && state) {
             _visual.ShowIcon(GetKitchenObject().GetKitchenObjectSO().sprite);
             return;
         }
         _visual.HideIcon();
-
     }
 
 
@@ -301,6 +305,12 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         });
     }
 
+    private void SetSelectedThief(ThiefCat thief) {
+        OnThiefInteract?.Invoke(this, new OnThiefInteractEventArgs {
+            thief = thief
+        });
+    }
+
     public Transform GetKitchenObjectTransform() => _objectHoldPoint;
 
     public KitchenObject GetKitchenObject() => _kitchenObject;
@@ -313,6 +323,10 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     public void ClearKitchenObject() {
         _kitchenObject = null;
         HighlightManager.Instance.OnObjectDrop();
+
+        if (!visualPlate.activeSelf) {
+            visualPlate.SetActive(true);
+        }
     }
 
     private Coroutine _coroutine;
@@ -322,6 +336,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             StopCoroutine(_coroutine);
         }
         _kitchenObject = kitchenObject;
+        if(kitchenObject is Plate) {
+            visualPlate.SetActive(false); // Взял поднос
+        }
         HighlightManager.Instance.OnObjectTake(_kitchenObject.GetKitchenObjectSO());
         // Сжирает хавку
         if (UnityEngine.Random.value < .1 &&

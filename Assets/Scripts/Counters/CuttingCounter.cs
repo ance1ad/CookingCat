@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using static UIManager;
 
 public class CuttingCounter : BaseCounter, IHasProgress {
 
@@ -34,6 +35,10 @@ public class CuttingCounter : BaseCounter, IHasProgress {
             output = GetOutputForInput(player.GetKitchenObject().GetKitchenObjectSO());
             if (output != null) {
                 player.GetKitchenObject().SetKitchenObjectParent(this);
+                _objectIsSliced = false;
+                UIManager.Instance.SetFButton(UIManager.UIButtonState.Slice, GetKitchenObject().GetKitchenObjectSO().sprite);
+                UIManager.Instance.SetGrayFButton(false);
+                UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);
                 cutCount = 0;
             }
             else {
@@ -43,7 +48,6 @@ public class CuttingCounter : BaseCounter, IHasProgress {
         else if (HasKitchenObject()) {
             if (!player.HasKitchenObject()) {
                 GetKitchenObject().SetKitchenObjectParent(player);
-                player.visualPlate.SetActive(true);
             }
             else if (player.HasKitchenObject() && player.GetKitchenObject() is Plate) {
                 Plate plate = player.GetKitchenObject() as Plate;
@@ -58,11 +62,16 @@ public class CuttingCounter : BaseCounter, IHasProgress {
         }
         if (!HasKitchenObject()) {
             OnKitchenObjectTake?.Invoke();
+            UIManager.Instance.SetGrayFButton(true);
         }
 
     }
 
     public override void AlternativeInteract(Player player) {
+        if (_objectIsSliced) {
+            ShowPopupText("Обьект уже нарезан, заберите его");
+            return;
+        }
         if (output != null && HasKitchenObject() ) {
             cutCount++;
 
@@ -75,10 +84,17 @@ public class CuttingCounter : BaseCounter, IHasProgress {
                 GetKitchenObject().DestroyMyself();
                 KitchenObject.CreateKitchenObject(output.output, this);
                 output = null;
+                UIManager.Instance.SetGrayFButton(true);
+                UIManager.Instance.SetEButton(UIButtonState.Take);
+                _objectIsSliced = true;
             }
         }
         
     }
+
+    private bool _objectIsSliced = false;
+    public bool ObjectIsSliced() => _objectIsSliced;
+
     public override bool CanTakeObject() => HasKitchenObject() && GetKitchenObject()._isFresh;
 
     public override bool ThiefInteract(ThiefCat thief) {
@@ -99,6 +115,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
         }
         return null;
     }
+
 
 
 

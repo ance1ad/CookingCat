@@ -68,7 +68,6 @@ public class JuicerCounter : BaseCounter, IHasProgress {
                 DishVisual _juiceDish = player.GetKitchenObject().GetComponent<DishVisual>();
                 _juiceDish.Ingredients = new List<KitchenObjectSO>(addedIngredients);
                 GetKitchenObject().DestroyMyself();
-                player.visualPlate.SetActive(true);
                 readyToGive = false;
                 OnKitchenObjectTake.Invoke();
             }

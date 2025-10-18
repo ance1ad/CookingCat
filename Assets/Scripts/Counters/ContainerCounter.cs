@@ -19,12 +19,12 @@ public class ContainerCounter : BaseCounter {
             }
             HighlightManager.Instance.OnObjectTake(_kitchenObjectSO);
             OnContainerCounterInteract?.Invoke(this, EventArgs.Empty);
-            player.visualPlate.SetActive(true);
         }
         else if (player.GetKitchenObject().GetKitchenObjectSO() == _kitchenObjectSO && player.GetKitchenObject()._isFresh) {
             Destroy(player.GetKitchenObject().gameObject);
             HighlightManager.Instance.OnObjectDrop();
             OnContainerCounterInteract?.Invoke(this, EventArgs.Empty);
+            
         }
         else if (!player.GetKitchenObject()._isFresh) {
             ShowPopupText("Этот продукт пропал, его только выбросить");

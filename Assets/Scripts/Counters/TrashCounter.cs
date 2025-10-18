@@ -42,6 +42,7 @@ public class TrashCounter : BaseCounter,IHasProgress {
         ShowPopupText("Вы выкинули " + objectKO.GetKitchenObjectSO().objectName.ToLower());
         yield return new WaitUntil(() => player._moveCoroutine == null);
         objectKO.DestroyMyself();
+        UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);
         player._stopWalking = false;
     }
 
