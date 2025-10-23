@@ -31,6 +31,8 @@ public class TrashCounter : BaseCounter,IHasProgress {
     }
 
     private IEnumerator DropObject(Player player) {
+        player._holding.SetActive(true);
+        player._stopHidingHold = true;
         KitchenObject objectKO = player.GetKitchenObject();
         player.StopWalking();
         player.MoveToPoint(player._plateEdge, 2f);
@@ -42,6 +44,7 @@ public class TrashCounter : BaseCounter,IHasProgress {
         ShowPopupText("Вы выкинули " + objectKO.GetKitchenObjectSO().objectName.ToLower());
         yield return new WaitUntil(() => player._moveCoroutine == null);
         objectKO.DestroyMyself();
+        player._stopHidingHold = false;
         UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);
         player._stopWalking = false;
     }

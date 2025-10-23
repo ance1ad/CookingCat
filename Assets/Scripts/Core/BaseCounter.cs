@@ -46,6 +46,12 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
         return false;
     }
 
+
+    public virtual bool CourierInteract(CourierCat thief) {
+        Debug.Log("CourierInteract");
+        return false;
+    }
+
     public virtual void AlternativeInteract(Player player) {
         Debug.Log("AlternativeInteract");
     }

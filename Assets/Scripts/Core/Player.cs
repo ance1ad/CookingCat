@@ -5,7 +5,6 @@ using UnityEngine;
 using System;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
-using static Codice.Client.Commands.WkTree.WorkspaceTreeNode;
 using static ThiefCat;
 
 public class Player : MonoBehaviour, IKitchenObjectParent {
@@ -34,6 +33,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     private ThiefCat selectedThief;
     private KitchenObject _kitchenObject;
     public bool _isFighting = false;
+
 
 
     // Для синглтона
@@ -190,16 +190,16 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             lastDirection = direction;
 
         if (Physics.Raycast(transform.position, lastDirection, out RaycastHit hit, _interactDistance, _countersLayerMask)) {
-
+            ShowHolding(false);
             // ---- Проверка кота ----
             if (hit.transform.TryGetComponent(out ThiefCat thief)) {
+                SetSelectedCounter(null);
                 SetSelectedThief(thief);
                 if (selectedThief != thief) {
                     selectedThief = thief;
-                    selectedCounter = null;
                     _lastCounter = null;
                 }
-                return; // не проверяем дальше, если нашли кота
+                return;
             }
 
             // ---- Проверка столов ----
@@ -215,6 +215,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
                 return;
             }
         }
+        else {
+            ShowHolding(true);
+        }
 
         // ---- Если никого не нашли ----
         if (_lastCounter != null) {
@@ -227,6 +230,12 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         ShowIcon(false);
     }
 
+
+    public bool _stopHidingHold = false;
+    private void ShowHolding(bool state) {
+        if (_holding.activeSelf == state || _stopHidingHold) return;
+        _holding.SetActive(state);
+    }
 
 
     public void ShowIcon(bool state) {

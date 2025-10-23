@@ -10,4 +10,5 @@ public class KitchenObjectSO : ScriptableObject {
     public string objectName;
     public string declension;
     public string justification;
+    public float price;
 }

@@ -78,7 +78,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
         }
         else if (player.HasKitchenObject() ) {
             if(MaySliced(player.GetKitchenObject().GetKitchenObjectSO())) {
-                ShowPopupText("Сначала подготовьте этот продукт на столе для нарезки");
+                ShowPopupText("Сначала почистите или порежьте");
             }
             else if (player.GetKitchenObject().GetKitchenObjectSO() == _orangeColorJuiceSO) {
                 ShowPopupText("Вы уже забрали напиток, только не пейте его");
@@ -88,7 +88,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
             }
         }
         else {
-            ShowPopupText("Возьмите в руки то что хотите положить в соковыжималку");
+            ShowPopupText("Возьмите то, что хотите положить в соковыжималку");
         }
     }
 
