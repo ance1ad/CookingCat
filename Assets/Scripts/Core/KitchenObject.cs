@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Кухонный обьект по сути что может лежать на столах - еда и тп
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅ пїЅ пїЅпїЅ
 public class KitchenObject : MonoBehaviour {
 
     [SerializeField] private KitchenObjectSO _kitchenObjectSO;
@@ -22,13 +22,13 @@ public class KitchenObject : MonoBehaviour {
         this._kitchenObjectParent = kitchenObjectParent;
 
         if (kitchenObjectParent.HasKitchenObject()) {
-            Debug.Log("Шото не так, тут не должен быть обьект");
+            Debug.Log("пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
         }
 
         this._kitchenObjectParent.SetKitchenObject(this);
         // Visual
-        transform.parent = kitchenObjectParent.GetKitchenObjectTransform(); // куда положить
-        transform.localPosition = Vector3.zero;
+        transform.parent = kitchenObjectParent.GetKitchenObjectTransform(); // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        transform.localPosition = Vector3.zero; 
         transform.localRotation = Quaternion.identity;
     }
 

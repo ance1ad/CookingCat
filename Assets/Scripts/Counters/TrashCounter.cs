@@ -21,13 +21,13 @@ public class TrashCounter : BaseCounter,IHasProgress {
         if (player.HasKitchenObject()) {
 
             if (player.GetKitchenObject() is Plate) {
-                ShowPopupText("Поднос нельзя выкинуть, соберите заказ");
+                MessageUI.Instance.ShowPlayerPopup("РќРµР»СЊР·СЏ РІС‹РєРёРЅСѓС‚СЊ РїРѕРґРЅРѕСЃ, СЃРѕР±РµСЂРёС‚Рµ Р·Р°РєР°Р·");
                 return;
             }
             StartCoroutine(DropObject(player));
             return;
         }
-        ShowPopupText("У вас в руках ничего нет чтобы выкинуть");
+        MessageUI.Instance.ShowPlayerPopup("Р’Р°Рј РЅРµС‡РµРіРѕ РІС‹РєРёРЅСѓС‚СЊ");
     }
 
     private IEnumerator DropObject(Player player) {
@@ -37,12 +37,11 @@ public class TrashCounter : BaseCounter,IHasProgress {
         player.StopWalking();
         player.MoveToPoint(player._plateEdge, 2f);
         StartCoroutine(Progress());
-        yield return new WaitUntil(() => player._moveCoroutine == null);
+        yield return new WaitUntil(() => player._objectMoveCoroutine == null);
         objectKO.transform.localScale = objectKO.transform.localScale * 0.7f;
         player.MoveToPoint(_dropPoint, 7f);
-        // игрок не может ходить
-        ShowPopupText("Вы выкинули " + objectKO.GetKitchenObjectSO().objectName.ToLower());
-        yield return new WaitUntil(() => player._moveCoroutine == null);
+        MessageUI.Instance.ShowPlayerPopup("Р’С‹ РІС‹РєРёРЅСѓР»Рё " + objectKO.GetKitchenObjectSO().declension);
+        yield return new WaitUntil(() => player._objectMoveCoroutine == null);
         objectKO.DestroyMyself();
         player._stopHidingHold = false;
         UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);

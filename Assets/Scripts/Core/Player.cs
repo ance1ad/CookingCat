@@ -23,6 +23,8 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     [SerializeField] public Transform _plateEdge;
     [SerializeField] private ParticleSystem _particles;
 
+    
+    
 
     public GameObject visualPlate;
 
@@ -36,7 +38,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
 
 
-    // Для синглтона
+    // Р”Р»СЏ СЃРёРЅРіР»С‚РѕРЅР°
     public static Player Instance { get; private set; }
 
 
@@ -53,12 +55,12 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     
 
-    // Для синглтона
+    // Р”Р»СЏ СЃРёРЅРіР»С‚РѕРЅР°
     private void Awake() {
         if (Instance != null) {
             Debug.Log("There is no more 2 players!");
         }
-        // Обьект на котором висит скрипт назначается в Instance
+        // РћР±СЊРµРєС‚ РЅР° РєРѕС‚РѕСЂРѕРј РІРёСЃРёС‚ СЃРєСЂРёРїС‚ РЅР°Р·РЅР°С‡Р°РµС‚СЃСЏ РІ Instance
         Instance = this;
     }
 
@@ -88,7 +90,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         if (selectedCounter != null) {
             selectedCounter.Interact(this);
         }
-        // Вор
+        // Р’РѕСЂ
         if (selectedThief != null && selectedThief.transform.position.x < 7f && selectedThief._readyToFight) {
             StartCoroutine(FightWithCat(selectedThief));
         }
@@ -102,20 +104,20 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         newSelected.StopAllCoroutines();
         newSelected._readyToFight = false;
         newSelected._state = CatState.Fighting;
-        // Направление между котами 
+        // РќР°РїСЂР°РІР»РµРЅРёРµ РјРµР¶РґСѓ РєРѕС‚Р°РјРё 
         Vector3 dir = (newSelected.transform.position - transform.position).normalized;
         dir.y = 0f;
 
-        // Разворачиваем лицом друг к другу 
+        // Р Р°Р·РІРѕСЂР°С‡РёРІР°РµРј Р»РёС†РѕРј РґСЂСѓРі Рє РґСЂСѓРіСѓ 
         transform.rotation = Quaternion.LookRotation(dir);
         newSelected.transform.rotation = Quaternion.LookRotation(-dir);
 
-        // --- точки встречи ---
-        // Мой кот подойдёт чуть ближе
+        // --- С‚РѕС‡РєРё РІСЃС‚СЂРµС‡Рё ---
+        // РњРѕР№ РєРѕС‚ РїРѕРґРѕР№РґС‘С‚ С‡СѓС‚СЊ Р±Р»РёР¶Рµ
         Vector3 myTarget = transform.position + dir * 0.3f;
         Vector3 thiefTarget = newSelected.transform.position - dir * 0.4f;
 
-        // Перемещаем обоих котов плавно
+        // РџРµСЂРµРјРµС‰Р°РµРј РѕР±РѕРёС… РєРѕС‚РѕРІ РїР»Р°РІРЅРѕ
         float moveTime = 0.05f;
         float elapsed = 0f;
         Vector3 myStart = transform.position;
@@ -131,7 +133,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             yield return null;
         }
 
-        // --- эффекты ---
+        // --- СЌС„С„РµРєС‚С‹ ---
         newSelected._readyToFight = false;
         StartCoroutine(ThiefSuccessInfo(newSelected));
         newSelected.PlayCatFightParticle();
@@ -145,7 +147,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         newSelected.GetOut();
         _stopWalking = false;
 
-        // Проверка что кот не за картой
+        // РџСЂРѕРІРµСЂРєР° С‡С‚Рѕ РєРѕС‚ РЅРµ Р·Р° РєР°СЂС‚РѕР№
         Vector3 pos = transform.position;
         if (transform.position.x > 5.55f) {
             pos.x = 5.55f;
@@ -160,14 +162,14 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         yield return new WaitForSeconds(1f);
         if (newSelected.HasKitchenObject() && !HasKitchenObject()) {
             newSelected.GetKitchenObject().SetKitchenObjectParent(this);
-            MessageUI.Instance.SetText("Вы прогнали кота-вора!", MessageUI.Emotions.happy);
+            MessageUI.Instance.SetText("Р’С‹ РїСЂРѕРіРЅР°Р»Рё РєРѕС‚Р°-РІРѕСЂР°!", MessageUI.Emotions.happy);
         }
         else if (HasKitchenObject() && newSelected.HasKitchenObject()) {
-            MessageUI.Instance.SetText("У вас заняты лапы", MessageUI.Emotions.sad);
+            MessageUI.Instance.SetText("РЈ РІР°СЃ Р·Р°РЅСЏС‚С‹ Р»Р°РїС‹", MessageUI.Emotions.sad);
             newSelected._readyToFight = true;
         }
         else {
-            MessageUI.Instance.SetText("Вы прогнали кота-вора!", MessageUI.Emotions.happy);
+            MessageUI.Instance.SetText("Р’С‹ РїСЂРѕРіРЅР°Р»Рё РєРѕС‚Р°-РІРѕСЂР°!", MessageUI.Emotions.happy);
         }
     }
 
@@ -191,7 +193,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
         if (Physics.Raycast(transform.position, lastDirection, out RaycastHit hit, _interactDistance, _countersLayerMask)) {
             ShowHolding(false);
-            // ---- Проверка кота ----
+            // ---- РџСЂРѕРІРµСЂРєР° РєРѕС‚Р° ----
             if (hit.transform.TryGetComponent(out ThiefCat thief)) {
                 SetSelectedCounter(null);
                 SetSelectedThief(thief);
@@ -202,9 +204,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
                 return;
             }
 
-            // ---- Проверка столов ----
+            // ---- РџСЂРѕРІРµСЂРєР° СЃС‚РѕР»РѕРІ ----
             if (hit.transform.TryGetComponent(out BaseCounter counter)) {
-                selectedThief = null; // кота рядом нет
+                selectedThief = null; // РєРѕС‚Р° СЂСЏРґРѕРј РЅРµС‚
 
                 if (counter != _lastCounter) {
                     SetSelectedCounter(counter);
@@ -219,7 +221,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             ShowHolding(true);
         }
 
-        // ---- Если никого не нашли ----
+        // ---- Р•СЃР»Рё РЅРёРєРѕРіРѕ РЅРµ РЅР°С€Р»Рё ----
         if (_lastCounter != null) {
             SetSelectedCounter(null);
             _lastCounter = null;
@@ -272,14 +274,14 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         );
 
         if (!canMove) {
-            // Пробуем X
+            // РџСЂРѕР±СѓРµРј X
             Vector3 dirX = new Vector3(directoryVector.x, 0, 0).normalized;
             canMove = directoryVector.x != 0 &&
                       !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
                           _playerRadius, dirX, moveDistance);
             if (canMove) directoryVector = dirX;
 
-            // Пробуем Z
+            // РџСЂРѕР±СѓРµРј Z
             if (!canMove) {
                 Vector3 dirZ = new Vector3(0, 0, directoryVector.z).normalized;
                 canMove = directoryVector.z != 0 &&
@@ -293,10 +295,10 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             transform.position += directoryVector * moveDistance;
         }
 
-        // Теперь _isMoving = true только если реально сдвинулись
+        // РўРµРїРµСЂСЊ _isMoving = true С‚РѕР»СЊРєРѕ РµСЃР»Рё СЂРµР°Р»СЊРЅРѕ СЃРґРІРёРЅСѓР»РёСЃСЊ
         _isMoving = (transform.position != startPosition);
 
-        // Но поворачиваем всегда, если есть ввод (иначе не будет крутиться у стены)
+        // РќРѕ РїРѕРІРѕСЂР°С‡РёРІР°РµРј РІСЃРµРіРґР°, РµСЃР»Рё РµСЃС‚СЊ РІРІРѕРґ (РёРЅР°С‡Рµ РЅРµ Р±СѓРґРµС‚ РєСЂСѓС‚РёС‚СЊСЃСЏ Сѓ СЃС‚РµРЅС‹)
         if (directoryVector != Vector3.zero) {
             transform.forward = Vector3.Slerp(transform.forward, directoryVector, Time.deltaTime * _rotateSpeed);
         }
@@ -346,11 +348,11 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         }
         _kitchenObject = kitchenObject;
         if(kitchenObject is Plate) {
-            visualPlate.SetActive(false); // Взял поднос
+            visualPlate.SetActive(false); // Р’Р·СЏР» РїРѕРґРЅРѕСЃ
         }
         HighlightManager.Instance.OnObjectTake(_kitchenObject.GetKitchenObjectSO());
-        // Сжирает хавку
-        if (UnityEngine.Random.value < .1 &&
+        // РЎР¶РёСЂР°РµС‚ С…Р°РІРєСѓ
+        if (UnityEngine.Random.value < .2 &&
             !(_kitchenObject is Plate) &&
             !string.IsNullOrEmpty(_kitchenObject.GetKitchenObjectSO().justification)) {
             _coroutine = StartCoroutine(EatProductRoutine());
@@ -359,21 +361,24 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     private IEnumerator EatProductRoutine() {
         yield return new WaitForSeconds(3f);
+        
         if (HasKitchenObject() && _kitchenObject._isFresh) {
             MessageUI.Instance.SetText(_kitchenObject.GetKitchenObjectSO().justification, MessageUI.Emotions.eated);
             MoveToPoint(_mouthPoint, 1f);
-            yield return new WaitUntil(() => _moveCoroutine == null);
-            GetKitchenObject().DestroyMyself();
+            yield return new WaitUntil(() => _objectMoveCoroutine == null);
+            if (HasKitchenObject()) {
+                GetKitchenObject().DestroyMyself();
+            }
         }
     }
 
-    public Coroutine _moveCoroutine { get; private set; }
+    public Coroutine _objectMoveCoroutine { get; private set; }
     public void MoveToPoint(Transform point, float speed) {
-        if(_moveCoroutine != null) {
-            StopCoroutine(_moveCoroutine);
+        if(_objectMoveCoroutine != null) {
+            StopCoroutine(_objectMoveCoroutine);
         }
 
-        _moveCoroutine = StartCoroutine(ObjectMoveToPoint(point, speed));
+        _objectMoveCoroutine = StartCoroutine(ObjectMoveToPoint(point, speed));
     }
 
 
@@ -383,8 +388,8 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         Transform obj = GetKitchenObject().transform;
         while (Vector3.Distance(obj.position, point.position) > 0.2f) {
             if (!HasKitchenObject()) {
-                StopCoroutine(_moveCoroutine);
-                _moveCoroutine = null;
+                StopCoroutine(_objectMoveCoroutine);
+                _objectMoveCoroutine = null;
             }
             obj.position = Vector3.MoveTowards(
                 obj.position,
@@ -394,6 +399,6 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             yield return null;
         }
         obj.position = point.position;
-        _moveCoroutine = null;
+        _objectMoveCoroutine = null;
     }
 }

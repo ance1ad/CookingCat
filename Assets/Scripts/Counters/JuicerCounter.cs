@@ -35,10 +35,10 @@ public class JuicerCounter : BaseCounter, IHasProgress {
 
     public override void Interact(Player player) {
         if (_juicerWorking) {
-            ShowPopupText("Соковыжималка уже запущена");
+            MessageUI.Instance.ShowPlayerPopup("РЎРѕРєРѕРІС‹Р¶РёРјР°Р»РєР° СѓР¶Рµ Р·Р°РїСѓС‰РµРЅР°");
             return;
         }
-        // Кладет фрукт
+        // РљР»Р°РґРµС‚ С„СЂСѓРєС‚
         if (player.HasKitchenObject() && ValidateKitchenObject(player.GetKitchenObject().GetKitchenObjectSO()) && !readyToGive) {
             ++fruitCurrentCount;
             OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
@@ -48,12 +48,12 @@ public class JuicerCounter : BaseCounter, IHasProgress {
             HighlightManager.Instance.OnObjectDrop();
             player.GetKitchenObject().DestroyMyself();
             if (fruitCurrentCount == fruitCountToEnable) {
-                ShowPopupText("Запущена соковыжималка");
+                MessageUI.Instance.ShowPlayerPopup("Р—Р°РїСѓС‰РµРЅР° СЃРѕРєРѕРІС‹Р¶РёРјР°Р»РєР°");
                 StartCoroutine(JuicerRoutine());
             }
         }
 
-        // Забрать компот
+        // Р—Р°Р±СЂР°С‚СЊ РєРѕРјРїРѕС‚
         else if (readyToGive) {
             if (player.HasKitchenObject() && player.GetKitchenObject() is Plate) {
                 _plate = player.GetKitchenObject() as Plate;
@@ -61,6 +61,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
                 fruitCurrentCount = 0;
                 readyToGive = false;
                 OnKitchenObjectTake.Invoke();
+                addedIngredients.Clear();
             }
             else if (!player.HasKitchenObject()) {
                 KitchenObject.CreateKitchenObject(_orangeColorJuiceSO, player);
@@ -70,25 +71,26 @@ public class JuicerCounter : BaseCounter, IHasProgress {
                 GetKitchenObject().DestroyMyself();
                 readyToGive = false;
                 OnKitchenObjectTake.Invoke();
+                addedIngredients.Clear();
             }
-            // Рандом ингредиент
+            // Р Р°РЅРґРѕРј РёРЅРіСЂРµРґРёРµРЅС‚
             else if(player.HasKitchenObject() && !(player.GetKitchenObject() is Plate)) {
-                ShowPopupText("Напиток уже готов");
+                MessageUI.Instance.ShowPlayerPopup("РќР°РїРёС‚РѕРє СѓР¶Рµ РіРѕС‚РѕРІ");
             }
         }
         else if (player.HasKitchenObject() ) {
             if(MaySliced(player.GetKitchenObject().GetKitchenObjectSO())) {
-                ShowPopupText("Сначала почистите или порежьте");
+                MessageUI.Instance.ShowPlayerPopup("РЎРЅР°С‡Р°Р»Р° РїРѕС‡РёСЃС‚РёС‚Рµ РёР»Рё РїРѕСЂРµР¶СЊС‚Рµ");
             }
             else if (player.GetKitchenObject().GetKitchenObjectSO() == _orangeColorJuiceSO) {
-                ShowPopupText("Вы уже забрали напиток, только не пейте его");
+                MessageUI.Instance.ShowPlayerPopup("Р’С‹ СѓР¶Рµ Р·Р°Р±СЂР°Р»Рё РЅР°РїРёС‚РѕРє, С‚РѕР»СЊРєРѕ РЅРµ РїРµР№С‚Рµ РµРіРѕ");
             }
             else {
-                ShowPopupText("С этого напиток не сварить");
+                MessageUI.Instance.ShowPlayerPopup("РЎ СЌС‚РѕРіРѕ РЅР°РїРёС‚РѕРє РЅРµ СЃРІР°СЂРёС‚СЊ");
             }
         }
         else {
-            ShowPopupText("Возьмите то, что хотите положить в соковыжималку");
+            MessageUI.Instance.ShowPlayerPopup("Р’РѕР·СЊРјРёС‚Рµ С‚Рѕ, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїРѕР»РѕР¶РёС‚СЊ РІ СЃРѕРєРѕРІС‹Р¶РёРјР°Р»РєСѓ");
         }
     }
 
@@ -112,7 +114,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
         _juiceDish.Ingredients = new List<KitchenObjectSO>(addedIngredients);
 
 
-        ShowPopupText("Напиток готов к выдаче");
+        MessageUI.Instance.ShowPlayerPopup("РќР°РїРёС‚РѕРє РіРѕС‚РѕРІ Рє РІС‹РґР°С‡Рµ");
         fruitCurrentCount = 0;
     }
 

@@ -41,7 +41,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
 
 
     private void FryMeat() {
-        // Пользователь положил приготовленное мясо у его выхода т.е у пережаренного мяса нет своего output
+        // РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїРѕР»РѕР¶РёР» РїСЂРёРіРѕС‚РѕРІР»РµРЅРЅРѕРµ РјСЏСЃРѕ Сѓ РµРіРѕ РІС‹С…РѕРґР° С‚.Рµ Сѓ РїРµСЂРµР¶Р°СЂРµРЅРЅРѕРіРѕ РјСЏСЃР° РЅРµС‚ СЃРІРѕРµРіРѕ output
         if (transitionToOvercooked == null) {
             transitionToOvercooked = transitionToCooked;
             timeForCooked = transitionToCooked.fryingTimerMax;
@@ -50,14 +50,14 @@ public class StoveCounter : BaseCounter, IHasProgress {
 
         if (timer >= transitionToCooked.fryingTimerMax && !meatIsCooked) {
             timer = 0f;
-            ShowPopupText("Мясо готово!");
+            MessageUI.Instance.ShowPlayerPopup("РњСЏСЃРѕ РіРѕС‚РѕРІРѕ!");
             GetKitchenObject().DestroyMyself();
             KitchenObject.CreateKitchenObject(transitionToCooked.output, this);
             timeForCooked = transitionToOvercooked.fryingTimerMax;
             meatIsCooked = true;
         }
         else if (timer >= transitionToOvercooked.fryingTimerMax) {
-            ShowPopupText("Мясо пережарилось");
+            MessageUI.Instance.ShowPlayerPopup("РњСЏСЃРѕ РїРµСЂРµР¶Р°СЂРёР»РѕСЃСЊ");
             GetKitchenObject().DestroyMyself();
             KitchenObject.CreateKitchenObject(transitionToOvercooked.output, this);
             OnKitchenObjectTake?.Invoke();
@@ -71,12 +71,12 @@ public class StoveCounter : BaseCounter, IHasProgress {
     public override void Interact(Player player) {
         if (player.HasKitchenObject() && !HasKitchenObject()) {
             if (!player.GetKitchenObject()._isFresh) {
-                ShowPopupText("Этот предмет пропал, выкинь его");
+                MessageUI.Instance.ShowPlayerPopup("Р­С‚РѕС‚ РїСЂРµРґРјРµС‚ РїСЂРѕРїР°Р», РІС‹РєРёРЅСЊ РµРіРѕ");
                 return;
             }
             transitionToCooked = GetOutputForInput(player.GetKitchenObject().GetKitchenObjectSO());
 
-            // Пережаренное
+            // РџРµСЂРµР¶Р°СЂРµРЅРЅРѕРµ
             if (transitionToCooked != null) {
                 transitionToOvercooked = GetOutputForInput(transitionToCooked.output);
                 timeForCooked = transitionToCooked.fryingTimerMax;
@@ -87,18 +87,18 @@ public class StoveCounter : BaseCounter, IHasProgress {
                 switcher.SetActive(true);
             }
             else {
-                ShowPopupText("Предмет " + player.GetKitchenObject().GetKitchenObjectSO().objectName + " нельзя пожарить");
+                MessageUI.Instance.ShowPlayerPopup("РџСЂРµРґРјРµС‚ " + player.GetKitchenObject().GetKitchenObjectSO().objectName + " РЅРµР»СЊР·СЏ РїРѕР¶Р°СЂРёС‚СЊ");
             }
 
         }
         else if (HasKitchenObject()) {
 
-            // В руки
+            // Р’ СЂСѓРєРё
             if (!player.HasKitchenObject()) {
                 GetKitchenObject().SetKitchenObjectParent(player);
                 ClearData();
             }
-            // На тарелку
+            // РќР° С‚Р°СЂРµР»РєСѓ
             if (player.GetKitchenObject() is Plate && HasKitchenObject()) {
                 _plate = player.GetKitchenObject() as Plate;
                 _plate.AddIngredient(GetKitchenObject());
@@ -106,7 +106,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
             }
         }
         else {
-            ShowPopupText("Возьмите мясо в руки чтобы пожарить его");
+            MessageUI.Instance.ShowPlayerPopup("Р’РѕР·СЊРјРёС‚Рµ РјСЏСЃРѕ РІ СЂСѓРєРё С‡С‚РѕР±С‹ РїРѕР¶Р°СЂРёС‚СЊ РµРіРѕ");
         }
     }
 

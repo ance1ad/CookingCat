@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,6 @@ using UnityEngine;
 public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
 
     [SerializeField] public Transform _counterTopPoint;
-    [SerializeField] public Transform _popupCanvas;
     [SerializeField] private Color highlightColor;
     [SerializeField] private Renderer[] renderers;
     [SerializeField] private GameObject[] _outlineObjects;
@@ -17,22 +17,11 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
 
     private KitchenObject _kitchenObject;
 
-    private float showPopupTime = 2.5f;
     public Transform CounterTopPoint => _counterTopPoint;
+
 
     private void Awake() {
         ShowOutline(false);
-    }
-
-    public void ShowPopupText(string text) {
-        _popupCanvas.gameObject.SetActive(true);
-        _popupCanvas.GetChild(1).GetComponent<TMP_Text>().text = text;
-        StartCoroutine(Timer(showPopupTime));
-    }
-
-    public IEnumerator Timer(float time) {
-        yield return new WaitForSeconds(time);
-        _popupCanvas.gameObject.SetActive(false);
     }
 
 
@@ -56,7 +45,7 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
         Debug.Log("AlternativeInteract");
     }
 
-    // Возвращает коорды где должен заспауниться предмет
+    // РџРѕР»СѓС‡РёС‚СЊ С‚РѕС‡РєСѓ СЃРїР°СѓРЅР°
     public Transform GetKitchenObjectTransform() => _counterTopPoint;
 
     public virtual bool CanTakeObject() {
@@ -119,9 +108,6 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
             yield return null;
         }
     }
-
-
-
 
 
 }

@@ -29,7 +29,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
     public override void Interact(Player player) {
         if (player.HasKitchenObject() && !HasKitchenObject()) {
             if (!player.GetKitchenObject()._isFresh) {
-                ShowPopupText("Этот предмет пропал, выкинь его");
+                MessageUI.Instance.ShowPlayerPopup("Р­С‚РѕС‚ РїСЂРµРґРјРµС‚ РїСЂРѕРїР°Р», РІС‹РєРёРЅСЊ РµРіРѕ");
                 return;
             }
             output = GetOutputForInput(player.GetKitchenObject().GetKitchenObjectSO());
@@ -42,7 +42,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
                 cutCount = 0;
             }
             else {
-                ShowPopupText("Этот предмет нельзя нарезать");
+                MessageUI.Instance.ShowPlayerPopup("Р­С‚РѕС‚ РїСЂРµРґРјРµС‚ РЅРµР»СЊР·СЏ РЅР°СЂРµР·Р°С‚СЊ");
             }
         }
         else if (HasKitchenObject()) {
@@ -54,11 +54,11 @@ public class CuttingCounter : BaseCounter, IHasProgress {
                 plate.AddIngredient(GetKitchenObject());
             }
             else {
-                ShowPopupText("Стол занят другим предметом");
+                MessageUI.Instance.ShowPlayerPopup("РЎС‚РѕР» Р·Р°РЅСЏС‚ РґСЂСѓРіРёРј РїСЂРµРґРјРµС‚РѕРј");
             }
         }
         else {
-            ShowPopupText("У вас нет предмета для нарезки");
+            MessageUI.Instance.ShowPlayerPopup("РЈ РІР°СЃ РЅРµС‚ РїСЂРµРґРјРµС‚Р° РґР»СЏ РЅР°СЂРµР·РєРё");
         }
         if (!HasKitchenObject()) {
             OnKitchenObjectTake?.Invoke();
@@ -69,7 +69,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
 
     public override void AlternativeInteract(Player player) {
         if (_objectIsSliced) {
-            ShowPopupText("Обьект уже нарезан, заберите его");
+            MessageUI.Instance.ShowPlayerPopup("РћР±СЊРµРєС‚ СѓР¶Рµ РЅР°СЂРµР·Р°РЅ, Р·Р°Р±РµСЂРёС‚Рµ РµРіРѕ");
             return;
         }
         if (output != null && HasKitchenObject() ) {

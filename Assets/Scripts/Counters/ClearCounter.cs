@@ -15,10 +15,10 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
     public override void Interact(Player player) {
 
         if (HasKitchenObject()) {
-            // Хотим забрать
+            // РҐРѕС‚РёРј Р·Р°Р±СЂР°С‚СЊ
             if (!player.HasKitchenObject()) {
                 if (GetKitchenObject() is Plate) {
-                    // Возвращаю в изначальное положение
+                    // Р’РѕР·РІСЂР°С‰Р°СЋ РІ РёР·РЅР°С‡Р°Р»СЊРЅРѕРµ РїРѕР»РѕР¶РµРЅРёРµ
                     _counterTopPoint.localRotation = Quaternion.Euler(0f, 0f, 0f);
                     _counterTopPoint.localPosition = new Vector3(0, 1.3f, 0);
                 }
@@ -26,35 +26,35 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
                 GetKitchenObject().SetKitchenObjectParent(player);
 
             }
-            // У пользователя тарелка
+            // РЈ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ С‚Р°СЂРµР»РєР°
             else if (player.GetKitchenObject() is Plate) {
                 _plate = player.GetKitchenObject() as Plate;
                 _plate.AddIngredient(GetKitchenObject());
             }
-            // Тарелка на столе
+            // РўР°СЂРµР»РєР° РЅР° СЃС‚РѕР»Рµ
             else if (GetKitchenObject() is Plate) {
                 _plate = GetKitchenObject() as Plate;
                 _plate.AddIngredient(player.GetKitchenObject());
                 
             }
             else {
-                ShowPopupText("Стол уже занят другим предметом");
+                MessageUI.Instance.ShowPlayerPopup("РЎС‚РѕР» СѓР¶Рµ Р·Р°РЅСЏС‚ РґСЂСѓРіРёРј РїСЂРµРґРјРµС‚РѕРј");
             }
         }
 
         else if (player.HasKitchenObject()) {
-            // положить тарелко
+            // РїРѕР»РѕР¶РёС‚СЊ С‚Р°СЂРµР»РєРѕ
             if (player.GetKitchenObject() is Plate) {
-                // Выравниваем
+                // Р’С‹СЂР°РІРЅРёРІР°РµРј
                 _counterTopPoint.localRotation = Quaternion.Euler(0f, 90f, 0f);
                 _counterTopPoint.localPosition = new Vector3(-0.136f, 1.3f, 0.134f);
             }
             player.GetKitchenObject().SetKitchenObjectParent(this);
-            // кладет
+            // РєР»Р°РґРµС‚
             UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);
         }
         else {
-            ShowPopupText("У вас нет предмета который можно положить");
+            MessageUI.Instance.ShowPlayerPopup("РЈ РІР°СЃ РЅРµС‚ РїСЂРµРґРјРµС‚Р° РєРѕС‚РѕСЂС‹Р№ РјРѕР¶РЅРѕ РїРѕР»РѕР¶РёС‚СЊ");
         }
     }
 

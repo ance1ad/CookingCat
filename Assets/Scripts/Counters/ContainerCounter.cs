@@ -13,7 +13,7 @@ public class ContainerCounter : BaseCounter {
     public event Action OnContainerCounterInteract;
 
 
-    public int _productCount { get; private set; } = 2;
+    public int _productCount { get; private set; } = 20;
 
 
     private void Start() {
@@ -63,7 +63,7 @@ public class ContainerCounter : BaseCounter {
         if (!player.HasKitchenObject()) {
             
             if (!TryUseProduct()) {
-                ShowPopupText("Продукты закончились, нужен курьер");
+                MessageUI.Instance.ShowPlayerPopup("Продукты закончились, нужен курьер");
                 return;
             }
 
@@ -72,7 +72,7 @@ public class ContainerCounter : BaseCounter {
             HighlightManager.Instance.OnObjectTake(_kitchenObjectSO);
             if (UnityEngine.Random.value < 0.1f) {
                 player.GetKitchenObject().SetUnfresh();
-                ShowPopupText("Этот продукт пропал, его только выбросить");
+                MessageUI.Instance.ShowPlayerPopup("Этот продукт пропал, его только выбросить");
                 return;
             }
 
@@ -84,10 +84,10 @@ public class ContainerCounter : BaseCounter {
             HighlightManager.Instance.OnObjectDrop();
         }
         else if (!player.GetKitchenObject()._isFresh) {
-            ShowPopupText("Этот продукт пропал, его только выбросить");
+            MessageUI.Instance.ShowPlayerPopup("Этот продукт пропал, его только выбросить");
         }
         else {
-            ShowPopupText("Этот обьект нельзя положить сюда");
+            MessageUI.Instance.ShowPlayerPopup("Этот обьект нельзя положить сюда");
         }
     }
 

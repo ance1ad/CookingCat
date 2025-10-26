@@ -8,9 +8,9 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-// Ограниченный стек заказов
+// РћРіСЂР°РЅРёС‡РµРЅРЅС‹Р№ СЃС‚РµРє Р·Р°РєР°Р·РѕРІ
 public class OrderManager : BaseCounter {
-    // Все блюда какие есть ________________________________
+    // Р’СЃРµ Р±Р»СЋРґР° РєР°РєРёРµ РµСЃС‚СЊ ________________________________
     [SerializeField] private List<DishSO> _firstDishes;
     [SerializeField] private List<DishSO> _secondDishes;
     [SerializeField] private List<DishSO> _drinks;
@@ -18,57 +18,105 @@ public class OrderManager : BaseCounter {
     [SerializeField] private ThiefCat _thief;
 
     // _____________________________________________________
-    //[SerializeField] private bool stopSpawnOrders = false;
-    public Order CurrentOrder; // Все заказы в системе
+    public Order CurrentOrder; // Р’СЃРµ Р·Р°РєР°Р·С‹ РІ СЃРёСЃС‚РµРјРµ
     public bool orderIsAppointed;
     public int orderNumber { get; private set; } = 0;
     private float timeToShowIngredients = 5f;
 
-    // Singletone
     public static OrderManager Instance { get; private set; }
-
+    public event Action OnOrderCompleted;
+    
     private void Awake() {
-        CreateNewOrder();
+
         if (Instance != null) {
             Debug.Log("There is no more 2 order managers!");
         }
-        // Обьект на котором висит скрипт назначается в Instance
         Instance = this;
     }
 
-
-
-    public void OrderIsCompleted() {
-        orderIsAppointed = false;
+    private void Start() {
         CreateNewOrder();
     }
 
 
+    private float _newCompletedTime = 0;
+    public IEnumerator OrderIsCompleted(Plate plate) {
+        
+        _visual.StopCompleteTimer();
+        _newCompletedTime = _visual._completeTimer;
+        
+        ClientCat.Instance.GivePlate(plate);
+        ClientCat.Instance.GoEatOrder();
+        
+        // РџРѕРґРѕР¶РґР°С‚СЊ РїРѕРєР° СѓР№РґРµС‚ РєР»РёРµРЅС‚
+        yield return new WaitUntil(() => ClientCat.Instance.ClientIsGone);
+        _visual.ShowCanvas();
 
+        int allIngredientsAdded = 0;
+        Debug.Log("Р’СЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ: " + _newCompletedTime);
+        DishValidateVisual(CurrentOrder.dishStruct[0], plate.pizzaIngredientsAdded, _visual.pizzaIcons, _visual._canvasPizza);
+        DishValidateVisual(CurrentOrder.dishStruct[1], plate.burgerIngredientsAdded, _visual.burgerIcons, _visual._canvasBurger);
+        DishValidateVisual(CurrentOrder.dishStruct[2], plate.drinkIngredientsAdded, _visual.drinkIcons, _visual._canvasDrink);
+        CurrentOrder.foreignExtraCount = _foreignExtraCount;
+        CurrentOrder.elapsedTime = _newCompletedTime; // РїРёС€РµРј СЃ + РµСЃР»Рё СѓСЃРїРµР» СЃ РјРёРЅСѓСЃРѕРј РµСЃР»Рё РѕРїРѕР·РґР°РЅРёРµ
+        CurrentOrder.maxTime = _visual._timeToCompleteOrder;
+        // РџРѕРґСЃС‡РµС‚ РѕР±С‰РµРіРѕ accuracy
+        // РџРµСЂРµРґР°РµРј РІ RewardManager Order РѕРЅ СЂР°Р·Р±РµСЂРµС‚СЃСЏ
+        RewardManager.Instance.CalculateOrderStatistic(CurrentOrder);
+        _foreignExtraCount = 0;
+       
+        orderIsAppointed = false;
+        OnOrderCompleted?.Invoke();
+        yield return new WaitForSeconds(10f);
+        plate.DestroyPlate();
+        plate.DestroyMyself();
+        CreateNewOrder();
+    }
+
+
+    private float _timeToCompleteOrder;
     public void AssignOrderToPlate(Plate plate) {
         if (CurrentOrder == null || plate.Order != null) return;
         if(orderIsAppointed) return;
         orderIsAppointed = true;
 
-        ShowPopupText("Взят заказ: " + orderNumber);
+        MessageUI.Instance.ShowPlayerPopup("Р’Р·СЏС‚ Р·Р°РєР°Р·: " + orderNumber);
         _visual.DeleteAllIcons();
+        _visual.HideContainers();
         _visual.AddIcons();
+        // РєР°РєС‚Рѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ
+        _visual._countToShowOrder = 3;
         _visual.ShowCanvas();
+        _visual.ShowButtonToOpenOrder(true);
+        
 
         plate.SetOrder(CurrentOrder);
         StartCoroutine(_visual.TimerToCloseOrderInfo(timeToShowIngredients));
+        // РљР°РєС‚Рѕ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ
+        _timeToCompleteOrder = 120f;
+        _visual._timeToCompleteOrder = _timeToCompleteOrder;
     }
-
-
-
+    
 
     private void CreateNewOrder() {
-        ShowPopupText("Создание нового заказа " + ++orderNumber);
+        // РўСѓС‚ РјРѕР¶РЅРѕ СЂРµРіСѓР»РёСЂРѕРІР°С‚СЊ СЃР»РѕР¶РЅРѕСЃС‚СЊ 
+        ++orderNumber;
+
+        _visual.ShowInfinityPopupText("РќРѕРІС‹Р№ Р·Р°РєР°Р· в„–" + orderNumber.ToString("D3") + " !");
+        ClientCat.Instance.GoSayOrder();
         DishSO[] orderDishes = new DishSO[3];
-        orderDishes[0] = GetRandomDish(_firstDishes);
-        orderDishes[1] = GetRandomDish(_secondDishes);
+        
+        
+        // orderDishes[0] = GetRandomDish(_firstDishes);
+        // orderDishes[1] = GetRandomDish(_secondDishes);
         orderDishes[2] = GetRandomDish(_drinks);
 
+        // РЈСЃС‚Р°РІРЅРѕРІРёС‚СЊ РІ visual С‚РµРєСЃС‚ 
+        // _visual.setPizzaTitle(orderDishes[0].dishName);
+        // _visual.setPizzaTitle(orderDishes[1].dishName);
+        // _visual.setPizzaTitle(orderDishes[2].dishName);
+
+        
         CurrentOrder = new Order(orderDishes[0], orderDishes[1], orderDishes[2], orderNumber);
     }
 
@@ -80,55 +128,73 @@ public class OrderManager : BaseCounter {
 
 
     public override void Interact(Player player) {
-        // Отдать заказ
+        // РћС‚РґР°С‚СЊ Р·Р°РєР°Р·
         if (player.HasKitchenObject() && player.GetKitchenObject() is Plate) {
             Plate plate = player.GetKitchenObject() as Plate;
-            // Выдать заказ
+            // Р’С‹РґР°С‚СЊ Р·Р°РєР°Р·
             if (!orderIsAppointed) {
                 Instance.AssignOrderToPlate(plate);
-                // показать заказ
+                _visual.HideInfinityPopupText();
+                // РїРѕРєР°Р·Р°С‚СЊ Р·Р°РєР°Р·
                 return;
             }
             if (plate.burgerIngredientsAdded.Count == 0 && plate.pizzaIngredientsAdded.Count == 0 && plate.drinkIngredientsAdded.Count == 0) {
-                ShowPopupText("Добавьте блюда в заказ");
+                MessageUI.Instance.ShowPlayerPopup("Р”РѕР±Р°РІСЊС‚Рµ Р±Р»СЋРґР° РІ Р·Р°РєР°Р·");
                 return;
             }
-            // Все ок
-            _visual.ShowCanvas();
-            DishValidate(CurrentOrder.first, plate.pizzaIngredientsAdded, _visual.pizzaIcons, _visual._canvasPizza);
-            DishValidate(CurrentOrder.second, plate.burgerIngredientsAdded, _visual.burgerIcons, _visual._canvasBurger);
-            DishValidate(CurrentOrder.drink, plate.drinkIngredientsAdded, _visual.drinkIcons, _visual._canvasDrink);
-            plate.DestroyMyself();
-            OrderIsCompleted();
+            // Р’СЃРµ РѕРє
+
+            StartCoroutine(OrderIsCompleted(plate));
         }
         else {
-            ShowPopupText("Возьмите поднос слева");
+            MessageUI.Instance.ShowPlayerPopup("Р’РѕР·СЊРјРёС‚Рµ РїРѕРґРЅРѕСЃ СЃР»РµРІР°");
         }
          
     }
 
-    private void DishValidate(DishSO dish, List<KitchenObjectSO> addedIngredientsList, List<GameObject> dishIcons, GameObject dishCanvas) {
+    private int _foreignExtraCount;
+    private void DishValidateVisual(Order.DishStruct dishStruct, List<KitchenObjectSO> addedIngredientsList, List<GameObject> dishIcons, GameObject dishCanvas) {
 
-        for (int i = 0; i < dish.ingredients.Count(); i++) {
-            KitchenObjectSO ingredient = dish.ingredients[i];
-            if (addedIngredientsList.Contains(ingredient)) {
-                // показать галочку типо збс легенда в _visual 
-                _visual.SetGood(dishIcons[i]);
-                addedIngredientsList.Remove(ingredient);
+        if (dishStruct.dish != null) {
+            dishStruct.total = dishStruct.dish.ingredients.Count();
+            List<KitchenObjectSO> tempAdded = new List<KitchenObjectSO>(addedIngredientsList);
+                
+            for (int i = 0; i < dishStruct.dish.ingredients.Count(); i++) {
+                KitchenObjectSO neededIngredinet = dishStruct.dish.ingredients[i];
+                if (addedIngredientsList.Contains(neededIngredinet)) {
+                    dishStruct.correct++;
+                    _visual.SetGood(dishIcons[i]);
+                    addedIngredientsList.Remove(neededIngredinet);
+                }
+                else {
+                    dishStruct.missing++;
+                    _visual.SetBad(dishIcons[i]);
+                    _visual.SetGrayColor(dishIcons[i]);
+                }
             }
-            else {
-                // показать крестик _visual 
-                _visual.SetBad(dishIcons[i]);
-                _visual.SetGrayColor(dishIcons[i]);
-
+            // Р›РёС€РЅРёРµ
+            foreach (var ingredient in addedIngredientsList) {
+                // Р”РѕР±Р°РІРёС‚СЊ Рё РїРѕРєР°Р·Р°С‚СЊ РєСЂРµСЃС‚РёРє _visual 
+                dishStruct.extra++;
+                _visual.ShowCanvas(dishCanvas);
+                GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
+                _visual.SetBad(newIcon);
+                Debug.Log("SetExtra" + ingredient.objectName);
             }
         }
-        // Лишние
-        foreach (var ingredient in addedIngredientsList) {
-            // Добавить и показать крестик _visual 
-            ShowPopupText("Ингредиент " + ingredient + " лишний");
-            GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
-            _visual.SetBad(newIcon);
+        
+        if (dishStruct.dish == null) {
+            foreach (var ingredient in addedIngredientsList) {
+                Debug.Log("Р›РёС€РЅРёРµ РёРЅРіСЂРµРґРёРµРЅС‚С‹ Р±Р»СЋРґР° РєРѕС‚РѕСЂРѕРіРѕ РЅРµС‚: " + ingredient);
+                _foreignExtraCount++;
+                _visual.ShowCanvas(dishCanvas);
+                GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
+                _visual.SetBad(newIcon);
+            }
         }
     }
+
+    
+    
+    
 }

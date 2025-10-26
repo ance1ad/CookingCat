@@ -3,20 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-// Скриптовой обьект конкретного блюда
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 [CreateAssetMenu()]
 public class DishSO : ScriptableObject {
-    public enum dishType {
-        First, // первое: бургеры, пицца
-        Second, // картошка фри, наггэтсы
-        Third, // хз
-        Drink // напиток
-    }
-
-     
     public string dishName;
-    public dishType type;
     public Sprite dishIcon;
     public KitchenObjectSO[] ingredients;
-    public GameObject prefab; // визуал
+    public GameObject prefab;
+    public float baseReward; // РЅР°РіСЂР°РґР° Р·Р° РїСЂР°РІРёР»СЊРЅРѕРµ РїСЂРёРіРѕС‚РѕРІР»РµРЅРёРµ
 }

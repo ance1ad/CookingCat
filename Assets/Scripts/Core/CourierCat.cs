@@ -28,6 +28,9 @@ public class CourierCat : MonoBehaviour, IKitchenObjectParent {
 
     private void Awake() {
         _agent = GetComponent<NavMeshAgent>();
+    }
+
+    private void Start() {
         ProductManager.Instance.OnProductCardAdded += InstanceOnOnProductCardAdded;
     }
 

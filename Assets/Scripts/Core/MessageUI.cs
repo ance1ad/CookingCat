@@ -10,6 +10,7 @@ public class MessageUI : MonoBehaviour
     [SerializeField] private Canvas _canvas;
     [SerializeField] private TMP_Text _text;
     [SerializeField] private List<EmotionsAccordance> _emotions;
+    [SerializeField] private PlayerVisual _playerVisual;
 
 
     private Coroutine _currentRoutine;
@@ -71,6 +72,11 @@ public class MessageUI : MonoBehaviour
             }
         }
     }
+
+
+    public void ShowPlayerPopup(string text) {
+        _playerVisual.ShowPopupText(text);
+    } 
 
 
 }

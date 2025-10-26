@@ -5,15 +5,15 @@ using System.Linq;
 using UnityEngine;
 
 
-/* В целом логика следующая: 
- выдаем пиццу в зависимости от положенных ингредиентов
-если совпадает с 1 из _pizzes то выдаем ее
-если не совпало выдаем абстрактную пиццу
+/* Р’ С†РµР»РѕРј Р»РѕРіРёРєР° СЃР»РµРґСѓСЋС‰Р°СЏ: 
+ РІС‹РґР°РµРј РїРёС†С†Сѓ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РїРѕР»РѕР¶РµРЅРЅС‹С… РёРЅРіСЂРµРґРёРµРЅС‚РѕРІ
+РµСЃР»Рё СЃРѕРІРїР°РґР°РµС‚ СЃ 1 РёР· _pizzes С‚Рѕ РІС‹РґР°РµРј РµРµ
+РµСЃР»Рё РЅРµ СЃРѕРІРїР°Р»Рѕ РІС‹РґР°РµРј Р°Р±СЃС‚СЂР°РєС‚РЅСѓСЋ РїРёС†С†Сѓ
  */
 public class OvenCounter : BaseCounter, IHasProgress{
 
 
-    [SerializeField] private List<DishVisual> _pizzes; // собранные пиццы, внутри ингредиенты
+    [SerializeField] private List<DishVisual> _pizzes; // СЃРѕР±СЂР°РЅРЅС‹Рµ РїРёС†С†С‹, РІРЅСѓС‚СЂРё РёРЅРіСЂРµРґРёРµРЅС‚С‹
     [SerializeField] private DishVisual _abstractPizza;
     [SerializeField] private List<KitchenObjectSO> forbiddenObjects;
     [SerializeField] private List<KitchenObjectSO> potentialObjects;
@@ -27,13 +27,13 @@ public class OvenCounter : BaseCounter, IHasProgress{
     private Plate plate;
     private KitchenObjectSO playerSO;
 
-    private bool suit = true; // Подходит/не подходит
-    private bool bakingNow = false; // В данный момент готовится
-    private bool ready = false; // Готов к выдаче
-    private int minimumIngredientsCount = 3; // Готов к выдаче
-    private float timeToBakePizza = 5f;
+    private bool suit = true; // РџРѕРґС…РѕРґРёС‚/РЅРµ РїРѕРґС…РѕРґРёС‚
+    private bool bakingNow = false; // Р’ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РіРѕС‚РѕРІРёС‚СЃСЏ
+    private bool ready = false; // Р“РѕС‚РѕРІ Рє РІС‹РґР°С‡Рµ
+    private int minimumIngredientsCount = 3; // Р“РѕС‚РѕРІ Рє РІС‹РґР°С‡Рµ
+    private float timeToBakePizza = 10f;
     private float timer;
-    // Прорисовка спрайта
+    // РџСЂРѕСЂРёСЃРѕРІРєР° СЃРїСЂР°Р№С‚Р°
     public event Action<IngredientAddedArgs> OnIndridientAddedInOven;
 
     public class IngredientAddedArgs {
@@ -41,7 +41,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
         public Sprite icon;
     }
 
-    // Запуск духовки
+    // Р—Р°РїСѓСЃРє РґСѓС…РѕРІРєРё
     public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
     public class OnProgressChangedEventArgs : EventArgs {
         public float Progress;
@@ -54,23 +54,23 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
     public override void Interact(Player player) {
         if (bakingNow) {
-            ShowPopupText("Пицца готовится, уже ничего не положить");
+            MessageUI.Instance.ShowPlayerPopup("РџРёС†С†Р° РіРѕС‚РѕРІРёС‚СЃСЏ, СѓР¶Рµ РЅРёС‡РµРіРѕ РЅРµ РїРѕР»РѕР¶РёС‚СЊ");
             return;
         }
-        // Кладка ингредиента
+        // РљР»Р°РґРєР° РёРЅРіСЂРµРґРёРµРЅС‚Р°
         if (player.HasKitchenObject() && !ready) {
             playerSO = player.GetKitchenObject().GetKitchenObjectSO();
-            // Проверка на запрещёнку
+            // РџСЂРѕРІРµСЂРєР° РЅР° Р·Р°РїСЂРµС‰С‘РЅРєСѓ
             if (potentialObjects.Contains(playerSO)) {
-                ShowPopupText("Предмет " + "\"" + playerSO.objectName + "\"" + " нужно сначала нарезать");
+                MessageUI.Instance.ShowPlayerPopup(playerSO.objectName + " РЅСѓР¶РЅРѕ СЃРЅР°С‡Р°Р»Р° РЅР°СЂРµР·Р°С‚СЊ");
                 return;
             }
             if (forbiddenObjects.Contains(playerSO)) {
-                ShowPopupText("Предмет "  + "\"" + playerSO.objectName + "\"" + " нельзя положить в духовку");
+                MessageUI.Instance.ShowPlayerPopup(playerSO.objectName + " РЅРµР»СЊР·СЏ РїРѕР»РѕР¶РёС‚СЊ РІ РґСѓС…РѕРІРєСѓ");
                 return;
             }
             if (puttedIngredients.Contains(playerSO)) {
-                ShowPopupText("Этот ингредиент уже добавлен в духовку");
+                MessageUI.Instance.ShowPlayerPopup(playerSO.objectName + " РёРЅРіСЂРµРґРёРµРЅС‚ СѓР¶Рµ РґРѕР±Р°РІР»РµРЅ РІ РґСѓС…РѕРІРєСѓ");
                 return;
             }
             puttedIngredients.Add(playerSO);
@@ -83,8 +83,8 @@ public class OvenCounter : BaseCounter, IHasProgress{
             HighlightManager.Instance.OnObjectDrop();
             player.GetKitchenObject().DestroyMyself();
         }
-        else if (!player.HasKitchenObject()) {
-            ShowPopupText("У вас в руках ничего нет");
+        else if (!HasKitchenObject() && !ready) {
+            MessageUI.Instance.ShowPlayerPopup("РЈ РІР°СЃ РІ СЂСѓРєР°С… РЅРёС‡РµРіРѕ РЅРµС‚");
         }
         if (ready) {
             PizzaTake(player);
@@ -106,23 +106,27 @@ public class OvenCounter : BaseCounter, IHasProgress{
         }
         ready = true;
         bakingNow = false;
-        ShowPopupText("Пицца готова!");
+        MessageUI.Instance.ShowPlayerPopup("РџРёС†С†Р° РіРѕС‚РѕРІР°!");
         _visual.SetPizzaReady();
     }
 
 
-    // Запуск готовки и выдача заказа
+    // Р—Р°РїСѓСЃРє РіРѕС‚РѕРІРєРё Рё РІС‹РґР°С‡Р° Р·Р°РєР°Р·Р°
     public override void AlternativeInteract(Player player) {
+        if (bakingNow) {
+            MessageUI.Instance.ShowPlayerPopup("Р”СѓС…РѕРІРєР° СѓР¶Рµ Р·Р°РїСѓС‰РµРЅР°");
+            return;
+        }
         if (puttedIngredients.Count < minimumIngredientsCount) {
-            ShowPopupText("Положите минимум " + minimumIngredientsCount + " ингредиента");
+            MessageUI.Instance.ShowPlayerPopup("РџРѕР»РѕР¶РёС‚Рµ РјРёРЅРёРјСѓРј " + minimumIngredientsCount + " РёРЅРіСЂРµРґРёРµРЅС‚Р°");
             return;
         }
         if (!puttedIngredients.Contains(_testo)) {
-            ShowPopupText("Положите обязательно тесто!");
+            MessageUI.Instance.ShowPlayerPopup("РџРѕР»РѕР¶РёС‚Рµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ С‚РµСЃС‚Рѕ!");
             return;
         }
 
-        ShowPopupText("Запуск духовки");
+        MessageUI.Instance.ShowPlayerPopup("Р—Р°РїСѓСЃРє РґСѓС…РѕРІРєРё");
         BakePizza();
         StartCoroutine(Timer(timeToBakePizza));
     }
@@ -134,30 +138,30 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
     private void BakePizza() {
 
-        // Логика подбора пиццы
+        // Р›РѕРіРёРєР° РїРѕРґР±РѕСЂР° РїРёС†С†С‹
         foreach (var pizza in _pizzes) {
-            // Проверка ингредиента
+            // РџСЂРѕРІРµСЂРєР° РёРЅРіСЂРµРґРёРµРЅС‚Р°
             foreach (var ingredient in puttedIngredients) {
-                // Ничего лишнего
+                // РќРёС‡РµРіРѕ Р»РёС€РЅРµРіРѕ
                 if (pizza.info.ingredients.Length != puttedIngredients.Count) {
-                    suit = false; // Разное количество, 100% фигня
+                    suit = false; // Р Р°Р·РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ, 100% С„РёРіРЅСЏ
                 }
-                // Полнота, т.к повторов нет проверим, что все ингредиенты пиццы есть в духовке
+                // РџРѕР»РЅРѕС‚Р°, С‚.Рє РїРѕРІС‚РѕСЂРѕРІ РЅРµС‚ РїСЂРѕРІРµСЂРёРј, С‡С‚Рѕ РІСЃРµ РёРЅРіСЂРµРґРёРµРЅС‚С‹ РїРёС†С†С‹ РµСЃС‚СЊ РІ РґСѓС…РѕРІРєРµ
                 if (!pizza.info.ingredients.Contains(ingredient)) {
-                    suit = false; // 1 ингредиент не совпал, минус вся пицца
+                    suit = false; // 1 РёРЅРіСЂРµРґРёРµРЅС‚ РЅРµ СЃРѕРІРїР°Р», РјРёРЅСѓСЃ РІСЃСЏ РїРёС†С†Р°
                 }
             }
-            // Если все ок, мы нашли рецепт
+            // Р•СЃР»Рё РІСЃРµ РѕРє, РјС‹ РЅР°С€Р»Рё СЂРµС†РµРїС‚
             if (suit) {
                 AssignPizza(pizza);
                 return;
             }
-            // Фигня, заново
+            // Р¤РёРіРЅСЏ, Р·Р°РЅРѕРІРѕ
             else {
                 suit = true;
             }
         }
-        // Прошлись по всем пиццам, нельзя такую собрать вернём ебаный импровизированный пицца
+        // РџСЂРѕС€Р»РёСЃСЊ РїРѕ РІСЃРµРј РїРёС†С†Р°Рј, РЅРµР»СЊР·СЏ С‚Р°РєСѓСЋ СЃРѕР±СЂР°С‚СЊ РІРµСЂРЅС‘Рј РµР±Р°РЅС‹Р№ РёРјРїСЂРѕРІРёР·РёСЂРѕРІР°РЅРЅС‹Р№ РїРёС†С†Р°
         AssignPizza(_abstractPizza);
     }
 
@@ -172,7 +176,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
 
     private void PizzaTake(Player player) {
-        // Выдача пиццы если есть в тарелку
+        // Р’С‹РґР°С‡Р° РїРёС†С†С‹ РµСЃР»Рё РµСЃС‚СЊ РІ С‚Р°СЂРµР»РєСѓ
         if (player.HasKitchenObject()) {
             if (player.GetKitchenObject() is Plate) {
                 plate = player.GetKitchenObject() as Plate;
@@ -187,7 +191,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
             }
             else {
-                ShowPopupText("Пицца уже готова, положите обьект и заберите её!");
+                MessageUI.Instance.ShowPlayerPopup("РЈ РІР°СЃ Р·Р°РЅСЏС‚С‹ СЂСѓРєРё, С‡С‚РѕР±С‹ Р·Р°Р±СЂР°С‚СЊ РїРёС†С†Сѓ");
             }
         }
         else {
@@ -203,10 +207,13 @@ public class OvenCounter : BaseCounter, IHasProgress{
     }
 
     private void ThiefPizzaTake(ThiefCat thief) {
-        KitchenObject.CreateKitchenObject(outputPizza.GetKitchenObjectSO(), thief);
-        DishVisual pizza = thief.GetKitchenObject().GetComponent<DishVisual>();
-        pizza.Ingredients = new List<KitchenObjectSO>(puttedIngredients);
-        ClearData();
+        if (ready) {
+            KitchenObject.CreateKitchenObject(outputPizza.GetKitchenObjectSO(), thief);
+            _visual.PlayAnimation();
+            DishVisual pizza = thief.GetKitchenObject().GetComponent<DishVisual>();
+            pizza.Ingredients = new List<KitchenObjectSO>(puttedIngredients);
+            ClearData(); 
+        }
     }
 
 
@@ -221,12 +228,12 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
 
     public override bool ThiefInteract(ThiefCat thief) {
-        if (outputPizza != null) {
+        if (ready) {
             ThiefPizzaTake(thief);
             ClearData();
             return true;
         }
-        if (puttedIngredients.Count >= minimumIngredientsCount && puttedIngredients.Contains(_testo)) {
+        if (puttedIngredients.Count >= minimumIngredientsCount && puttedIngredients.Contains(_testo) && !bakingNow ) {
             BakePizza();
             StartCoroutine(Timer(timeToBakePizza));
             return true;
@@ -235,6 +242,6 @@ public class OvenCounter : BaseCounter, IHasProgress{
         return false;
     }
 
-    public override bool CanTakeObject() => (outputPizza != null || puttedIngredients.Count >= minimumIngredientsCount && puttedIngredients.Contains(_testo));
+    public override bool CanTakeObject() => (!bakingNow && (puttedIngredients.Count >= minimumIngredientsCount && puttedIngredients.Contains(_testo)) || ready);
 
 }

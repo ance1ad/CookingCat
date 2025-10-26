@@ -7,35 +7,38 @@ using UnityEngine;
 
 public class Plate : KitchenObject {
     [SerializeField] private Transform _topPoint;
-    [SerializeField] private Transform[] spawnPoints; // точки где спаунятся обьекты
+    [SerializeField] private Transform[] spawnPoints; // С‚РѕС‡РєРё РіРґРµ СЃРїР°СѓРЅСЏС‚СЃСЏ РѕР±СЊРµРєС‚С‹
 
 
-    [SerializeField] private DishVisual _fullBurger; // В нем будут активироваться элементы бургера
-    [SerializeField] private KitchenObjectSO[] _pizzes; // все пиццы которые имеем
-    [SerializeField] private KitchenObjectSO[] _drinks; // все напитки которые имеем
-    [SerializeField] private KitchenObjectSO bread; // если положили хлеб то возвращаем topPoint вверх
-    [SerializeField] private List<KitchenObjectSO> forbiddenIngredients;
-    [SerializeField] private KitchenObjectSO _testo;
+    [SerializeField] private DishVisual _fullBurger; // Р’ РЅРµРј Р±СѓРґСѓС‚ Р°РєС‚РёРІРёСЂРѕРІР°С‚СЊСЃСЏ СЌР»РµРјРµРЅС‚С‹ Р±СѓСЂРіРµСЂР°
+    [SerializeField] private KitchenObjectSO[] _pizzes; // РІСЃРµ РїРёС†С†С‹ РєРѕС‚РѕСЂС‹Рµ РёРјРµРµРј
+    [SerializeField] private KitchenObjectSO[] _drinks; // РІСЃРµ РЅР°РїРёС‚РєРё РєРѕС‚РѕСЂС‹Рµ РёРјРµРµРј
+    [SerializeField] private KitchenObjectSO bread; // РµСЃР»Рё РїРѕР»РѕР¶РёР»Рё С…Р»РµР± С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј topPoint РІРІРµСЂС…
+    [SerializeField] private List<KitchenObjectSO> _maySlicedForBurger;
+    [SerializeField] private List<KitchenObjectSO> _forbiddenObjects;
+    [SerializeField] private List<KitchenObjectSO> _onlyPizzaObjects;
+    [SerializeField] private List<KitchenObjectSO> _onlyJuicerObjects;
+    [SerializeField] private KitchenObjectSO _meatUncooked;
+    [SerializeField] private KitchenObjectSO _meatOvercooked;
 
-    [SerializeField] public GameObject _popupCanvas;
 
 
     public List<KitchenObjectSO> pizzaIngredientsAdded = new List<KitchenObjectSO>();
     public List<KitchenObjectSO> burgerIngredientsAdded = new List<KitchenObjectSO>();
     public List<KitchenObjectSO> drinkIngredientsAdded = new List<KitchenObjectSO>();
 
-    private float showPopupTime = 2.5f;
 
+    
     private int pizzaScore = 0;
     private int burgerScore = 0;
     private int drinkScore = 0;
     private DishVisual[] dish = new DishVisual[3];
 
-    public Order Order { get; set; } // Конкретный заказ
+    public Order Order { get; set; } // РљРѕРЅРєСЂРµС‚РЅС‹Р№ Р·Р°РєР°Р·
 
     private GameObject pizzaInstance;
     private GameObject drinkInstance;
-    private float offset = -0.257f;
+    private float offset = -0.228f;
 
 
     public event Action<IngredientAddedArgs> OnIndridientAdded;
@@ -50,71 +53,94 @@ public class Plate : KitchenObject {
 
     private void Update() {
         if (Input.GetKeyDown(KeyCode.Space)) {
-            ShowPopupText("Вы готовы отдать заказ");
+            MessageUI.Instance.ShowPlayerPopup("Р’С‹ РіРѕС‚РѕРІС‹ РѕС‚РґР°С‚СЊ Р·Р°РєР°Р·");
             //OrderCompleteCheck();
         }
     }
 
 
-    // Вызывает менеджер
+    // Р’С‹Р·С‹РІР°РµС‚ РјРµРЅРµРґР¶РµСЂ
     public void SetOrder(Order order) {
         Order = order;
-        //ShowPopupText("Взят заказ №" + Order.orderNum);
+        //ShowPopupText("Р’Р·СЏС‚ Р·Р°РєР°Р· в„–" + Order.orderNum);
     }
 
 
 
 
     public bool AddIngredient(KitchenObject ingredient) {
-        if (!ingredient._isFresh) {
-            ShowPopupText("Продукт испорчен, лучше его выкинуть");
-            return false;
-        }
-        // Нельзя класть
-        if (forbiddenIngredients.Contains(ingredient.GetKitchenObjectSO())) {
-            ShowPopupText("Это нужно сначала порезать");
-            return false;
-        }
+        var koSO =  ingredient.GetKitchenObjectSO();
+        if (!CheckSuitability(ingredient, koSO)) return false;
 
-        if (ingredient == _testo) {
-            ShowPopupText("Тесто положите в духовку для приготовления пиццы");
-            return false;
-        }
-
-        DishType ingredientType = CheckIngredientType(ingredient.GetKitchenObjectSO());
+        DishType ingredientType = CheckIngredientType(koSO);
         if (ingredientType == DishType.pizza) {
             if(pizzaInstance != null) {
-                ShowPopupText("Пицца уже лежит на подносе");
+                MessageUI.Instance.ShowPlayerPopup("РџРёС†С†Р° СѓР¶Рµ Р»РµР¶РёС‚ РЅР° РїРѕРґРЅРѕСЃРµ");
                 return false;
             }
 
             pizzaInstance = Instantiate(ingredient.gameObject, spawnPoints[0]);
             ShowOtherIngredients(ingredient, pizzaIngredientsAdded);
-            ShowPopupText("Пицца добавлена на поднос");
+            MessageUI.Instance.ShowPlayerPopup("РџРёС†С†Р° РґРѕР±Р°РІР»РµРЅР° РЅР° РїРѕРґРЅРѕСЃ");
 
 
         }
         else if(ingredientType == DishType.burger) {
-            if (!_fullBurger.ShowIngredient(ingredient.GetKitchenObjectSO())) {
-                ShowPopupText("Ингредиент уже добавлен или его нельзя добавить");
+            if (!_fullBurger.ShowIngredient(koSO)) {
+                MessageUI.Instance.ShowPlayerPopup("РРЅРіСЂРµРґРёРµРЅС‚ СѓР¶Рµ РґРѕР±Р°РІР»РµРЅ РёР»Рё РµРіРѕ РЅРµР»СЊР·СЏ РґРѕР±Р°РІРёС‚СЊ");
                 return false;
             }
-            if (ingredient.GetKitchenObjectSO() == bread) {
+            if (koSO == bread) {
                 spawnPoints[1].localPosition += new Vector3(0f, -offset, 0f);
             }
             ShowBurgerIcons(ingredient, burgerIngredientsAdded);
-            ShowPopupText("Вы положили " + ingredient.GetKitchenObjectSO().objectName.ToLower() + " в бургер");
 
         }
         else {
             if (drinkInstance != null) {
-                ShowPopupText("Напиток уже лежит на подносе");
+                MessageUI.Instance.ShowPlayerPopup("РќР°РїРёС‚РѕРє СѓР¶Рµ Р»РµР¶РёС‚ РЅР° РїРѕРґРЅРѕСЃРµ");
                 return false;
             }
             drinkInstance = Instantiate(ingredient.gameObject, spawnPoints[2]);
 
             ShowOtherIngredients(ingredient, drinkIngredientsAdded);
         }
+        return true;
+    }
+
+    private bool CheckSuitability(KitchenObject ingredient, KitchenObjectSO koSO) {
+        if (!ingredient._isFresh) {
+            MessageUI.Instance.ShowPlayerPopup("РџСЂРѕРґСѓРєС‚ РёСЃРїРѕСЂС‡РµРЅ, РµРіРѕ С‚РѕР»СЊРєРѕ РІС‹РєРёРЅСѓС‚СЊ");
+            return false;
+        }
+        if (_forbiddenObjects.Contains(koSO)) {
+            MessageUI.Instance.ShowPlayerPopup("Р­С‚Рѕ РЅРµР»СЊР·СЏ РїРѕР»РѕР¶РёС‚СЊ РІ Р±СѓСЂРіРµСЂ");
+            return false;
+        } 
+        if (_maySlicedForBurger.Contains(koSO)) {
+            MessageUI.Instance.ShowPlayerPopup(koSO.objectName + " РЅСѓР¶РЅРѕ РїРѕСЂРµР·Р°С‚СЊ");
+            return false;
+        }
+        if (koSO == _meatUncooked) {
+            MessageUI.Instance.ShowPlayerPopup("РњСЏСЃРѕ РЅСѓР¶РЅРѕ РїРѕР¶Р°СЂРёС‚СЊ");
+            return false;
+        }
+        if (koSO == _meatOvercooked) {
+            MessageUI.Instance.ShowPlayerPopup("РњСЏСЃРѕ РїРµСЂРµР¶Р°СЂРёР»РѕСЃСЊ");
+            return false;
+        }
+        
+        
+        if (_onlyJuicerObjects.Contains(koSO)) {
+            MessageUI.Instance.ShowPlayerPopup("Р­С‚Рѕ РґР»СЏ СЃРѕРєРѕРІС‹Р¶РёРјР°Р»РєРё");
+            return false;
+        }
+
+        if (_onlyPizzaObjects.Contains(koSO)) {
+            MessageUI.Instance.ShowPlayerPopup("Р­С‚Рѕ С‚РѕР»СЊРєРѕ РґР»СЏ РґСѓС…РѕРІРєРё");
+            return false;
+        }
+
         return true;
     }
 
@@ -155,21 +181,18 @@ public class Plate : KitchenObject {
         }
         return DishType.burger;
     }
-
-    private Coroutine corutine;
-
-    public void ShowPopupText(string text) {
-        _popupCanvas.SetActive(true);
-        _popupCanvas.transform.GetChild(1).GetComponent<TMP_Text>().text = text;
-        if (corutine != null) {
-            StopCoroutine(corutine);
-        }
-        corutine = StartCoroutine(Timer(showPopupTime));
+    
+    
+    public void DestroyPlate() {
+        // РћС‡РёСЃС‚РёС‚СЊ РІСЃРµ РёРЅРіСЂРµРґРёРµРЅС‚С‹ РїРµСЂРµРґ СѓРЅРёС‡С‚РѕР¶РµРЅРёРµРј
+        if (pizzaIngredientsAdded != null) pizzaIngredientsAdded.Clear();
+        if (burgerIngredientsAdded != null) burgerIngredientsAdded.Clear();
+        if (drinkIngredientsAdded != null) drinkIngredientsAdded.Clear();
+        if (pizzaInstance != null) Destroy(pizzaInstance);
+        if (drinkInstance != null) Destroy(drinkInstance);
+        this.DestroyMyself();
     }
 
-    public IEnumerator Timer(float time) {
-        yield return new WaitForSeconds(time);
-        _popupCanvas.SetActive(false);
-        corutine = null;
-    }
+
+    
 }

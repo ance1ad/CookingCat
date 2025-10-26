@@ -16,18 +16,24 @@ public class PlatesCounter : BaseCounter {
     private float timeToCreatePlate = 3f;
     private int maxPlates = 5;
 
+    private bool _mayGivePlate = true;
+
 
 
     private void Start() {
         topPoint = CounterTopPoint;
+        OrderManager.Instance.OnOrderCompleted += InstanceOnOnOrderCompleted;
     }
 
+    private void InstanceOnOnOrderCompleted() {
+        _mayGivePlate = true;
+    }
 
 
     private void Update() {
         timer += Time.deltaTime;
 
-        // добиваем визуалом
+        // РґРѕР±РёРІР°РµРј РІРёР·СѓР°Р»РѕРј
         if (timer >= timeToCreatePlate && topPoint.childCount < maxPlates) {
             CreatePlateVisual();
             timer = 0;
@@ -35,19 +41,25 @@ public class PlatesCounter : BaseCounter {
     }
 
     public override void Interact(Player player) {
-        // Выдаем тарелку если создана
+        // Р’С‹РґР°РµРј С‚Р°СЂРµР»РєСѓ РµСЃР»Рё СЃРѕР·РґР°РЅР°
         if (OrderManager.Instance.orderIsAppointed) {
-            ShowPopupText("Сначала выполните взятый заказ");
+            MessageUI.Instance.ShowPlayerPopup("РЎРЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРёС‚Рµ РІР·СЏС‚С‹Р№ Р·Р°РєР°Р·");
             return;
         }
-        if (!player.HasKitchenObject() && topPoint.childCount > 0) {
+        if (!player.HasKitchenObject()  && _mayGivePlate && topPoint.childCount > 0) {
            
             KitchenObject.CreateKitchenObject(_plate, player);
+            _mayGivePlate = false;
             HighlightManager.Instance.OnObjectTake(_plate);
 
-             // самый верхний
-            Destroy(topPoint.GetChild(topPoint.childCount-1).gameObject); // просто визуально удалить сверху
+             // СЃР°РјС‹Р№ РІРµСЂС…РЅРёР№
+            Destroy(topPoint.GetChild(topPoint.childCount-1).gameObject); // РїСЂРѕСЃС‚Рѕ РІРёР·СѓР°Р»СЊРЅРѕ СѓРґР°Р»РёС‚СЊ СЃРІРµСЂС…Сѓ
             nextLocalOffset -= stackOffset;
+            return;
+        }
+
+        if (!_mayGivePlate) {
+            MessageUI.Instance.ShowPlayerPopup("Р’С‹ СѓР¶Рµ РІР·СЏР»Рё РїРѕРґРЅРѕСЃ, РІС‹РїРѕР»РЅРёС‚Рµ Р·Р°РєР°Р·");
         }
     }
 

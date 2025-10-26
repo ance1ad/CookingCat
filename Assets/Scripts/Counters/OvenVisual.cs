@@ -34,7 +34,7 @@ public class OvenVisual : MonoBehaviour
         animator.enabled = true;
         AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
         bool isPlayingOpenDoor = info.IsName("OpenDoor") && info.normalizedTime < 1f;
-        if (isPlayingOpenDoor) return; // не запускаем пока не закончила
+        if (isPlayingOpenDoor) return; // РЅРµ Р·Р°РїСѓСЃРєР°РµРј РїРѕРєР° РЅРµ Р·Р°РєРѕРЅС‡РёР»Р°
         animator.Play(STATE_NAME, 0, 0f);
     }
 
