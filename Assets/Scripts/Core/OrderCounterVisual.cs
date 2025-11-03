@@ -209,7 +209,6 @@ public class OrderCounterVisual : MonoBehaviour {
     public void StopCompleteTimer() {
         if (orderTimerCoroutine != null) {
             StopCoroutine(orderTimerCoroutine);
-            Debug.Log("Остановка корутины StopCompleteTimer");
             orderTimerCoroutine = null;
         }
     }

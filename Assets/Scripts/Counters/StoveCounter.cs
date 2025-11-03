@@ -50,14 +50,14 @@ public class StoveCounter : BaseCounter, IHasProgress {
 
         if (timer >= transitionToCooked.fryingTimerMax && !meatIsCooked) {
             timer = 0f;
-            MessageUI.Instance.ShowPlayerPopup("Мясо готово!");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("MeatIsReady"));
             GetKitchenObject().DestroyMyself();
             KitchenObject.CreateKitchenObject(transitionToCooked.output, this);
             timeForCooked = transitionToOvercooked.fryingTimerMax;
             meatIsCooked = true;
         }
         else if (timer >= transitionToOvercooked.fryingTimerMax) {
-            MessageUI.Instance.ShowPlayerPopup("Мясо пережарилось");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("MeatIsOvercooked"));
             GetKitchenObject().DestroyMyself();
             KitchenObject.CreateKitchenObject(transitionToOvercooked.output, this);
             OnKitchenObjectTake?.Invoke();
@@ -71,7 +71,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
     public override void Interact(Player player) {
         if (player.HasKitchenObject() && !HasKitchenObject()) {
             if (!player.GetKitchenObject()._isFresh) {
-                MessageUI.Instance.ShowPlayerPopup("Этот предмет пропал, выкинь его");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));
                 return;
             }
             transitionToCooked = GetOutputForInput(player.GetKitchenObject().GetKitchenObjectSO());
@@ -89,7 +89,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
                 switcher.SetActive(true);
             }
             else {
-                MessageUI.Instance.ShowPlayerPopup("Предмет " + player.GetKitchenObject().GetKitchenObjectSO().objectName + " нельзя пожарить");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductNotFryible"));
             }
 
         }
@@ -110,7 +110,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
             }
         }
         else {
-            MessageUI.Instance.ShowPlayerPopup("Возьмите мясо в руки чтобы пожарить его");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontHaveMeat"));
         }
     }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,8 +10,16 @@ public class SkinStoreManager : MonoBehaviour {
     [SerializeField] private List<SkinItem> _skins;
 
     [SerializeField] private Button _sortHats;
-    [SerializeField] private Button _sorGlasses;
+    [SerializeField] private Button _sortGlasses;
     [SerializeField] private Button _sortMasks;
+    
+    [SerializeField] private TMP_Text _sortHatsText;
+    [SerializeField] private TMP_Text _sortGlassesText;
+    [SerializeField] private TMP_Text _sortMasksText;
+    [SerializeField] private TMP_Text _upgradesText;
+    
+    [SerializeField] private TMP_Text _titleText;
+    
     
     // Храним во вкладке, что конкретно экипировано
     private SkinItem hatSkin;
@@ -28,7 +37,7 @@ public class SkinStoreManager : MonoBehaviour {
             skin.OnSkinDequipped += OnSkinDequipped;
         }
         _sortHats.onClick.AddListener(() => SortSkins(BuyType.Hat));
-        _sorGlasses.onClick.AddListener(() => SortSkins(BuyType.Glasses));
+        _sortGlasses.onClick.AddListener(() => SortSkins(BuyType.Glasses));
         _sortMasks.onClick.AddListener(() => SortSkins(BuyType.Mask));
         
     }
@@ -107,10 +116,21 @@ public class SkinStoreManager : MonoBehaviour {
                     skin.SetSkinDequipped();
                 }
             }
+            skin.SetTextLocalization();
         }
         SortSkins(_windowCategoryLastOpened);
-    } 
-    
+        LanguageLocalization();
+    }
+
+    private void LanguageLocalization()
+    {
+        _titleText.text =  LocalizationManager.Get("SkinStoreTitleText");
+        _sortHatsText.text =  LocalizationManager.Get("SortHats");
+        _sortGlassesText.text =  LocalizationManager.Get("SortGlasses");
+        _sortMasksText.text =  LocalizationManager.Get("SortMasks");
+        _upgradesText.text =  LocalizationManager.Get("Upgrades");
+    }
+
 
     private void RememberSkin(SkinItem skin) {
         // Запоминаем надетый скин

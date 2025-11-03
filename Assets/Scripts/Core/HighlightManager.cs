@@ -14,25 +14,26 @@ public class HighlightManager : MonoBehaviour
         public List<BaseCounter> counters;
     }
 
+    
     public static HighlightManager Instance { get; private set; }
 
     private void Awake() {
         if (Instance != null) {
             Debug.Log("There is no more 2 highlight managers!");
         }
-        // Обьект на котором висит скрипт назначается в Instance
+        // РћР±СЊРµРєС‚ РЅР° РєРѕС‚РѕСЂРѕРј РІРёСЃРёС‚ СЃРєСЂРёРїС‚ РЅР°Р·РЅР°С‡Р°РµС‚СЃСЏ РІ Instance
         Instance = this;
     }
 
-    // Соответствие
+    // РЎРѕРѕС‚РІРµС‚СЃС‚РІРёРµ
 
 
     public List<BaseCounter> counters = new List<BaseCounter>();
 
     public void OnObjectTake(KitchenObjectSO takenObject) {
-        // Сначала офаем все, потом вынести в отдельный метод
+        // РЎРЅР°С‡Р°Р»Р° РѕС„Р°РµРј РІСЃРµ, РїРѕС‚РѕРј РІС‹РЅРµСЃС‚Рё РІ РѕС‚РґРµР»СЊРЅС‹Р№ РјРµС‚РѕРґ
         OnObjectDrop();
-        // Подсветка новых
+        // РџРѕРґСЃРІРµС‚РєР° РЅРѕРІС‹С…
 
         if (ProductIsRotten(takenObject)) {
             return;
@@ -54,7 +55,7 @@ public class HighlightManager : MonoBehaviour
             foreach (var counters in _rottenProductCounters) {
                 counters.SetHighlight(true);
             }
-            Debug.Log("Только выкинуть");
+            Debug.Log("РўРѕР»СЊРєРѕ РІС‹РєРёРЅСѓС‚СЊ");
             return true;
         }
         return false;
@@ -65,5 +66,6 @@ public class HighlightManager : MonoBehaviour
             counter.SetHighlight(false);
         }
     }
+
 
 }

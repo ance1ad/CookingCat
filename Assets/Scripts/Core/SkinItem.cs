@@ -31,6 +31,11 @@ public class SkinItem : MonoBehaviour {
     [SerializeField] private Button _equipButton;
     [SerializeField] private Button _dequipButton;
 
+    [SerializeField] private TMP_Text _buyButtonText;
+    [SerializeField] private TMP_Text _equipButtonText;
+    [SerializeField] private TMP_Text _dequipButtonText;
+    
+    
     [SerializeField] private TMP_Text _warningMessage;
     
     
@@ -61,6 +66,23 @@ public class SkinItem : MonoBehaviour {
         _dequipButton.gameObject.SetActive(false);
         
     }
+    
+    
+
+    public void SetTextLocalization() {
+        if (_name.text != _skinObject._name) {
+            _name.text = _skinObject._name;
+        }
+        if (_buyButton.gameObject.activeSelf) {
+            _buyButtonText.text = LocalizationManager.Get("BuyButtonText");
+        }
+        // if (_equipButton.gameObject.activeSelf) {
+        //     _equipButtonText.text = LocalizationManager.Get("EquipButtonText");
+        // }
+        // if (_dequipButton.gameObject.activeSelf) {
+        //     _dequipButtonText.text = LocalizationManager.Get("DequipButtonText");
+        // }
+    }
 
     private void Awake() {
         _buyButton.onClick.AddListener(() => OnSkinBought?.Invoke(this));
@@ -83,6 +105,7 @@ public class SkinItem : MonoBehaviour {
         _lock.enabled = false;
         _buyButton.gameObject.SetActive(false);
         _equipButton.gameObject.SetActive(true);
+        _equipButtonText.text = LocalizationManager.Get("EquipButtonText");
         _greenBackground.enabled = true;
     }
     
@@ -90,12 +113,14 @@ public class SkinItem : MonoBehaviour {
         Debug.Log($"Надет: {_skinObject._name}");
         _equipButton.gameObject.SetActive(false);
         _dequipButton.gameObject.SetActive(true);
+        _dequipButtonText.text = LocalizationManager.Get("DequipButtonText");
     }
     
     public void SetSkinDequipped() {
         Debug.Log($"Снят: {_skinObject._name}");
         _dequipButton.gameObject.SetActive(false);
         _equipButton.gameObject.SetActive(true);
+        _equipButtonText.text = LocalizationManager.Get("EquipButtonText");
     }
     
     

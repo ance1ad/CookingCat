@@ -43,7 +43,7 @@ public class PlatesCounter : BaseCounter {
     public override void Interact(Player player) {
         // Выдаем тарелку если создана
         if (OrderManager.Instance.orderIsAppointed) {
-            MessageUI.Instance.ShowPlayerPopup("Сначала выполните взятый заказ");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("CompleteOrderFirst"));
             return;
         }
         if (!player.HasKitchenObject()  && _mayGivePlate && topPoint.childCount > 0) {
@@ -59,7 +59,7 @@ public class PlatesCounter : BaseCounter {
         }
 
         if (!_mayGivePlate) {
-            MessageUI.Instance.ShowPlayerPopup("Вы уже взяли поднос, выполните заказ");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("YouAlreadyTakeTray"));
         }
     }
 

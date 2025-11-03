@@ -21,13 +21,13 @@ public class TrashCounter : BaseCounter,IHasProgress {
         if (player.HasKitchenObject()) {
 
             if (player.GetKitchenObject() is Plate) {
-                MessageUI.Instance.ShowPlayerPopup("Нельзя выкинуть поднос, соберите заказ");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("TrayIsDestroyable"));
                 return;
             }
             StartCoroutine(DropObject(player));
             return;
         }
-        MessageUI.Instance.ShowPlayerPopup("Вам нечего выкинуть");
+        MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NothingToDrop"));
     }
 
     private IEnumerator DropObject(Player player) {
@@ -40,7 +40,7 @@ public class TrashCounter : BaseCounter,IHasProgress {
         yield return new WaitUntil(() => player._objectMoveCoroutine == null);
         objectKO.transform.localScale = objectKO.transform.localScale * 0.7f;
         player.MoveToPoint(_dropPoint, 7f);
-        MessageUI.Instance.ShowPlayerPopup("Вы выкинули " + objectKO.GetKitchenObjectSO().declension);
+        MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("YouDropIs",objectKO.GetKitchenObjectSO().declension ));
         yield return new WaitUntil(() => player._objectMoveCoroutine == null);
         objectKO.DestroyMyself();
         player._stopHidingHold = false;

@@ -54,7 +54,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
     public override void Interact(Player player) {
         if (bakingNow) {
-            MessageUI.Instance.ShowPlayerPopup("Пицца готовится, уже ничего не положить");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PizzaIsBaking"));
             return;
         }
         // Кладка ингредиента
@@ -62,15 +62,15 @@ public class OvenCounter : BaseCounter, IHasProgress{
             playerSO = player.GetKitchenObject().GetKitchenObjectSO();
             // Проверка на запрещёнку
             if (potentialObjects.Contains(playerSO)) {
-                MessageUI.Instance.ShowPlayerPopup(playerSO.objectName + " нужно сначала нарезать");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NeedToSlicedInOven", playerSO.objectName));
                 return;
             }
             if (forbiddenObjects.Contains(playerSO)) {
-                MessageUI.Instance.ShowPlayerPopup(playerSO.objectName + " нельзя положить в духовку");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontPutInOven", playerSO.objectName));
                 return;
             }
             if (puttedIngredients.Contains(playerSO)) {
-                MessageUI.Instance.ShowPlayerPopup(playerSO.objectName + " ингредиент уже добавлен в духовку");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("AlreadyInOven", playerSO.objectName));
                 return;
             }
             puttedIngredients.Add(playerSO);
@@ -84,7 +84,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
             player.GetKitchenObject().DestroyMyself();
         }
         else if (!HasKitchenObject() && !ready) {
-            MessageUI.Instance.ShowPlayerPopup("У вас в руках ничего нет");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("YourHandsIsEmpty"));
         }
         if (ready) {
             PizzaTake(player);
@@ -106,7 +106,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
         }
         ready = true;
         bakingNow = false;
-        MessageUI.Instance.ShowPlayerPopup("Пицца готова!");
+        MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PizzaIsReady"));
         _visual.SetPizzaReady();
         SoundManager.Instance.PlaySFX("Success");
         SoundManager.Instance.StopLoopSfx("Oven");
@@ -117,19 +117,19 @@ public class OvenCounter : BaseCounter, IHasProgress{
     // Запуск готовки и выдача заказа
     public override void AlternativeInteract(Player player) {
         if (bakingNow) {
-            MessageUI.Instance.ShowPlayerPopup("Духовка уже запущена");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OvenIsRunning"));
             return;
         }
         if (puttedIngredients.Count < minimumIngredientsCount) {
-            MessageUI.Instance.ShowPlayerPopup("Положите минимум " + minimumIngredientsCount + " ингредиента");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PutMinimumIngredients", minimumIngredientsCount));
             return;
         }
         if (!puttedIngredients.Contains(_testo)) {
-            MessageUI.Instance.ShowPlayerPopup("Положите обязательно тесто!");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("TestoNeeded"));
             return;
         }
 
-        MessageUI.Instance.ShowPlayerPopup("Запуск духовки");
+        MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OvenRun"));
         SoundManager.Instance.PlayLoopSfx("Oven");
         BakePizza();
         StartCoroutine(Timer(timeToBakePizza));
@@ -195,7 +195,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
             }
             else {
-                MessageUI.Instance.ShowPlayerPopup("У вас заняты руки, чтобы забрать пиццу");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("YourHandsIsBusy"));
             }
         }
         else {

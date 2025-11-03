@@ -126,14 +126,6 @@ public class RewardManager : MonoBehaviour {
             }
         }
         
-
-        
-        Debug.Log("baseReward "+ baseReward);
-        Debug.Log("accuracy "+ accuracy);
-        Debug.Log("timeBonus "+ timeBonus);
-        Debug.Log("_comboBonus "+ _comboBonus);
-
-        
         return baseReward * accuracy * (1 + timeBonus) * _comboBonus; // за блюдо
     }
 

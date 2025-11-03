@@ -55,7 +55,6 @@ public class OrderManager : BaseCounter {
         _visual.ShowCanvas();
 
         int allIngredientsAdded = 0;
-        Debug.Log("Время выполнения: " + _newCompletedTime);
         DishValidateVisual(CurrentOrder.dishStruct[0], plate.pizzaIngredientsAdded, _visual.pizzaIcons, _visual._canvasPizza);
         DishValidateVisual(CurrentOrder.dishStruct[1], plate.burgerIngredientsAdded, _visual.burgerIcons, _visual._canvasBurger);
         DishValidateVisual(CurrentOrder.dishStruct[2], plate.drinkIngredientsAdded, _visual.drinkIcons, _visual._canvasDrink);
@@ -81,7 +80,8 @@ public class OrderManager : BaseCounter {
         if(orderIsAppointed) return;
         orderIsAppointed = true;
 
-        MessageUI.Instance.ShowPlayerPopup("Взят заказ: " + orderNumber);
+        MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OrderTaken", orderNumber));
+
         
         _visual.DeleteAllIcons();
         _visual.HideContainers();
@@ -101,7 +101,9 @@ public class OrderManager : BaseCounter {
         // Тут можно регулировать сложность 
         ++orderNumber;
         SoundManager.Instance.PlaySFX("NewOrder");
-        _visual.ShowInfinityPopupText("Новый заказ №" + orderNumber.ToString("D3") + " !");
+        _visual.ShowInfinityPopupText(LocalizationManager.Get("NewOrder", orderNumber.ToString("D3")));
+
+
         ClientCat.Instance.GoSayOrder();
         
 
@@ -191,7 +193,7 @@ public class OrderManager : BaseCounter {
                 return;
             }
             if (plate.burgerIngredientsAdded.Count == 0 && plate.pizzaIngredientsAdded.Count == 0 && plate.drinkIngredientsAdded.Count == 0) {
-                MessageUI.Instance.ShowPlayerPopup("Добавьте блюда в заказ");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("AddDishes"));
                 return;
             }
             // Все ок
@@ -199,8 +201,7 @@ public class OrderManager : BaseCounter {
             StartCoroutine(OrderIsCompleted(plate));
         }
         else {
-            MessageUI.Instance.ShowPlayerPopup("Возьмите поднос слева");
-            
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontHaveTray"));
         }
          
     }

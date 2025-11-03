@@ -5,19 +5,21 @@ using System;
 using UnityEngine.EventSystems;
 
 public class GameInput : MonoBehaviour {
+    public Joystick joystick;
     private PlayerInputActions playerInputActions;
-
-    // События для взаимодействия
+    
+    
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     public event EventHandler OnInteractAction;
     public event EventHandler OnAlternativeInteractAction;
 
     private void Awake() {
-        playerInputActions = new PlayerInputActions(); // Сгенерирован input system
+        playerInputActions = new PlayerInputActions(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ input system
         playerInputActions.Enable();
 
 
-        // Interact мы создали, а система сконструировала его
-        // performed - если действие успешно выполнилось
+        // Interact пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+        // performed - пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         playerInputActions.Player.Interact.performed += Interact_performed;
         playerInputActions.Player.InteractAlternative.performed += InteractAlternative_performed;
     }
@@ -29,7 +31,6 @@ public class GameInput : MonoBehaviour {
     private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
         OnInteractAction?.Invoke(this, EventArgs.Empty);
     }
-
     public void InteractButton() {
         OnInteractAction?.Invoke(this, EventArgs.Empty);
     }
@@ -39,8 +40,17 @@ public class GameInput : MonoBehaviour {
     }
 
 
-
-    // Вектор движения
-    public Vector2 GetMovementVectorNormalized() =>
-        playerInputActions.Player.Move.ReadValue<Vector2>().normalized;
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public Vector2 GetMovementVectorNormalized() {
+        // РїРѕРєР° Р±РµР· РґР¶РѕР№СЃС‚РёРєР° РёРіСЂР°
+        // if (joystick != null)
+        // {
+        //     // РСЃРїРѕР»СЊР·СѓРµРј РґР¶РѕР№СЃС‚РёРє, РµСЃР»Рё РѕРЅ РїРѕРґРєР»СЋС‡РµРЅ
+        //     return joystick.Direction.normalized;
+        // }
+        // РџРљ: РєР»Р°РІРёР°С‚СѓСЂР°/РіРµР№РјРїР°Рґ
+        return playerInputActions.Player.Move.ReadValue<Vector2>().normalized;
+        // playerInputActions.Player.Move.ReadValue<Vector2>().normalized;
+        
+    }
 }

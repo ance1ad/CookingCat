@@ -165,14 +165,14 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         yield return new WaitForSeconds(1f);
         if (newSelected.HasKitchenObject() && !HasKitchenObject()) {
             newSelected.GetKitchenObject().SetKitchenObjectParent(this);
-            MessageUI.Instance.SetText("Вы прогнали кота-вора!", MessageUI.Emotions.happy);
+            MessageUI.Instance.SetText(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy);
         }
         else if (HasKitchenObject() && newSelected.HasKitchenObject()) {
-            MessageUI.Instance.SetText("У вас заняты лапы", MessageUI.Emotions.sad);
+            MessageUI.Instance.SetText(LocalizationManager.Get("HandsNotFreeForThief"), MessageUI.Emotions.sad);
             newSelected._readyToFight = true;
         }
         else {
-            MessageUI.Instance.SetText("Вы прогнали кота-вора!", MessageUI.Emotions.happy);
+            MessageUI.Instance.SetText(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy);
         }
     }
 
@@ -258,6 +258,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     }
 
 
+    [SerializeField] private float rotateThreshold = 0.9f; // порог для поворота
     private void HandleMovement() {
         if (_stopWalking) {
             return;
@@ -276,33 +277,34 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             moveDistance
         );
 
-        if (!canMove) {
-            // Пробуем X
-            Vector3 dirX = new Vector3(directoryVector.x, 0, 0).normalized;
-            canMove = directoryVector.x != 0 &&
-                      !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
-                          _playerRadius, dirX, moveDistance);
-            if (canMove) directoryVector = dirX;
-
-            // Пробуем Z
-            if (!canMove) {
-                Vector3 dirZ = new Vector3(0, 0, directoryVector.z).normalized;
-                canMove = directoryVector.z != 0 &&
-                          !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
-                              _playerRadius, dirZ, moveDistance);
-                if (canMove) directoryVector = dirZ;
-            }
-        }
+        // if (!canMove) {
+        //     // Пробуем X
+        //     Vector3 dirX = new Vector3(directoryVector.x, 0, 0).normalized;
+        //     canMove = directoryVector.x != 0 &&
+        //               !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
+        //                   _playerRadius, dirX, moveDistance);
+        //     if (canMove) directoryVector = dirX;
+        //
+        //     // Пробуем Z
+        //     if (!canMove) {
+        //         Vector3 dirZ = new Vector3(0, 0, directoryVector.z).normalized;
+        //         canMove = directoryVector.z != 0 &&
+        //                   !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
+        //                       _playerRadius, dirZ, moveDistance);
+        //         if (canMove) directoryVector = dirZ;
+        //     }
+        // }
 
         if (canMove) {
             transform.position += directoryVector * moveDistance;
         }
 
         // Теперь _isMoving = true только если реально сдвинулись
-        _isMoving = (transform.position != startPosition);
+        _isMoving = directoryVector.magnitude > rotateThreshold && (transform.position != startPosition);
+
 
         // Но поворачиваем всегда, если есть ввод (иначе не будет крутиться у стены)
-        if (directoryVector != Vector3.zero) {
+        if (directoryVector.magnitude > rotateThreshold) {
             transform.forward = Vector3.Slerp(transform.forward, directoryVector, Time.deltaTime * _rotateSpeed);
         }
     }
@@ -388,9 +390,8 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
 
     private IEnumerator ObjectMoveToPoint(Transform point, float speed) {
-        
         Transform obj = GetKitchenObject().transform;
-        while (Vector3.Distance(obj.position, point.position) > 0.2f) {
+        while (Vector3.Distance(obj.position, point.position) > 0.2f ) {
             if (!HasKitchenObject()) {
                 StopCoroutine(_objectMoveCoroutine);
                 _objectMoveCoroutine = null;
@@ -402,7 +403,6 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             );
             yield return null;
         }
-        SoundManager.Instance.PlaySFX("TrashDrop");
         obj.position = point.position;
         _objectMoveCoroutine = null;
     }

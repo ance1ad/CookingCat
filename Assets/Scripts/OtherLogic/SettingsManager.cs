@@ -3,8 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+
 
 public class SettingsManager : MonoBehaviour {
+    [SerializeField] private TMP_Text _windowText;
+    
+    
     
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider sfxSlider;
@@ -14,10 +19,35 @@ public class SettingsManager : MonoBehaviour {
     [SerializeField] private GameObject _settingsCanvas;
     [SerializeField] private GameObject _offMusicLine;
     [SerializeField] private GameObject _offSoundLine;
+    
+    [SerializeField] private Button _localizationButton;
+    [SerializeField] private TMP_Text _textUnderBtnLocalization;
+    [SerializeField] private TMP_Text _textInBtnLocalization;
+
 
     
     private void Awake() {
         _settingsCanvas.SetActive(false);
+        _localizationButton.onClick.AddListener(() => SwipeLanguage());
+        SetText();
+    }
+
+    private void SwipeLanguage() {
+        LocalizationManager.SwipeLanguage();
+        SetText();
+    }
+
+    private void SetText() {
+        if (LocalizationManager.CurrentLanguage == Language.EN) {
+            _textUnderBtnLocalization.text = "English language";
+            _textInBtnLocalization.text = "Eng";
+            _windowText.text = "Settings";
+        }
+        else {
+            _textUnderBtnLocalization.text = "Русский язык";
+            _textInBtnLocalization.text = "Rus";
+            _windowText.text = "Настройки";
+        }
     }
 
     private void Start() {

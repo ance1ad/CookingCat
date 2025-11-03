@@ -30,7 +30,7 @@ public class ProductManager : MonoBehaviour {
             return;
         }
         Instance = this;
-        ShowHideStoreWindow();
+        _storeCanvas.SetActive(false);
     }
 
 

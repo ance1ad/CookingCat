@@ -25,7 +25,6 @@ public class ContainerCounter : BaseCounter {
 
     public void AddProduct(int count) {
         if (count <= 0) {
-            Debug.Log("Некорректное кол-во продуктов");
             return;
         }
         _productCount += count;
@@ -63,7 +62,7 @@ public class ContainerCounter : BaseCounter {
         if (!player.HasKitchenObject()) {
             
             if (!TryUseProduct()) {
-                MessageUI.Instance.ShowPlayerPopup("Продукты закончились, нужен курьер");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NeedCourier"));
                 return;
             }
 
@@ -72,7 +71,7 @@ public class ContainerCounter : BaseCounter {
             HighlightManager.Instance.OnObjectTake(_kitchenObjectSO);
             if (UnityEngine.Random.value < 0.1f) {
                 player.GetKitchenObject().SetUnfresh();
-                MessageUI.Instance.ShowPlayerPopup("Этот продукт пропал, его только выбросить");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));
                 SoundManager.Instance.PlaySFX("ProductRotten");
                 return;
             }
@@ -85,11 +84,11 @@ public class ContainerCounter : BaseCounter {
             HighlightManager.Instance.OnObjectDrop();
         }
         else if (!player.GetKitchenObject()._isFresh) {
-            MessageUI.Instance.ShowPlayerPopup("Этот продукт пропал, его только выбросить");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));
             SoundManager.Instance.PlaySFX("ProductRotten");
         }
         else {
-            MessageUI.Instance.ShowPlayerPopup("Этот обьект нельзя положить сюда");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontPutObject"));
         }
     }
 

@@ -38,7 +38,8 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
                 
             }
             else {
-                MessageUI.Instance.ShowPlayerPopup("Стол уже занят другим предметом");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("TableOccupied"));
+
             }
         }
 
@@ -56,12 +57,12 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
             UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);
         }
         else {
-            MessageUI.Instance.ShowPlayerPopup("У вас нет предмета который можно положить");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontHaveObject"));
         }
     }
 
     public override void AlternativeInteract(Player player) {
-        MessageUI.Instance.ShowPlayerPopup("Здесь нельзя нарезать");
+        MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontSlice"));
     }
 
     public override bool ThiefInteract(ThiefCat thief) {

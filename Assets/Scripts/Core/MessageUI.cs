@@ -40,6 +40,18 @@ public class MessageUI : MonoBehaviour
 
         _currentRoutine = StartCoroutine(TextShowRoutine());
     }
+    
+    public void SetTextInfinity(string text, Emotions emotion) {
+        // В этом случае будет меняться только текст
+        Show(true);
+        _text.text = text;
+        SetEmotion(emotion);
+    }
+
+    public void Hide() {
+        Show(false);
+    }
+    
 
     private IEnumerator TextShowRoutine() {
         yield return new WaitForSeconds(timeToShow);

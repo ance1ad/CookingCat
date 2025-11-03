@@ -35,7 +35,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
 
     public override void Interact(Player player) {
         if (_juicerWorking) {
-            MessageUI.Instance.ShowPlayerPopup("Соковыжималка уже запущена");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("JuicerWorking"));
             return;
         }
         // Кладет фрукт
@@ -48,7 +48,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
             HighlightManager.Instance.OnObjectDrop();
             player.GetKitchenObject().DestroyMyself();
             if (fruitCurrentCount == fruitCountToEnable) {
-                MessageUI.Instance.ShowPlayerPopup("Запущена соковыжималка");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("JuicerNowWorking"));
                 StartCoroutine(JuicerRoutine());
                 SoundManager.Instance.PlayLoopSfx("Juicer");
             }
@@ -76,22 +76,26 @@ public class JuicerCounter : BaseCounter, IHasProgress {
             }
             // Рандом ингредиент
             else if(player.HasKitchenObject() && !(player.GetKitchenObject() is Plate)) {
-                MessageUI.Instance.ShowPlayerPopup("Напиток уже готов");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("JuiceReady"));
             }
         }
         else if (player.HasKitchenObject() ) {
             if(MaySliced(player.GetKitchenObject().GetKitchenObjectSO())) {
-                MessageUI.Instance.ShowPlayerPopup("Сначала почистите или порежьте");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductNotReadyForJuicer"));
+
             }
             else if (player.GetKitchenObject().GetKitchenObjectSO() == _orangeColorJuiceSO) {
-                MessageUI.Instance.ShowPlayerPopup("Вы уже забрали напиток, только не пейте его");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("JuiceTaken"));
+
             }
             else {
-                MessageUI.Instance.ShowPlayerPopup("С этого напиток не сварить");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("CantPutOnJuicer"));
+
             }
         }
         else {
-            MessageUI.Instance.ShowPlayerPopup("Возьмите то, что хотите положить в соковыжималку");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("TakeWhatYouWantPutOnJuicer"));
+
         }
     }
 
@@ -115,7 +119,8 @@ public class JuicerCounter : BaseCounter, IHasProgress {
         _juiceDish.Ingredients = new List<KitchenObjectSO>(addedIngredients);
 
 
-        MessageUI.Instance.ShowPlayerPopup("Напиток готов к выдаче");
+        MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("JuiceReady"));
+
         fruitCurrentCount = 0;
         SoundManager.Instance.StopLoopSfx("Juicer");
     }
