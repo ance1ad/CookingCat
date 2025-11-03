@@ -108,6 +108,9 @@ public class OvenCounter : BaseCounter, IHasProgress{
         bakingNow = false;
         MessageUI.Instance.ShowPlayerPopup("Пицца готова!");
         _visual.SetPizzaReady();
+        SoundManager.Instance.PlaySFX("Success");
+        SoundManager.Instance.StopLoopSfx("Oven");
+        
     }
 
 
@@ -127,6 +130,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
         }
 
         MessageUI.Instance.ShowPlayerPopup("Запуск духовки");
+        SoundManager.Instance.PlayLoopSfx("Oven");
         BakePizza();
         StartCoroutine(Timer(timeToBakePizza));
     }

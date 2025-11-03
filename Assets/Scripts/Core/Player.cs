@@ -78,6 +78,8 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         _gameInput.OnInteractAction += GameInput_OnInteractAction;
         _gameInput.OnAlternativeInteractAction += GameInput_OnAlternativeInteractAction;
     }
+    
+
 
     private void GameInput_OnAlternativeInteractAction(object sender, EventArgs e) {
         if (selectedCounter != null) {
@@ -99,6 +101,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     private IEnumerator FightWithCat(ThiefCat newSelected) {
         StopWalking();
+        SoundManager.Instance.PlaySFX("CatFight");
         _isFighting = true;
         newSelected.ForceStopCompletely();
         newSelected.StopAllCoroutines();
@@ -352,7 +355,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         }
         HighlightManager.Instance.OnObjectTake(_kitchenObject.GetKitchenObjectSO());
         // Сжирает хавку
-        if (UnityEngine.Random.value < .2 &&
+        if (UnityEngine.Random.value < .4 &&
             !(_kitchenObject is Plate) &&
             !string.IsNullOrEmpty(_kitchenObject.GetKitchenObjectSO().justification)) {
             _coroutine = StartCoroutine(EatProductRoutine());
@@ -364,6 +367,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         
         if (HasKitchenObject() && _kitchenObject._isFresh) {
             MessageUI.Instance.SetText(_kitchenObject.GetKitchenObjectSO().justification, MessageUI.Emotions.eated);
+            SoundManager.Instance.PlaySFX("Happy");
             MoveToPoint(_mouthPoint, 1f);
             yield return new WaitUntil(() => _objectMoveCoroutine == null);
             if (HasKitchenObject()) {
@@ -398,6 +402,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             );
             yield return null;
         }
+        SoundManager.Instance.PlaySFX("TrashDrop");
         obj.position = point.position;
         _objectMoveCoroutine = null;
     }

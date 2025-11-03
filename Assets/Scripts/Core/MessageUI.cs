@@ -66,6 +66,12 @@ public class MessageUI : MonoBehaviour
         foreach (var item in _emotions) {
             if (item.emotion == emotion) {
                 item.face.gameObject.SetActive(true);
+                if (emotion == Emotions.angry) {
+                    SoundManager.Instance.PlaySFX("Angry");
+                }
+                else {
+                    SoundManager.Instance.PlaySFX("CatSay");
+                }
             }
             else {
                 item.face.gameObject.SetActive(false);
@@ -76,6 +82,7 @@ public class MessageUI : MonoBehaviour
 
     public void ShowPlayerPopup(string text) {
         _playerVisual.ShowPopupText(text);
+        SoundManager.Instance.PlaySFX("Warning");
     } 
 
 

@@ -57,6 +57,7 @@ public class CourierCat : MonoBehaviour, IKitchenObjectParent {
     private IEnumerator DoingQueue() {
         while (_ordersQueue.Count > 0) {
             yield return new WaitUntil(() => _readyToNewCycle);
+            yield return new WaitForSeconds(5f);
             FormingOrder();
         }
         _doingWorkCoroutine = null;

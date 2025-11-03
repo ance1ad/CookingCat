@@ -49,6 +49,8 @@ public class KitchenObject : MonoBehaviour {
     public void SetUnfresh() {
         _isFresh = false;
         _particles.SetActive(true);
+        SoundManager.Instance.PlaySFX("ProductRotten");
+        
     }
 
 }

@@ -51,14 +51,6 @@ public class Plate : KitchenObject {
         spawnPoints[1].localPosition += new Vector3(0f, offset, 0f);
     }
 
-    private void Update() {
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            MessageUI.Instance.ShowPlayerPopup("Вы готовы отдать заказ");
-            //OrderCompleteCheck();
-        }
-    }
-
-
     // Вызывает менеджер
     public void SetOrder(Order order) {
         Order = order;
@@ -82,8 +74,7 @@ public class Plate : KitchenObject {
             pizzaInstance = Instantiate(ingredient.gameObject, spawnPoints[0]);
             ShowOtherIngredients(ingredient, pizzaIngredientsAdded);
             MessageUI.Instance.ShowPlayerPopup("Пицца добавлена на поднос");
-
-
+            
         }
         else if(ingredientType == DishType.burger) {
             if (!_fullBurger.ShowIngredient(koSO)) {
@@ -94,23 +85,29 @@ public class Plate : KitchenObject {
                 spawnPoints[1].localPosition += new Vector3(0f, -offset, 0f);
             }
             ShowBurgerIcons(ingredient, burgerIngredientsAdded);
+            
 
         }
         else {
             if (drinkInstance != null) {
                 MessageUI.Instance.ShowPlayerPopup("Напиток уже лежит на подносе");
+                
+                
                 return false;
             }
             drinkInstance = Instantiate(ingredient.gameObject, spawnPoints[2]);
 
             ShowOtherIngredients(ingredient, drinkIngredientsAdded);
+            
         }
+        SoundManager.Instance.PlaySFX("PutProduct");
         return true;
     }
 
     private bool CheckSuitability(KitchenObject ingredient, KitchenObjectSO koSO) {
         if (!ingredient._isFresh) {
             MessageUI.Instance.ShowPlayerPopup("Продукт испорчен, его только выкинуть");
+            SoundManager.Instance.PlaySFX("ProductRotten");
             return false;
         }
         if (_forbiddenObjects.Contains(koSO)) {

@@ -83,6 +83,8 @@ public class StoveCounter : BaseCounter, IHasProgress {
                 meatIsCooked = false;
                 meatIsOvercooked = false;
                 player.GetKitchenObject().SetKitchenObjectParent(this);
+                SoundManager.Instance.PlayLoopSfx("Sizzling");
+                
                 particles.SetActive(true);
                 switcher.SetActive(true);
             }
@@ -96,6 +98,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
             // В руки
             if (!player.HasKitchenObject()) {
                 GetKitchenObject().SetKitchenObjectParent(player);
+                SoundManager.Instance.StopLoopSfx("Sizzling");
                 ClearData();
             }
             // На тарелку
@@ -103,6 +106,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
                 _plate = player.GetKitchenObject() as Plate;
                 _plate.AddIngredient(GetKitchenObject());
                 ClearData();
+                SoundManager.Instance.StopLoopSfx("Sizzling");
             }
         }
         else {

@@ -8,7 +8,7 @@ public class ContainerCounterVisual : MonoBehaviour {
 
 
     [SerializeField] private ContainerCounter _containerCounter;
-    // Общее отображение 
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
     [SerializeField] private Image _background;
     [SerializeField] private TMP_Text _text;
     // +-
@@ -36,8 +36,10 @@ public class ContainerCounterVisual : MonoBehaviour {
 
         AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
         bool isPlayingOpenDoor = info.IsName("OpenDoor") && info.normalizedTime < 1f;
+        SoundManager.Instance.PlaySFX("Holodos");
 
-        if (isPlayingOpenDoor) return; // не запускаем пока не закончила
+
+        if (isPlayingOpenDoor) return; // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         animator.Play(STATE_NAME, 0, 0f);
     }
 
@@ -62,7 +64,7 @@ public class ContainerCounterVisual : MonoBehaviour {
         // All
         _background.enabled = false;
         _text.enabled = false;
-        // Скрытие действия
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         _textPM.enabled = false;
         _minusBackground.enabled = false;
         _plusBackground.enabled = false;

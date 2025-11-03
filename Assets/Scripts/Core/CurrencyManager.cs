@@ -1,43 +1,40 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Codice.Client.Common;
 using UnityEngine;
 using TMPro;
 
 public class CurrencyManager : MonoBehaviour {
     
-    [SerializeField] private TMP_Text _coinsCountText;
-    [SerializeField] private TMP_Text _gemsCountText;
-    [SerializeField] private GameObject _canvas;
-    [SerializeField] private TMP_Text _newCoinsText;
-    [SerializeField] private TMP_Text _newGemsText;
+
+    
     [SerializeField] private TMP_Text _orderTimeText;
     [SerializeField] private TMP_Text _accuracyText;
     [SerializeField] private TMP_Text _comboText;
 
+    public event Action<CurrencyActionArgs> OnBankChangedAction;
+
+
+    private void Start() {
+        CloseCanvas();
+    }
+
+    private void Awake() {
+        if (Instance != null) {
+            Debug.LogWarning("There can only be one instance of CurrencyManager");
+            return;
+        }
+        Instance = this;
+        
+        
+    }
+    public class CurrencyActionArgs {
+        public float countRewardsCoins;
+        public int countRewardsGems;
+    }
+    
     public void SetOrderResult(float newCoins, int newGems, string orderTime, string accuracy, string combo) {
         ShowCanvas();
-        if (newCoins > 0) {
-            _newCoinsText.text = ("+" + newCoins.ToString("0"));
-            _newCoinsText.color = Color.green;
-        }
-        else if (newCoins <= 0) {
-            _newCoinsText.text = (newCoins.ToString("0"));
-            _newCoinsText.color = Color.red;
-        } 
-        AddCoins(newCoins);
-        
-
-        if (newGems > 0) {
-            _newGemsText.text = ("+" + newGems);
-            AddGems(newGems);
-            _newGemsText.color = Color.green;
-        }
-        else if (newGems == 0) {
-            _newGemsText.enabled = false;
-        }
+        UpdateCash(newCoins, newGems); // в окошке сверху визуал
+        ShowRewardInfinity(newCoins, newGems); // визуал окна поздравления
         
         if (orderTime != string.Empty) {
             _orderTimeText.text = orderTime;
@@ -55,56 +52,18 @@ public class CurrencyManager : MonoBehaviour {
     
     // Банк игрока
     public static CurrencyManager Instance { get; private set; }
-    public float Coins { get; private set; } = 0f; // обычные монетки
-    public int Gems { get; private set; } = 0; // ебать крутая валюта
+    public float Coins { get; private set; } = 1000f; // обычные монетки
+    public int Gems { get; private set; } = 10; // ебать крутая валюта
 
     
     
-    public void SpentCoins(float price) {
-        if (price <= Coins) {
-            Coins -= price;
-            _coinsCountText.text = Coins.ToString("0");
-        }
-        else {
-            Debug.Log("НЕ хватает монетов");
-        }
-    } 
-    
-    
-    public void AddCoins(float price) {
-        Coins += price;
-        _coinsCountText.text = Coins.ToString("0");
+    public void UpdateCash(float newCoins, int newGems) {
+        Coins += newCoins;
+        Gems += newGems;
+        SoundManager.Instance.PlaySFX("NewMoney");
+        OnBankChangedAction?.Invoke(new CurrencyActionArgs { countRewardsCoins = newCoins, countRewardsGems = newGems  });
     }
     
-    public void SpentGems(int price) {
-        if (price <= Gems) {
-            Gems -= price;
-            _gemsCountText.text = Gems.ToString();
-        }
-        else {
-            Debug.Log("НЕ хватает гемов");
-        }
-    } 
-    
-
-
-    public void AddGems(int price) {
-        Gems += price;
-        _gemsCountText.text = Gems.ToString();
-    } 
-    
-    
-    
-    private void Awake() {
-        if (Instance != null) {
-            Debug.LogWarning("There can only be one instance of CurrencyManager");
-            return;
-        }
-        Instance = this;
-        _gemsCountText.text = Gems.ToString();
-        _coinsCountText.text = Coins.ToString("0");
-        
-    }
 
     public void CloseCanvas() {
         _canvas.SetActive(false);
@@ -113,5 +72,43 @@ public class CurrencyManager : MonoBehaviour {
     public void ShowCanvas() {
         _canvas.SetActive(true);
     }
+
     
+    [SerializeField] private TMP_Text _coinsCountText;
+    [SerializeField] private TMP_Text _gemsCountText;
+    [SerializeField] private GameObject _canvas;
+    [SerializeField] private TMP_Text _newCoinsText;
+    [SerializeField] private TMP_Text _newGemsText;
+
+    
+
+    public void ShowRewardInfinity(float newCoins, int newGems) {
+        _coinsCountText.text = Coins.ToString("0");
+        _gemsCountText.text = Gems.ToString();
+        
+        _newCoinsText.enabled = true;
+        _newGemsText.enabled = false;
+        if (newCoins > 0) {
+            _newCoinsText.color = Color.green;
+            _newCoinsText.text = "+" + newCoins.ToString("0");
+        }
+        if (newCoins <= 0) {
+            _newCoinsText.color = Color.red;
+            _newCoinsText.text = "-" + newCoins.ToString("0");
+        }
+        
+        if (newGems > 0) {
+            _newGemsText.enabled = true;
+            _newGemsText.color = Color.green;
+            _newGemsText.text = "+" + newGems;
+        }
+        
+        if (newGems < 0) {
+            _newGemsText.enabled = true;
+            _newGemsText.color = Color.red;
+            _newGemsText.text = "-" + newGems;
+        }
+        
+        
+    }
 }

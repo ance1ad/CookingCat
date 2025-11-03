@@ -92,6 +92,9 @@ public class CuttingCounter : BaseCounter, IHasProgress {
         
     }
 
+
+    
+
     private bool _objectIsSliced = false;
     public bool ObjectIsSliced() => _objectIsSliced;
 

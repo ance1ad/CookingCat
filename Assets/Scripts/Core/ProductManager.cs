@@ -5,9 +5,16 @@ using TMPro;
 using UnityEngine;
 
 public class ProductManager : MonoBehaviour {
+    [SerializeField] private GameObject _storeCanvas;
     [SerializeField] private List<ProductCard> _productCards;
     [SerializeField] private TMP_Text _allPriceText;
     [SerializeField] private TMP_Text _successMessage;
+    
+    [SerializeField] private TMP_Text _coinsCount;
+    [SerializeField] private TMP_Text _gemsCount;
+    [SerializeField] private TMP_Text _spentCount;
+    
+    
 
     private Dictionary<KitchenObjectSO, int> _basketDictionary = new Dictionary<KitchenObjectSO, int>();
     public event Action<Dictionary<KitchenObjectSO, int>> OnProductCardAdded;
@@ -23,16 +30,20 @@ public class ProductManager : MonoBehaviour {
             return;
         }
         Instance = this;
+        ShowHideStoreWindow();
     }
 
 
 
     private void Start() {
         foreach (var product in _productCards) {
-            product.OnCardChanged += ProductOnOnCardChanged;
+             product.OnCardChanged += ProductOnOnCardChanged;
             _basketDictionary.TryAdd(product.GetProductSO(), 0);
         }
         _successMessage.enabled = false;
+        _coinsCount.text = CurrencyManager.Instance.Coins.ToString();
+        _gemsCount.text = CurrencyManager.Instance.Gems.ToString();
+        _spentCount.enabled = false;
     }
 
     private void ProductOnOnCardChanged(ProductCard productCard) {
@@ -56,16 +67,20 @@ public class ProductManager : MonoBehaviour {
             _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(false, "Вы ничего не выбрали"));
             return;
         }
-        // if (PlayerProgress.Instance.Money < _allPrice) {
-        //     _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(false, "У вас недостаточно средств для курьера"));
-        //     return;
-        // }
-        
+        if (CurrencyManager.Instance.Coins < _allPrice) {
+            _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(false, "Не хватает коинов для курьера"));
+            return;
+        }
+        _spentCount.enabled = true;
+        CurrencyManager.Instance.UpdateCash(-1 * _allPrice, 0);
+        _coinsCount.text = CurrencyManager.Instance.Coins.ToString();
+        _spentCount.text = "-" + _allPrice;
         _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(true, "Курьер найден"));
         
         // Шоб не удалился
         var copyDict = new Dictionary<KitchenObjectSO, int>(_basketDictionary);
         OnProductCardAdded?.Invoke(copyDict);
+        SoundManager.Instance.PlaySFX("Yandex");
         foreach (var card in _productCards) {
             _basketDictionary[card.GetProductSO()] = 0;
             card.SetZero();
@@ -83,8 +98,13 @@ public class ProductManager : MonoBehaviour {
             _successMessage.color = Color.green;
             _allPrice = 0f;
             _allPriceText.text = "Общая цена: 0$";
+            SoundManager.Instance.PlaySFX("Warning");
+            
         }
         yield return new WaitForSeconds(2f);
         _successMessage.enabled = false;
     }
+
+    public void ShowHideStoreWindow() => _storeCanvas.SetActive(!_storeCanvas.activeSelf);
+    
 }

@@ -3,24 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class LookAtPlayer : MonoBehaviour {
-    [SerializeField] private Transform _playerPoint;
-    [SerializeField] private Vector3 rotationOffset;
-    [SerializeField] private float rotationSpeed = 7f;
+    [SerializeField] private Transform head;           // РЎСЃС‹Р»РєР° РЅР° РєРѕСЃС‚СЊ РіРѕР»РѕРІС‹
+    [SerializeField] private Transform player;         // РЎСЃС‹Р»РєР° РЅР° РёРіСЂРѕРєР°
+    [SerializeField, Range(0.1f, 10f)] private float rotationSpeed = 2f;
+    [SerializeField] private Vector3 rotationOffset;   // РЎРјРµС‰РµРЅРёРµ РІ РіСЂР°РґСѓСЃР°С…, РµСЃР»Рё РіРѕР»РѕРІР° "РєСЂРёРІР°СЏ"
 
-    private void LateUpdate() {
-        if (_playerPoint == null) return;
+    void Update()
+    {
+        if (player == null || head == null)
+            return;
 
-        // 1. Считаем направление до игрока
-        Vector3 direction = _playerPoint.transform.position - transform.position;
-        direction.y = 0; // убираем наклон по вертикали (чтоб не задирал голову)
+        // РќР°РїСЂР°РІР»РµРЅРёРµ РѕС‚ РіРѕР»РѕРІС‹ Рє РёРіСЂРѕРєСѓ
+        Vector3 direction = player.position - head.position;
 
-        // 2. Считаем целевой поворот
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        // Р•СЃР»Рё РёРіСЂРѕРє СЃР»РёС€РєРѕРј Р±Р»РёР·РєРѕ вЂ” РЅРµ РєСЂСѓС‚РёРј РіРѕР»РѕРІРѕР№
+        if (direction.sqrMagnitude < 0.001f)
+            return;
 
-        // 3. Плавно интерполируем между текущим и целевым поворотом
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        // Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј Р¶РµР»Р°РµРјС‹Р№ РїРѕРІРѕСЂРѕС‚
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
 
-        // 4. Добавляем смещение (локально)
-        transform.Rotate(rotationOffset, Space.Self);
+        // Р”РѕР±Р°РІР»СЏРµРј СЃРјРµС‰РµРЅРёРµ
+        lookRotation *= Quaternion.Euler(rotationOffset);
+
+        // РџР»Р°РІРЅРѕ РїРѕРІРѕСЂР°С‡РёРІР°РµРј РіРѕР»РѕРІСѓ
+        head.rotation = Quaternion.Slerp(
+            head.rotation,
+            lookRotation,
+            Time.deltaTime * rotationSpeed
+        );
     }
 }

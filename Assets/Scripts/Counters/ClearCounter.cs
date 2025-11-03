@@ -24,7 +24,7 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
                 }
 
                 GetKitchenObject().SetKitchenObjectParent(player);
-
+                SoundManager.Instance.PlaySFX("Bite");
             }
             // У пользователя тарелка
             else if (player.GetKitchenObject() is Plate) {
@@ -50,6 +50,8 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
                 _counterTopPoint.localPosition = new Vector3(-0.136f, 1.3f, 0.134f);
             }
             player.GetKitchenObject().SetKitchenObjectParent(this);
+            SoundManager.Instance.PlaySFX("AtTable");
+            
             // кладет
             UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);
         }
@@ -58,9 +60,14 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
         }
     }
 
+    public override void AlternativeInteract(Player player) {
+        MessageUI.Instance.ShowPlayerPopup("Здесь нельзя нарезать");
+    }
+
     public override bool ThiefInteract(ThiefCat thief) {
         if (HasKitchenObject()) {
             GetKitchenObject().SetKitchenObjectParent(thief);
+            SoundManager.Instance.PlaySFX("Bite");
             return true;
         }
         return false;

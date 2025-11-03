@@ -73,6 +73,7 @@ public class ContainerCounter : BaseCounter {
             if (UnityEngine.Random.value < 0.1f) {
                 player.GetKitchenObject().SetUnfresh();
                 MessageUI.Instance.ShowPlayerPopup("Этот продукт пропал, его только выбросить");
+                SoundManager.Instance.PlaySFX("ProductRotten");
                 return;
             }
 
@@ -85,6 +86,7 @@ public class ContainerCounter : BaseCounter {
         }
         else if (!player.GetKitchenObject()._isFresh) {
             MessageUI.Instance.ShowPlayerPopup("Этот продукт пропал, его только выбросить");
+            SoundManager.Instance.PlaySFX("ProductRotten");
         }
         else {
             MessageUI.Instance.ShowPlayerPopup("Этот обьект нельзя положить сюда");

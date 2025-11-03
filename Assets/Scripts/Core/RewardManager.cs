@@ -42,15 +42,16 @@ public class RewardManager : MonoBehaviour {
         _sumActions += order.foreignExtraCount;
 
         // --- Финальный расчёт точности ---
-        _allAccuracy = (float)_sumRightIngredients  / _sumActions;
-        _allAccuracy = Mathf.Clamp01(_allAccuracy) * 100f;
+        _allAccuracy = _sumRightIngredients > 0 
+            ? Mathf.Clamp01((float)_sumRightIngredients / _sumActions) * 100f
+            : 0f;
 
         Debug.Log($"Точность: {_allAccuracy}% ({_sumRightIngredients }/{_sumActions})");
 
         // --- Штраф за плохую точность ---
         float penaltyMultiplier = 1f;
-        if (_allAccuracy < 40f) {
-            float penalty = Mathf.Lerp(0f, 0.3f, (40f - _allAccuracy) / 40f); // до -30%
+        if (_allAccuracy < 30f) {
+            float penalty = Mathf.Lerp(0f, 0.6f, (30f - _allAccuracy) / 30f); // до -60%
             penaltyMultiplier -= penalty;
         }
         float finalReward = allReward * penaltyMultiplier;
@@ -69,6 +70,10 @@ public class RewardManager : MonoBehaviour {
 
         string accuracyText = $"Точность: {_allAccuracy:0}%\n{comment}";
 
+        
+        
+        
+        
         CurrencyManager.Instance.SetOrderResult(finalReward, _newGemsCount, timeInfo, accuracyText, _comboStat);
 
         // --- Сброс ---
@@ -87,14 +92,18 @@ public class RewardManager : MonoBehaviour {
         int missing = oderInfo.missing;
         int total = oderInfo.total; // всего ингредиентов в блюде т.е правильных типо
         int playerAddedOrMissing = correct + extra + missing;
+        
+        
+        
         _sumActions += playerAddedOrMissing;
         _sumRightIngredients += correct;
-        float baseReward = oderInfo.dish.baseReward;
+        
+        
+        
+        float baseReward = CalculateBaseReward(oderInfo.dish.ingredients);
         
         
         float accuracy = Mathf.Clamp01((float)correct / playerAddedOrMissing); // в пределах заказика чтоб начислить гем
-        
-        _allAccuracy += accuracy;
         
         float timeBonus = 0.5f + 0.5f * Mathf.Clamp01(1f - elapsedTime / maxTime);
         _comboBonus = 1f + Mathf.Min(_comboCount * 0.05f, 0.65f);
@@ -126,5 +135,15 @@ public class RewardManager : MonoBehaviour {
 
         
         return baseReward * accuracy * (1 + timeBonus) * _comboBonus; // за блюдо
+    }
+
+
+    private float CalculateBaseReward(KitchenObjectSO[] ingredients) {
+        float sum = 0f;
+        
+        foreach (var ingredient in ingredients) {
+            sum += ingredient.price;
+        }
+        return sum;
     }
 }

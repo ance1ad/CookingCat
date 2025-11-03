@@ -25,6 +25,7 @@ public class OvenVisual : MonoBehaviour
         GameObject newIcon = Instantiate(_iconTemplate);
         newIcon.transform.GetChild(1).GetComponent<Image>().sprite = obj.icon;
         newIcon.transform.SetParent(_canvas.transform, false);
+        SoundManager.Instance.PlaySFX("Success");
         newIcon.SetActive(true);
         icons.Add(newIcon);
     }
@@ -34,6 +35,7 @@ public class OvenVisual : MonoBehaviour
         animator.enabled = true;
         AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
         bool isPlayingOpenDoor = info.IsName("OpenDoor") && info.normalizedTime < 1f;
+        SoundManager.Instance.PlaySFX("Holodos");
         if (isPlayingOpenDoor) return; // не запускаем пока не закончила
         animator.Play(STATE_NAME, 0, 0f);
     }
@@ -52,6 +54,7 @@ public class OvenVisual : MonoBehaviour
         newIcon.transform.SetParent(_canvas.transform, false);
         newIcon.SetActive(true);
         icons.Add(newIcon);
+        SoundManager.Instance.PlaySFX("Success");
 
     }
 }

@@ -14,10 +14,11 @@ public class PlayerVisual : MonoBehaviour {
     private GameObject newIcon;
     private Image iconImage;
     private TMP_Text _popupText;
-    private float showPopupTime = 2.5f;
+    private float showPopupTime = 1f;
 
     private void Start() {
         _popupText = _popupCanvas.transform.GetChild(1).GetComponent<TMP_Text>();
+        iconImage = newIcon.transform.GetChild(1).GetComponent<Image>();
     }
 
 
@@ -25,7 +26,6 @@ public class PlayerVisual : MonoBehaviour {
         newIcon = Instantiate(iconTemplate);
         newIcon.transform.SetParent(canvas.transform, false);
         canvas.SetActive(true);
-        iconImage = newIcon.transform.GetChild(1).GetComponent<Image>();
     }
 
     public void ShowIcon(Sprite icon) {

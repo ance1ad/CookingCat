@@ -50,6 +50,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
             if (fruitCurrentCount == fruitCountToEnable) {
                 MessageUI.Instance.ShowPlayerPopup("Запущена соковыжималка");
                 StartCoroutine(JuicerRoutine());
+                SoundManager.Instance.PlayLoopSfx("Juicer");
             }
         }
 
@@ -116,6 +117,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
 
         MessageUI.Instance.ShowPlayerPopup("Напиток готов к выдаче");
         fruitCurrentCount = 0;
+        SoundManager.Instance.StopLoopSfx("Juicer");
     }
 
 

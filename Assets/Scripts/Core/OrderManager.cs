@@ -7,6 +7,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Profiling;
+using Random = System.Random;
 
 // Ограниченный стек заказов
 public class OrderManager : BaseCounter {
@@ -21,7 +22,8 @@ public class OrderManager : BaseCounter {
     public Order CurrentOrder; // Все заказы в системе
     public bool orderIsAppointed;
     public int orderNumber { get; private set; } = 0;
-    private float timeToShowIngredients = 5f;
+    private int timeToShowIngredients;
+    private float _timeToCompleteOrder;
 
     public static OrderManager Instance { get; private set; }
     public event Action OnOrderCompleted;
@@ -74,50 +76,100 @@ public class OrderManager : BaseCounter {
     }
 
 
-    private float _timeToCompleteOrder;
     public void AssignOrderToPlate(Plate plate) {
         if (CurrentOrder == null || plate.Order != null) return;
         if(orderIsAppointed) return;
         orderIsAppointed = true;
 
         MessageUI.Instance.ShowPlayerPopup("Взят заказ: " + orderNumber);
+        
         _visual.DeleteAllIcons();
         _visual.HideContainers();
         _visual.AddIcons();
-        // както устанавливается
-        _visual._countToShowOrder = 3;
+       
         _visual.ShowCanvas();
         _visual.ShowButtonToOpenOrder(true);
         
 
         plate.SetOrder(CurrentOrder);
-        StartCoroutine(_visual.TimerToCloseOrderInfo(timeToShowIngredients));
-        // Както устанавливается
-        _timeToCompleteOrder = 120f;
-        _visual._timeToCompleteOrder = _timeToCompleteOrder;
+        StartCoroutine(_visual.TimerToCloseOrderInfo(timeToShowIngredients, true));
+    
     }
     
 
     private void CreateNewOrder() {
         // Тут можно регулировать сложность 
         ++orderNumber;
-
+        SoundManager.Instance.PlaySFX("NewOrder");
         _visual.ShowInfinityPopupText("Новый заказ №" + orderNumber.ToString("D3") + " !");
         ClientCat.Instance.GoSayOrder();
-        DishSO[] orderDishes = new DishSO[3];
         
-        
-        // orderDishes[0] = GetRandomDish(_firstDishes);
-        // orderDishes[1] = GetRandomDish(_secondDishes);
-        orderDishes[2] = GetRandomDish(_drinks);
 
-        // Уставновить в visual текст 
-        // _visual.setPizzaTitle(orderDishes[0].dishName);
-        // _visual.setPizzaTitle(orderDishes[1].dishName);
-        // _visual.setPizzaTitle(orderDishes[2].dishName);
+        DishSO[] orderDishes = new DishSO[3];
+
+        
+        
+        if (UnityEngine.Random.Range(0f, 1f) < 0.5) {
+            orderDishes[0] = GetRandomDish(_firstDishes);
+        }
+
+        if (UnityEngine.Random.Range(0f, 1f) < 0.5) {
+            orderDishes[1] = GetRandomDish(_secondDishes);
+            
+        }
+        if (UnityEngine.Random.Range(0f, 1f) < 0.5) {
+            orderDishes[2] = GetRandomDish(_drinks);
+        }
+
+        if (orderDishes[0] == null || orderDishes[1] == null || orderDishes[2] == null) {
+            orderDishes[1] = GetRandomDish(_secondDishes);
+        }
+
+        CountTimesToShowOrder(orderDishes);
+        SetTimeToCompleteOrder(orderDishes);
+        SetTimeToShowIngredients(orderDishes);
+
 
         
         CurrentOrder = new Order(orderDishes[0], orderDishes[1], orderDishes[2], orderNumber);
+        _visual.SetOrderDishesName(CurrentOrder);
+    }
+
+    private void CountTimesToShowOrder(DishSO[] orderDishes)
+    {
+        var countToShowOrder = 3;
+        foreach (var dish in orderDishes) {
+            if (dish == null) {
+                countToShowOrder--;
+            }
+        }
+        _visual._countToShowOrder = countToShowOrder;
+    }
+
+
+    private void SetTimeToCompleteOrder(DishSO[] orderDishes) {
+        int countIngredients = CountOrderIngredients(orderDishes);
+        // условно на 1 ингредиент чтоб собрать 5 секунд
+        int secondsMultiply = 10;
+        _timeToCompleteOrder = countIngredients * secondsMultiply;
+        _visual._timeToCompleteOrder = _timeToCompleteOrder;
+    }
+    
+    private void SetTimeToShowIngredients(DishSO[] orderDishes) {
+        int countIngredients = CountOrderIngredients(orderDishes);
+        int secondsMultiply = 1;
+        timeToShowIngredients = countIngredients * secondsMultiply;
+        timeToShowIngredients--;
+    }
+
+    private int CountOrderIngredients(DishSO[] orderDishes) {
+        int count = 0;
+        foreach (var ingredients in orderDishes) {
+            if (ingredients != null) {
+                count += ingredients.ingredients.Length;
+            }
+        }
+        return count;
     }
 
 
@@ -148,6 +200,7 @@ public class OrderManager : BaseCounter {
         }
         else {
             MessageUI.Instance.ShowPlayerPopup("Возьмите поднос слева");
+            
         }
          
     }
@@ -157,14 +210,15 @@ public class OrderManager : BaseCounter {
 
         if (dishStruct.dish != null) {
             dishStruct.total = dishStruct.dish.ingredients.Count();
-            List<KitchenObjectSO> tempAdded = new List<KitchenObjectSO>(addedIngredientsList);
                 
+            // Пробегаемся по нужным
             for (int i = 0; i < dishStruct.dish.ingredients.Count(); i++) {
                 KitchenObjectSO neededIngredinet = dishStruct.dish.ingredients[i];
+                // Проверяем что добавленные ингредиенты содержат
                 if (addedIngredientsList.Contains(neededIngredinet)) {
                     dishStruct.correct++;
                     _visual.SetGood(dishIcons[i]);
-                    addedIngredientsList.Remove(neededIngredinet);
+                    addedIngredientsList.Remove(neededIngredinet); // проверили
                 }
                 else {
                     dishStruct.missing++;
@@ -179,13 +233,11 @@ public class OrderManager : BaseCounter {
                 _visual.ShowCanvas(dishCanvas);
                 GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
                 _visual.SetBad(newIcon);
-                Debug.Log("SetExtra" + ingredient.objectName);
             }
         }
         
         if (dishStruct.dish == null) {
             foreach (var ingredient in addedIngredientsList) {
-                Debug.Log("Лишние ингредиенты блюда которого нет: " + ingredient);
                 _foreignExtraCount++;
                 _visual.ShowCanvas(dishCanvas);
                 GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
