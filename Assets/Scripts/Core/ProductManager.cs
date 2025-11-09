@@ -7,13 +7,15 @@ using UnityEngine;
 public class ProductManager : MonoBehaviour {
     [SerializeField] private GameObject _storeCanvas;
     [SerializeField] private List<ProductCard> _productCards;
+    [SerializeField] private TMP_Text _title;
     [SerializeField] private TMP_Text _allPriceText;
     [SerializeField] private TMP_Text _successMessage;
     
     [SerializeField] private TMP_Text _coinsCount;
     [SerializeField] private TMP_Text _gemsCount;
     [SerializeField] private TMP_Text _spentCount;
-    
+    [SerializeField] private TMP_Text _buyButtonText;
+
     
 
     private Dictionary<KitchenObjectSO, int> _basketDictionary = new Dictionary<KitchenObjectSO, int>();
@@ -54,7 +56,7 @@ public class ProductManager : MonoBehaviour {
         }
 
         
-        _allPriceText.text = "Общая цена: " + _allPrice.ToString("F2") + "$";
+        _allPriceText.text = LocalizationManager.Get("AllPrice", _allPrice.ToString("F2"));
     }
 
     private Coroutine _textCoroutine;
@@ -64,18 +66,20 @@ public class ProductManager : MonoBehaviour {
         }
         // Проверить мани
         if (_allPrice == 0) {
-            _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(false, "Вы ничего не выбрали"));
+            string message = LocalizationManager.Get("NothingSet");
+            _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(false, message));
             return;
         }
         if (CurrencyManager.Instance.Coins < _allPrice) {
-            _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(false, "Не хватает коинов для курьера"));
+            string message = LocalizationManager.Get("LackCoins");
+            _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(false, message));
             return;
         }
         _spentCount.enabled = true;
         CurrencyManager.Instance.UpdateCash(-1 * _allPrice, 0);
         _coinsCount.text = CurrencyManager.Instance.Coins.ToString();
         _spentCount.text = "-" + _allPrice;
-        _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(true, "Курьер найден"));
+        _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(true, LocalizationManager.Get("CourierFound")));
         
         // Шоб не удалился
         var copyDict = new Dictionary<KitchenObjectSO, int>(_basketDictionary);
@@ -97,7 +101,7 @@ public class ProductManager : MonoBehaviour {
             _successMessage.text = message;
             _successMessage.color = Color.green;
             _allPrice = 0f;
-            _allPriceText.text = "Общая цена: 0$";
+            _allPriceText.text = LocalizationManager.Get("AllPrice", 0);
             SoundManager.Instance.PlaySFX("Warning");
             
         }
@@ -105,6 +109,20 @@ public class ProductManager : MonoBehaviour {
         _successMessage.enabled = false;
     }
 
-    public void ShowHideStoreWindow() => _storeCanvas.SetActive(!_storeCanvas.activeSelf);
+    public void ShowHideStoreWindow() {
+        _storeCanvas.SetActive(!_storeCanvas.activeSelf);
+        UpdateTextLocalization();
+    }
+
+    private void UpdateTextLocalization() {
+        if (_storeCanvas.activeSelf) {
+            _title.text = LocalizationManager.Get("ProductStoreTitle");
+            _allPriceText.text = LocalizationManager.Get("AllPrice", _allPrice.ToString("F2"));
+            _buyButtonText.text = LocalizationManager.Get("BuyButtonText");
+            foreach (var card in _productCards) {
+                card.UpdateText();
+            }
+        }
+    }
     
 }

@@ -11,12 +11,19 @@ public class MessageUI : MonoBehaviour
     [SerializeField] private TMP_Text _text;
     [SerializeField] private List<EmotionsAccordance> _emotions;
     [SerializeField] private PlayerVisual _playerVisual;
+    [SerializeField] private GameObject _nextButton;
+    [SerializeField] private Image _focus;
 
 
+
+    
+    
     private Coroutine _currentRoutine;
 
     public static MessageUI Instance;
-    private float timeToShow = 3f;
+    private float timeToShow = 5f;
+
+    public bool PopupIsActive() => _canvas.gameObject.activeSelf;
 
     private void Awake() {
         if (Instance != null) {
@@ -27,15 +34,18 @@ public class MessageUI : MonoBehaviour
     }
 
     public void Show(bool state) {
-        _canvas.gameObject.SetActive(state);
+        if (_canvas.gameObject.activeSelf != state) {
+            _canvas.gameObject.SetActive(state);
+        }
     }
 
     public void SetText(string text, Emotions emotion) {
         Show(true);
         _text.text = text;
-        SetEmotion(emotion);
+        SetEmotion(emotion, "CatSay");
         if (_currentRoutine != null) {
             StopCoroutine(_currentRoutine);
+            _currentRoutine = null;
         }
 
         _currentRoutine = StartCoroutine(TextShowRoutine());
@@ -43,15 +53,23 @@ public class MessageUI : MonoBehaviour
     
     public void SetTextInfinity(string text, Emotions emotion) {
         // В этом случае будет меняться только текст
+        if (_currentRoutine != null) {
+            StopCoroutine(_currentRoutine);
+            _currentRoutine = null;
+        }
         Show(true);
         _text.text = text;
-        SetEmotion(emotion);
+        SetEmotion(emotion, "NextTutorStep");
+        // + показать кнопку
     }
 
-    public void Hide() {
-        Show(false);
+    public void HideInfinityText() {
+        if (_currentRoutine == null) {
+            Show(false);
+            _nextButton.gameObject.SetActive(false);
+        }
     }
-    
+
 
     private IEnumerator TextShowRoutine() {
         yield return new WaitForSeconds(timeToShow);
@@ -65,7 +83,8 @@ public class MessageUI : MonoBehaviour
         angry,
         happy,
         shocked,
-        eated
+        eated,
+        bonk
     }
 
     [Serializable]
@@ -74,7 +93,7 @@ public class MessageUI : MonoBehaviour
         public Emotions emotion;
     }
 
-    public void SetEmotion(Emotions emotion) {
+    public void SetEmotion(Emotions emotion, string saySound) {
         foreach (var item in _emotions) {
             if (item.emotion == emotion) {
                 item.face.gameObject.SetActive(true);
@@ -82,7 +101,7 @@ public class MessageUI : MonoBehaviour
                     SoundManager.Instance.PlaySFX("Angry");
                 }
                 else {
-                    SoundManager.Instance.PlaySFX("CatSay");
+                    SoundManager.Instance.PlaySFX(saySound);
                 }
             }
             else {
@@ -90,12 +109,32 @@ public class MessageUI : MonoBehaviour
             }
         }
     }
-
+    
 
     public void ShowPlayerPopup(string text) {
         _playerVisual.ShowPopupText(text);
         SoundManager.Instance.PlaySFX("Warning");
     } 
 
+    
+    public IEnumerator HideFocusRoutine() {
+        if (!_focus.gameObject.activeSelf) {
+            _focus.gameObject.SetActive(true);
+        }
+        _focus.fillAmount = 1;
+        float time = 0;
+        float timeToClose = 2f;
+        while (time <= timeToClose) {
+            time+=Time.deltaTime;
+            _focus.fillAmount = 1 - time/timeToClose;
+            yield return null;
+        }
+        _focus.gameObject.SetActive(false);
+        HideInfinityText();
+        
+    }
+    
+    
+    
 
 }

@@ -42,7 +42,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
                 cutCount = 0;
             }
             else {
-                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontSlice"));
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ObjectNotSlicable", player.GetKitchenObject().GetKitchenObjectSO().objectName));
             }
         }
         else if (HasKitchenObject()) {
@@ -68,6 +68,9 @@ public class CuttingCounter : BaseCounter, IHasProgress {
     }
 
     public override void AlternativeInteract(Player player) {
+        if (!HasKitchenObject()) {
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("EmptySlicing"));
+        }
         if (_objectIsSliced) {
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ObjectIsSliced"));
             return;

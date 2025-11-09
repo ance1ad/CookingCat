@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -21,20 +22,40 @@ public class SettingsManager : MonoBehaviour {
     [SerializeField] private GameObject _offSoundLine;
     
     [SerializeField] private Button _localizationButton;
+    [SerializeField] private Button _mainMenuButton;
     [SerializeField] private TMP_Text _textUnderBtnLocalization;
     [SerializeField] private TMP_Text _textInBtnLocalization;
 
+    public static SettingsManager Instance { get; private set; }
 
     
+
+
     private void Awake() {
+        if (Instance != null) {
+            Debug.LogError("There can only be one Instance of type SettingsManager");
+            return;
+        }
+
+        Instance = this;
         _settingsCanvas.SetActive(false);
         _localizationButton.onClick.AddListener(() => SwipeLanguage());
+        _mainMenuButton.onClick.AddListener(OnMainMenuButtonClick);
         SetText();
     }
 
+    private void OnMainMenuButtonClick() {
+        MainMenu.Instance.OpenMainMenu();
+        _settingsCanvas.SetActive(false);
+    }
+
+    public event Action OnSwipeLanguage;
+        
     private void SwipeLanguage() {
         LocalizationManager.SwipeLanguage();
         SetText();
+        OnSwipeLanguage?.Invoke();
+        Debug.Log("SwipeLanguage");
     }
 
     private void SetText() {
@@ -62,7 +83,10 @@ public class SettingsManager : MonoBehaviour {
 
     }
 
-    public void ShowHideSettings() => _settingsCanvas.SetActive(!_settingsCanvas.activeSelf);
+    public void ShowHideSettings() {
+        _settingsCanvas.SetActive(!_settingsCanvas.activeSelf);
+        Time.timeScale = _settingsCanvas.activeSelf ? 0 : 1;
+    } 
     
     public void OffOnMusic() {
         SoundManager.Instance.MuteMusic(!_offMusicLine.activeSelf);

@@ -10,11 +10,15 @@ public class CurrencyManager : MonoBehaviour {
     [SerializeField] private TMP_Text _accuracyText;
     [SerializeField] private TMP_Text _comboText;
 
+    [SerializeField] private TMP_Text _title;
+    
+    
     public event Action<CurrencyActionArgs> OnBankChangedAction;
 
 
     private void Start() {
         CloseCanvas();
+        _title.text = LocalizationManager.Get("OrderResultsTitle");
     }
 
     private void Awake() {
@@ -52,8 +56,8 @@ public class CurrencyManager : MonoBehaviour {
     
     // Банк игрока
     public static CurrencyManager Instance { get; private set; }
-    public float Coins { get; private set; } = 1000f; // обычные монетки
-    public int Gems { get; private set; } = 10; // ебать крутая валюта
+    public float Coins { get; private set; } = 0f; // обычные монетки
+    public int Gems { get; private set; } = 0; // ебать крутая валюта
 
     
     
@@ -66,11 +70,14 @@ public class CurrencyManager : MonoBehaviour {
     
 
     public void CloseCanvas() {
-        _canvas.SetActive(false);
+        if (_canvas.activeSelf) {
+            _canvas.SetActive(false);
+        }
     }
     
     public void ShowCanvas() {
         _canvas.SetActive(true);
+        _title.text = LocalizationManager.Get("OrderResultsTitle");
     }
 
     

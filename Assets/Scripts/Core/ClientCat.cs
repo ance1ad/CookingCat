@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,7 +10,11 @@ public class ClientCat : MonoBehaviour {
     [SerializeField] private Transform _table;
     [SerializeField] private Animator _animator;
     [SerializeField] private Transform _holdPoint;
+    [SerializeField] private TMP_Text _popupText;
 
+    
+    
+    
     private NavMeshAgent _agent;
     private const string PLAYER_WALKING_STATE_VARIABLE = "IsWalking";
     public static ClientCat Instance { get; private set; }
@@ -24,13 +29,22 @@ public class ClientCat : MonoBehaviour {
         }
         Instance = this;
         _agent = GetComponent<NavMeshAgent>();
-        
+        _popupText.text = LocalizationManager.Get("ClientRole");
+    }
+
+    private void Start() {
+        SettingsManager.Instance.OnSwipeLanguage += OnOnSwipeLanguage;
+    }
+
+    private void OnOnSwipeLanguage() {
+        _popupText.text = LocalizationManager.Get("ClientRole");
     }
 
 
-
     public void GoSayOrder() {
-        StartCoroutine(GoSayOrderRoutine());
+        if (isActiveAndEnabled) {
+            StartCoroutine(GoSayOrderRoutine());
+        }
     }
     public void GoEatOrder() {
         StartCoroutine(GoEatOrderRoutine());

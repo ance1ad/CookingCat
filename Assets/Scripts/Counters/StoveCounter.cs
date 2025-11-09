@@ -89,7 +89,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
                 switcher.SetActive(true);
             }
             else {
-                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductNotFryible"));
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductNotFryible", player.GetKitchenObject().GetKitchenObjectSO().objectName));
             }
 
         }

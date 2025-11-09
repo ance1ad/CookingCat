@@ -51,6 +51,14 @@ public class Order {
         Debug.Log(dishStruct[0].dish?.dishName + " " +  dishStruct[1].dish?.dishName + " " + dishStruct[2].dish?.dishName + " №" + orderNum);
         return dishes;
     }
+
+    public void ClearOrder() {
+        dishStruct[0] = null;
+        dishStruct[1] = null;
+        dishStruct[2] = null;
+    }
+
+    public bool OrderIsClean() => dishStruct == null;
 }
 
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-// Тут внутри можно рандомно взять элемент из массива вариантов 1 2 3 блюда и напитка
+// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1 2 3 пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 public class DishVisual : MonoBehaviour {
 
 
@@ -26,10 +26,10 @@ public class DishVisual : MonoBehaviour {
 
     private void Awake() {
         foreach (var iv in ingredientVisuals) {
-            Debug.Log("Добавление ингредиента " + iv.ingredient);
+            // Debug.Log("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ " + iv.ingredient);
             visuals.Add(iv.ingredient, iv.visual);
             Ingredients.Add(iv.ingredient);
-            iv.visual.SetActive(false); // выключаем всё по умолчанию
+            iv.visual.SetActive(false); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         }
     }
 

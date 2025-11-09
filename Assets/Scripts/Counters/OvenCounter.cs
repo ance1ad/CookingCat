@@ -107,6 +107,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
         ready = true;
         bakingNow = false;
         MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PizzaIsReady"));
+        
         _visual.SetPizzaReady();
         SoundManager.Instance.PlaySFX("Success");
         SoundManager.Instance.StopLoopSfx("Oven");
@@ -129,6 +130,11 @@ public class OvenCounter : BaseCounter, IHasProgress{
             return;
         }
 
+        if (ready) {
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PizzaIsReady"));
+            return; 
+        }
+
         MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OvenRun"));
         SoundManager.Instance.PlayLoopSfx("Oven");
         BakePizza();
@@ -141,7 +147,6 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
 
     private void BakePizza() {
-
         // Логика подбора пиццы
         foreach (var pizza in _pizzes) {
             // Проверка ингредиента
@@ -165,7 +170,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
                 suit = true;
             }
         }
-        // Прошлись по всем пиццам, нельзя такую собрать вернём ебаный импровизированный пицца
+        // Прошлись по всем пиццам, нельзя такую собрать вернём импровизированный пицца
         AssignPizza(_abstractPizza);
     }
 

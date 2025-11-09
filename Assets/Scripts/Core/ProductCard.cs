@@ -19,6 +19,7 @@ public class ProductCard : MonoBehaviour {
     
     public KitchenObjectSO GetProductSO() => _product;
     public int GetCount() => _count;
+    private string pieces = "шт.";
     
     // Подсчет денег
     private void Awake() {
@@ -26,13 +27,14 @@ public class ProductCard : MonoBehaviour {
         _icon.sprite = _product.sprite;
         _name.text = _product.objectName;
         _price.text = _product.price.ToString() + " $";
-
+        pieces = LocalizationManager.Get("Pieces");
+        _countText.text = (_count.ToString() + pieces);
     }
 
     private bool _colorIsGreen;
     public void OnClickPlus() {
         _count++;
-        _countText.text = (_count.ToString() + " шт");
+        _countText.text = (_count.ToString() + pieces);
         OnCardChanged?.Invoke(this);
         if (!_colorIsGreen) {
             _countText.color = Color.green;
@@ -48,15 +50,28 @@ public class ProductCard : MonoBehaviour {
             _countText.color = Color.white;
             _colorIsGreen = false;
         }
-        _countText.text = (_count.ToString() + " шт");
+        _countText.text = (_count.ToString() + pieces);
         OnCardChanged?.Invoke(this);
     }
 
     public void SetZero() {
         _count = 0;
-        _countText.text = (0 + " шт");
+        _countText.text = (0 + pieces);
         _countText.color = Color.white;
         
+    }
+
+    public void UpdateText() {
+        // Если сменился язык
+        if (_name.text != _product.objectName) {
+            _name.text = _product.objectName;
+        }
+
+        if (pieces != LocalizationManager.Get("Pieces")) {
+            pieces = LocalizationManager.Get("Pieces");
+            _countText.text = (_count.ToString() + pieces);
+        }
+            
     }
     
 }

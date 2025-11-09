@@ -390,20 +390,44 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
 
     private IEnumerator ObjectMoveToPoint(Transform point, float speed) {
-        Transform obj = GetKitchenObject().transform;
-        while (Vector3.Distance(obj.position, point.position) > 0.2f ) {
-            if (!HasKitchenObject()) {
-                StopCoroutine(_objectMoveCoroutine);
+        Transform obj = GetKitchenObject()?.transform;
+    
+        // Если уже нечего двигать — сразу выйти
+        if (obj == null || point == null) {
+            _objectMoveCoroutine = null;
+            yield break;
+        }
+
+        while (true) {
+            // Проверяем, не уничтожен ли объект или точка
+            if (obj == null || point == null) {
                 _objectMoveCoroutine = null;
+                yield break;
             }
+
+            // Проверяем дистанцию
+            if (Vector3.Distance(obj.position, point.position) <= 0.2f)
+                break;
+
+            // Проверяем, что у нас ещё есть объект в руках
+            if (!HasKitchenObject()) {
+                _objectMoveCoroutine = null;
+                yield break;
+            }
+
             obj.position = Vector3.MoveTowards(
                 obj.position,
                 point.position,
                 speed * Time.deltaTime
             );
+
             yield return null;
         }
-        obj.position = point.position;
+
+        if (obj != null && point != null)
+            obj.position = point.position;
+
         _objectMoveCoroutine = null;
     }
+
 }

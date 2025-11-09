@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SocialPlatforms;
 using UnityEngine.UIElements;
 using static ThiefCat;
 
@@ -19,6 +21,8 @@ public class CourierCat : MonoBehaviour, IKitchenObjectParent {
     [SerializeField] private List<ProductToContainer> _productContainerPairs = new();
     [SerializeField] private Transform _exit;
     [SerializeField] private Animator _animator;
+    [SerializeField] private TMP_Text _popupText;
+    
 
     private const string PLAYER_WALKING_STATE_VARIABLE = "IsWalking";
     private NavMeshAgent _agent;
@@ -28,29 +32,27 @@ public class CourierCat : MonoBehaviour, IKitchenObjectParent {
 
     private void Awake() {
         _agent = GetComponent<NavMeshAgent>();
+        _popupText.text = LocalizationManager.Get("CourierRole");
     }
 
     private void Start() {
         ProductManager.Instance.OnProductCardAdded += InstanceOnOnProductCardAdded;
+        SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
     }
 
+    private void OnSwipeLanguage() {
+        _popupText.text = LocalizationManager.Get("CourierRole");
+    }
+    
+    
     private Queue<Dictionary<KitchenObjectSO, int>> _ordersQueue = new Queue<Dictionary<KitchenObjectSO, int>>();
     private void InstanceOnOnProductCardAdded(Dictionary<KitchenObjectSO, int> newOrder) {
-        _ordersQueue.Enqueue(newOrder);
+        if (_ordersQueue.Count < 20) {
+            _ordersQueue.Enqueue(newOrder);
+        }
         if (_doingWorkCoroutine == null) {
             _doingWorkCoroutine = StartCoroutine(DoingQueue());
         }
-        // int count = 1;
-        // Debug.Log("______________Список всех заказов: ______________");
-        // foreach (var order in _ordersQueue) {
-        //     Debug.Log("Новый заказ " + count);
-        //     foreach (var order2 in order) {
-        //         if (order2.Value != 0) {
-        //             Debug.Log(order2.Key.objectName + " - " + order2.Value);
-        //         }
-        //     }
-        //     count++;
-        // }
     }
 
     private Coroutine _doingWorkCoroutine;

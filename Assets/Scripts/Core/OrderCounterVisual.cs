@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SocialPlatforms;
 
 public class OrderCounterVisual : MonoBehaviour {
     
@@ -17,6 +18,7 @@ public class OrderCounterVisual : MonoBehaviour {
     [SerializeField] public GameObject _canvasDrink;
     [SerializeField] public GameObject _drinkContainer;
     [SerializeField] public TMP_Text _timerText;
+    [SerializeField] public TMP_Text _closeIn;
     [SerializeField] public GameObject _timerCanvas;
     [SerializeField] private GameObject _closeButton;
     [SerializeField] private GameObject _bigCloseButton;
@@ -31,6 +33,11 @@ public class OrderCounterVisual : MonoBehaviour {
     [SerializeField] private TMP_Text _burgerName;
     [SerializeField] private TMP_Text _drinkName;
 
+    [SerializeField] private TMP_Text _orderNumberText; // сверху слева
+    [SerializeField] public GameObject _orderNumberTextBackground; // сверху слева
+
+    
+    
     public void SetOrderDishesName(Order order) {
         if (order.dishStruct[0].dish != null) {
             _pizzaName.text = order.dishStruct[0].dish.dishName;
@@ -70,8 +77,10 @@ public class OrderCounterVisual : MonoBehaviour {
     private void Start() {
         _showOrderButton.gameObject.SetActive(false);
         _orderTimerVisual.SetActive(false);
-        
+        _orderNumberTextBackground.SetActive(false);
     }
+
+
 
     public void HideContainers() {
         _pizzaContainer.SetActive(false);
@@ -144,7 +153,6 @@ public class OrderCounterVisual : MonoBehaviour {
     }
 
     
-    // !!!!!!!! нагруженная пиздэц переделай и ниже хуйню тоже
     public void SetGrayColor(GameObject icon) {
         icon.transform.GetChild(2).GetComponent<Image>().color = Color.gray;
     }
@@ -165,23 +173,24 @@ public class OrderCounterVisual : MonoBehaviour {
 
 
     private float timeToShowIngredients;
-    public IEnumerator TimerToCloseOrderInfo(float time, bool firstTime) {
+    public bool _firstTimeShowResourceArrow = true;
+    public IEnumerator TimerToCloseOrderInfo(float time) {
         timeToShowIngredients = time;
+        _thief.StopThiefCycle();
 
-        if (firstTime) {
-            _thief.StopThiefCycle();
-        }
         ShowButtonToOpenOrder(false);
         
         float timeNow = 0f;
         while (timeNow < time) {
-            _timerText.text = ((int)((time - timeNow)+1) + " сек");
+            _timerText.text = LocalizationManager.Get("OrderShowTimerText", (int)((time - timeNow)+1));
             _level.fillAmount = (1f - timeNow / time);
 
             timeNow += Time.deltaTime;
             // обновлять потом поле с временем до закрытия
             yield return null;
         }
+
+        _level.fillAmount = 0;
         ShowButtonToOpenOrder(true);
 
 
@@ -193,14 +202,22 @@ public class OrderCounterVisual : MonoBehaviour {
             orderTimerCoroutine = StartCoroutine(StartNewTimerRoutine());
             _lateText.text = "";
         }
-        
-        _generalCanvas.SetActive(false);
-        if (firstTime) {
+
+
+
+        if (OrderManager.Instance.Level > 2) {
             _thief.StartThiefCycle();
         }
-
+        _generalCanvas.SetActive(false);
+        if (OrderManager.Instance.Level == 1 && _firstTimeShowResourceArrow) {
+            _firstTimeShowResourceArrow = false;
+            TutorialManager.Instance.ShowOrderResource();
+            MessageUI.Instance.SetText(LocalizationManager.Get("LastStep"), MessageUI.Emotions.defaultFace);
+        }
     }
 
+    
+    
     private Coroutine orderTimerCoroutine;
     public float _completeTimer { get; private set; }
     public float _timeToCompleteOrder; // устанавливается из OrderManager
@@ -224,7 +241,9 @@ public class OrderCounterVisual : MonoBehaviour {
             _completeTimer += Time.deltaTime;
             yield return null;
         }
-        _lateText.text = "Опоздание";
+
+        _timerToCompleteOrderImg.fillAmount = 0;
+        _lateText.text = LocalizationManager.Get("LateText");
         
         while (true) {
             _completeTimer += Time.deltaTime;
@@ -235,22 +254,22 @@ public class OrderCounterVisual : MonoBehaviour {
     
 
     public void ShowCanvas() {
-        Debug.Log("Вызов канваса");
         if (showOrder) {
             _orderTimerVisual.SetActive(false);
             _contToShowOrderText.text = _countToShowOrder.ToString();
-            orderStatusText.text = "Новый заказ";
+            orderStatusText.text = LocalizationManager.Get("NewOrderCanvas");
             showOrder = false;
             _new.gameObject.SetActive(true);
             _timerCanvas.gameObject.SetActive(true);
+            // Тут текст поменять закроется через
+            _closeIn.text = LocalizationManager.Get("CloseIn");
             _bigCloseButton.SetActive(false);
             _closeButton.SetActive(false);
         }
         else {
             _showOrderButton.gameObject.SetActive(false);
             _orderTimerVisual.SetActive(false);
-            
-            orderStatusText.text = "Выполнение заказа";
+            orderStatusText.text = LocalizationManager.Get("CompleteOrderCanvas");
             SoundManager.Instance.PlaySFX("GiveOrder");
             _thief.StopThiefCycle();
             showOrder = true;
@@ -267,7 +286,6 @@ public class OrderCounterVisual : MonoBehaviour {
         
     public void HideCanvas() {
         _generalCanvas.SetActive(false);
-        _thief.StartThiefCycle();
     }
 
     public void ShowButtonToOpenOrder(bool state) {
@@ -282,11 +300,12 @@ public class OrderCounterVisual : MonoBehaviour {
             return;
         }
         
-        Debug.Log(_countToShowOrder);
-        orderStatusText.text = "Заказ";
+        _bigCloseButton.SetActive(true);
+        _closeButton.SetActive(true);
+        orderStatusText.text = LocalizationManager.Get("OrderStatusText");
         _countToShowOrder--;
         _generalCanvas.SetActive(true);
-        StartCoroutine(TimerToCloseOrderInfo(timeToShowIngredients, false));
+        StartCoroutine(TimerToCloseOrderInfo(timeToShowIngredients));
         _contToShowOrderText.text = _countToShowOrder.ToString();
         _new.gameObject.SetActive(false);
     }
@@ -294,6 +313,8 @@ public class OrderCounterVisual : MonoBehaviour {
         
     private float showPopupTime = 2f;
     private Coroutine _showTextCoroutine;
+    
+    
     public void ShowPopupText(string text) {
         _popupCanvas.gameObject.SetActive(true);
         Text.text = text;
@@ -304,10 +325,13 @@ public class OrderCounterVisual : MonoBehaviour {
     }
 
     public void ShowInfinityPopupText(string text) {
-        _popupCanvas.gameObject.SetActive(true);
+        if (!_popupCanvas.gameObject.activeSelf) {
+            _popupCanvas.gameObject.SetActive(true);
+        }
         Text.text = text;
     }
 
+    
     
     
     private TMP_Text _text;
@@ -329,6 +353,27 @@ public class OrderCounterVisual : MonoBehaviour {
         _popupCanvas.gameObject.SetActive(false);
     }
 
+    public void ChangeTextLanguage(string text) {
+        bool lastStateIsActive = _orderNumberTextBackground.activeSelf;
+        if (!lastStateIsActive) {
+            _orderNumberTextBackground.SetActive(true);
+        }
+        _orderNumberText.text = text;
+        if (!lastStateIsActive) {
+            _orderNumberTextBackground.SetActive(false);
+        }
+    }
+    public void SetOrderNumVisual(string text) {
+        _orderNumberTextBackground.SetActive(true);
+        _orderNumberTextBackground.SetActive(true);
+        _orderNumberText.text = text;
+    }
+    
+    
+
+    public void HideOrderNumVisual() {
+        _orderNumberTextBackground.SetActive(false);
+    }
 
 
 }

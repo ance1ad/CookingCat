@@ -56,13 +56,25 @@ public class SoundManager : MonoBehaviour {
     }
     
     
+    private Dictionary<string, float> _lastPlayTimes = new Dictionary<string, float>();
+    private float _sfxCooldown = 0.05f; // минимальный интервал между одинаковыми звуками
+
     public void PlaySFX(string id) {
-        if (_soundDict.TryGetValue(id, out SoundData data)) {
-            _sfxSource.PlayOneShot(data.audioClip, data.volume * _sfxVolume);
+        if (id == "") { // Заглушка
+            return;
         }
-        else {
+        if (!_soundDict.TryGetValue(id, out SoundData data)) {
             Debug.Log("Не найден " + id);
+            return;
         }
+
+        float lastTime;
+        if (_lastPlayTimes.TryGetValue(id, out lastTime)) {
+            if (Time.time - lastTime < _sfxCooldown) return; // слишком рано, пропускаем
+        }
+
+        _lastPlayTimes[id] = Time.time;
+        _sfxSource.PlayOneShot(data.audioClip, data.volume * _sfxVolume);
     }
     
     

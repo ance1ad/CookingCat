@@ -1,14 +1,67 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using PlasticPipe.PlasticProtocol.Messages;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RewardManager : MonoBehaviour {   
-    // Тут логика вознаграждения за заказ
+    // Тут логика вознаграждений
+    
+    [SerializeField] private GameObject _rewardContainer;
+    [SerializeField] private Button _getGiftButton;
+    [SerializeField] private TMP_Text _rewardTimer;
+    [SerializeField] private GameObject _grayBack;
+    private float timer;
+    private bool readyToGift = false;
     public static RewardManager Instance {get; private set; }
 
+
+    private void Start() {
+        _getGiftButton.onClick.AddListener(GetGiftButton);
+        
+        SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
+        OnSwipeLanguage();
+        _rewardContainer.SetActive(false);
+    }
+
+    private void OnSwipeLanguage() {
+        secMeasurement = LocalizationManager.Get("SecMeasurement");
+    }
+
+    public void StartRewardTimerRoutine() {
+        _rewardContainer.SetActive(true);
+        StartCoroutine(RewardTimerRoutine());
+    }
+
+
+    private string secMeasurement;
+    private IEnumerator RewardTimerRoutine() {
+        timer = 10f;
+        _grayBack.SetActive(true);
+        _rewardTimer.gameObject.SetActive(true);
+        while (timer > 0) {
+            timer -= Time.deltaTime;
+            _rewardTimer.text = timer.ToString("0") + secMeasurement;
+            yield return null;
+        }
+        _grayBack.SetActive(false);
+        _rewardTimer.gameObject.SetActive(false);
+        readyToGift = true;
+    }
+
+    private void GetGiftButton() {
+        if(!readyToGift) return;
+        readyToGift = false;
+        // Логика рандома выдачи денег
+        CurrencyManager.Instance.UpdateCash(4000f, 1);
+        StartCoroutine(RewardTimerRoutine());
+    }
     
     
+
+
     private void Awake() {
         if (Instance != null) {
             Debug.LogWarning("Instance already created");
@@ -42,11 +95,9 @@ public class RewardManager : MonoBehaviour {
         _sumActions += order.foreignExtraCount;
 
         // --- Финальный расчёт точности ---
-        _allAccuracy = _sumRightIngredients > 0 
+        _allAccuracy = _sumRightIngredients > 0
             ? Mathf.Clamp01((float)_sumRightIngredients / _sumActions) * 100f
             : 0f;
-
-        Debug.Log($"Точность: {_allAccuracy}% ({_sumRightIngredients }/{_sumActions})");
 
         // --- Штраф за плохую точность ---
         float penaltyMultiplier = 1f;
@@ -54,28 +105,40 @@ public class RewardManager : MonoBehaviour {
             float penalty = Mathf.Lerp(0f, 0.6f, (30f - _allAccuracy) / 30f); // до -60%
             penaltyMultiplier -= penalty;
         }
+
         float finalReward = allReward * penaltyMultiplier;
 
-        
+
         // --- Комментарии игроку ---
         string comment;
-        if (_allAccuracy < 50f) comment = "Много ошибок";
-        else if (_allAccuracy < 65f) comment = "Клиент недоволен...";
-        else if (_allAccuracy < 75f) comment = "Неплохо!";
-        else comment = "Отличная работа!";
-
+        if (_allAccuracy < 50f) comment = LocalizationManager.Get("ManyErrors");
+        else if (_allAccuracy < 65f) comment = LocalizationManager.Get("ClientUnhappy");
+        else if (_allAccuracy < 75f) comment = LocalizationManager.Get("NotBad");
+        else comment = LocalizationManager.Get("GoodJob");
+        
         string timeInfo = order.maxTime - order.elapsedTime >= 0
-            ? $"Время: {order.elapsedTime:0} сек. успел!"
-            : $"Время: {(order.elapsedTime - order.maxTime):0} сек. опоздание";
+            ? LocalizationManager.Get("TimeNotLate", order.elapsedTime)
+            : LocalizationManager.Get("TimeLate", order.elapsedTime-order.maxTime);
 
-        string accuracyText = $"Точность: {_allAccuracy:0}%\n{comment}";
+        
+        string accuracyText = LocalizationManager.Get("Accuracy", _allAccuracy, comment);
 
         
         
         
         
         CurrencyManager.Instance.SetOrderResult(finalReward, _newGemsCount, timeInfo, accuracyText, _comboStat);
-
+        if (OrderManager.Instance.Level < 5) {
+            if (_allAccuracy >= 70) {
+                OrderManager.Instance.Level++;
+                OrderManager.Instance._tryCounts = 0;
+            }
+            else {
+                OrderManager.Instance.SayLevelResult();
+                OrderManager.Instance._tryCounts++;
+            }
+        }
+        
         // --- Сброс ---
         _sumRightIngredients  = 0;
         _sumActions = 0;
@@ -111,7 +174,8 @@ public class RewardManager : MonoBehaviour {
         if (accuracy >= 1f) {
             _newGemsCount++; // За собранный правильно заказ + алмазик
             _comboCount++;
-            _comboStat = $"Комбо x{_comboCount} (+{_comboCount*5}%)";
+            // _comboStat = $"Комбо x{_comboCount} (+{_comboCount*5}%)";
+            _comboStat = LocalizationManager.Get("ComboX", _comboCount, _comboCount*5);
         }
         else {
             if (_comboCount > _comboCountMaxInOrder) {
@@ -119,10 +183,10 @@ public class RewardManager : MonoBehaviour {
             }
             _comboCount = 0;
             if (_comboCountMaxInOrder == 0) {
-                _comboStat = $"Комбо: нет";
+                _comboStat = LocalizationManager.Get("ComboNone");
             }
             else {
-                _comboStat = $"Комбо прервано на x{_comboCountMaxInOrder}";
+                _comboStat =LocalizationManager.Get("ComboBreak", _comboCountMaxInOrder);
             }
         }
         
