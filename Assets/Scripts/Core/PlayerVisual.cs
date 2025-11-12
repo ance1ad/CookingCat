@@ -14,7 +14,7 @@ public class PlayerVisual : MonoBehaviour {
     private GameObject newIcon;
     private Image iconImage;
     private TMP_Text _popupText;
-    private float showPopupTime = 3.4f;
+    private float showPopupTime = 2.5f;
 
     private void Start() {
         _popupText = _popupCanvas.transform.GetChild(1).GetComponent<TMP_Text>();

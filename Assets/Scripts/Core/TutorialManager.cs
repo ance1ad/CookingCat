@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Codice.Client.BaseCommands.CheckIn.CodeReview;
-using TMPro;
 using UnityEngine;
+using UnityEngine.Networking.PlayerConnection;
 using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour {
@@ -28,7 +27,6 @@ public class TutorialManager : MonoBehaviour {
     
     
     
-    [SerializeField] private Button _nextButton;
     [SerializeField] private GameObject _focus;
     
     
@@ -49,9 +47,6 @@ public class TutorialManager : MonoBehaviour {
     
     public static TutorialManager Instance {get; private set;}
     public bool TutorialStarted = false;
-    private void Start() {
-        _nextButton.gameObject.SetActive(false);
-    }
     
     public bool tutorialPassed = false;
     
@@ -65,20 +60,28 @@ public class TutorialManager : MonoBehaviour {
         
     }
 
+    private void Start() {
+        MessageUI.Instance.OnButtonClick += OnClickNextButton;
+    }
+    
+
     private void SettingsManagerOnOnSwipeLanguage() {
         if (!string.IsNullOrEmpty(lastStepKey)) {
             MessageUI.Instance.SetTextInfinity(LocalizationManager.Get(lastStepKey),lastEmotion);
         }
     }
 
-    private void ClickNextButton() {
-        readyToNext = true;
+    private void OnClickNextButton() {
+        Debug.Log("OnClickNextButton");
+        if (TutorialStarted) {
+            readyToNext = true;
+        }
     }
 
 
     public void StartTutorial() {
+        RewardManager.Instance.StopRewardTimerRoutine();
         StopAllCoroutines();
-        _nextButton.onClick.AddListener(ClickNextButton);
         SettingsManager.Instance.OnSwipeLanguage += SettingsManagerOnOnSwipeLanguage;
         HideArrows();
         TutorialStarted = true;
@@ -88,7 +91,6 @@ public class TutorialManager : MonoBehaviour {
 
     private void ReadyToTutorial() {
         Player.Instance.StopWalking();
-        _nextButton.gameObject.SetActive(true);
         CurrencyManager.Instance.CloseCanvas();
         _focus.SetActive(true);
         
@@ -222,7 +224,7 @@ public class TutorialManager : MonoBehaviour {
             }
             CloseTutorial();
             tutorialPassed = true;
-            StartCoroutine(CreateFirstOrderLater());
+            StartCoroutine(OrderManager.Instance.CreateFirstOrderLater(3f));
         });
     }
     
@@ -316,9 +318,6 @@ public class TutorialManager : MonoBehaviour {
         if (!_productStoreButton.gameObject.activeSelf) {
             _productStoreButton.gameObject.SetActive(true);    
         }
-        if (_nextButton.gameObject.activeSelf) {
-            _nextButton.gameObject.SetActive(false);
-        }
         if (_focus.gameObject.activeSelf) { 
             _focus.gameObject.SetActive(false);
         }
@@ -336,10 +335,7 @@ public class TutorialManager : MonoBehaviour {
         TutorialStarted = false;
     }
     
-    private IEnumerator CreateFirstOrderLater() {
-        yield return new WaitForSeconds(3f);
-        OrderManager.Instance.CreateNewOrder("TM");
-    }
+
     
 
 }

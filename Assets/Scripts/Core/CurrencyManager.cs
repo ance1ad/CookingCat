@@ -67,7 +67,10 @@ public class CurrencyManager : MonoBehaviour {
         SoundManager.Instance.PlaySFX("NewMoney");
         OnBankChangedAction?.Invoke(new CurrencyActionArgs { countRewardsCoins = newCoins, countRewardsGems = newGems  });
     }
-    
+
+    public void ShowHideMoney() {
+        
+    }
 
     public void CloseCanvas() {
         if (_canvas.activeSelf) {

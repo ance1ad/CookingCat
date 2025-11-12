@@ -12,6 +12,7 @@ public class LocalizationManager : MonoBehaviour  {
     {
         { "AddDishes", "Добавьте блюда в заказ" },
         { "OrderTaken", "Взят заказ: #{0}" },
+        { "NoOrders", "Заказов пока нет" },
         { "DontSlice", "Здесь нельзя нарезать" },
         { "ObjectNotSlicable", "Продукт \"{0}\" не нужно нарезать"},
         { "EmptySlicing", "На столе для нарезки ничего не лежит" },
@@ -29,11 +30,11 @@ public class LocalizationManager : MonoBehaviour  {
         // Juicer
         { "JuicerWorking", "Соковыжималка уже запущена" },
         { "JuicerNowWorking", "Запущена соковыжималка" },
-        { "JuiceReady", "Напиток уже готов" },
+        { "JuiceReady", "Напиток готов" },
         { "ProductNotReadyForJuicer", "Сначала почистите или порежьте" },
         { "JuiceTaken", "Вы уже забрали напиток - только не выпейте его" },
         { "CantPutOnJuicer", "С этого напиток не сварить" },
-        { "TakeWhatYouWantPutOnJuicer", "Возьмите ингредиент, который хотите положить в соковыжималку" },
+        { "TakeWhatYouWantPutOnJuicer", "Возьмите то, что хотите положить в соковыжималку" },
         // Oven
         { "PizzaIsBaking", "Пицца готовится, уже ничего не положить" },
         { "OvenIsRunning", "Духовка уже запущена" },
@@ -68,6 +69,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "SortHats", "Шапки"},
         { "SortGlasses", "Очки"},
         { "SortMasks", "Маски"},
+        { "Colors", "Цвета"},
         { "Upgrades", "Апгрейды"},
         // Thief-cat
         { "ThiefSteals", "Кот-вор собирается что-то украсть!"},
@@ -123,7 +125,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "Step13JuicerPrep", "Для приготовления сока, на разделочной доске сначала нужно подготовить фрукты или овощи" },
         { "Step14JuicerUse", "Затем загружай подготовленный продукт в соковыжималку, достаточно 3шт. для приготовления сока" },
         { "Step15Delivery", "Следи за количеством продуктов на кухне, но если что можно всегда заказать курьера" },
-        { "Step16OrderStart", "Для того, чтобы принять заказ, нужно взять поднос и подойти к столу" },
+        { "Step16OrderStart", "Чтобы принять заказ подойти к столу и нажми (E), заказ собирается на подносе" },
         { "Step17OrderHint", "У тебя будет время запомнить заказ и подсмотреть его пару раз в правом верхнем углу" },
         { "Step18Timer", "Также следи за временем пока выполняешь заказ, клиенты ждут!" },
         { "Step19Burger", "Бургер собирается на ранее взятом подносе, клади ингредиенты прямо на него" },
@@ -146,15 +148,15 @@ public class LocalizationManager : MonoBehaviour  {
         { "CreatePizzaTutorial", "Бургер получился вкусными, а теперь приготовим аппетитную пиццу!" },
         { "CreateDrinkTutorial", "Пицца получилась вкусной! Осталось освоить соковыжималку и сделать вкусный напиток!" },
         { "CombineOrderTutorial", "Попробуем средний заказ из нескольких блюд!" },
-        { "GoodJobAndReady!", "Отличная работа! Ты освоил базу — готовься к настоящим испытаниям!" },
+        { "GoodJobAndReady", "Отличная работа! Ты освоил базу — готовься к настоящим испытаниям!" },
 
         // Unf.. try again
-        { "TryAgainBurger", "Давай попробуем еще раз приготовить бургер, внимательно запомни ингредиенты, если что, можешь подсмотреть" },
-        { "TryAgainPizza", "Давай попробуем еще раз приготовить пиццу, внимательно запомни ингредиенты, если что, можешь подсмотреть" },
-        { "TryAgainDrink", "Давай попробуем еще раз приготовить напиток, постарайся запомнить ингредиенты, если что, можешь подсмотреть" },
+        { "TryAgainBurger", "Давай попробуем еще раз приготовить бургер, запомни ингредиенты, если что, можешь подсмотреть" },
+        { "TryAgainPizza", "Давай попробуем еще раз приготовить пиццу, запомни ингредиенты, если что, можешь подсмотреть" },
+        { "TryAgainDrink", "Давай попробуем еще раз приготовить напиток, запомни ингредиенты, если что, можешь подсмотреть" },
         
         
-        {"TutorialInvitation", "О Привет! Вижу ты не прошел стажировку, давай быстренько ее пройдем!"},
+        {"TutorialInvitation", "О Привет! Вижу ты не прошел стажировку, советую пройти для понимания процесса готовки!"},
         {"GladSeeYou", "Привет! рад тебя снова видеть на кухне!"},
         {"GladSeeYouReward", "Привет! рад тебя снова видеть на кухне! Лови небольшое вознаграждение!"},
         {"TimeBonus", "Привет! рад что ты играешь в нашу игру! Лови небольшое вознаграждение!"},
@@ -174,6 +176,8 @@ public class LocalizationManager : MonoBehaviour  {
      private static Dictionary<string, string> EN = new Dictionary<string, string> {
         { "AddDishes", "Add dishes to the order" },
         { "OrderTaken", "Order taken {0}" },
+        { "NoOrders", "There are no orders yet" },
+        
         { "DontSlice", "You can’t slice this" },
         { "ObjectNotSlicable", "{0} does not need to be sliced." },
         { "EmptySlicing", "There is nothing on the cutting table." },
@@ -235,6 +239,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "SkinStoreTitleText", "Shop" },
         { "SortHats", "Hats" },
         { "SortGlasses", "Glasses" },
+        { "Colors", "Colors"},
         { "SortMasks", "Masks" },
         { "Upgrades", "Upgrades" },
 
@@ -299,7 +304,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "Step13JuicerPrep", "To make juice, prepare fruits or veggies on the cutting board first." },
         { "Step14JuicerUse", "Then put the prepared ingredients into the juicer — 3 pieces are enough." },
         { "Step15Delivery", "Keep an eye on your ingredient stock. If you run out, you can call a courier." },
-        { "Step16OrderStart", "To start an order, grab a tray and go to the order table." },
+        { "Step16OrderStart", "To accept an order, go to the table and press (E), the order is collected on a tray" },
         { "Step17OrderHint", "You’ll have some time to remember the order. You can also check it anytime in the top-right corner." },
         { "Step18Timer", "Keep an eye on the timer — customers don’t like to wait!" },
         { "Step19Burger", "Assemble burgers right on the tray you picked up earlier." },
@@ -324,7 +329,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "TryAgainPizza", "Let's try to make the pizza again, carefully remember the ingredients, if you forget, you can check again." },
         { "TryAgainDrink", "Let's try to make the drink again, try to remember the ingredients, if you forget, you can check again." },
         
-        {"TutorialInvitation", "Oh, hello! I see you haven’t finished your training — let’s go through it quickly!"},
+        {"TutorialInvitation", "Oh, hello! I see you haven't completed the internship, so i advise you to do it to understand the cooking process."},
         
         {"GladSeeYou", "Hi! Glad to see you in the kitchen!"},
         {"GladSeeYouReward", "Hi! Glad to see you in the kitchen! Here’s a little reward — you can grab the chef’s hat in the shop, it’s free."},

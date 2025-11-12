@@ -12,10 +12,12 @@ public class SkinStoreManager : MonoBehaviour {
     [SerializeField] private Button _sortHats;
     [SerializeField] private Button _sortGlasses;
     [SerializeField] private Button _sortMasks;
+    [SerializeField] private Button _sortColors;
     
     [SerializeField] private TMP_Text _sortHatsText;
     [SerializeField] private TMP_Text _sortGlassesText;
     [SerializeField] private TMP_Text _sortMasksText;
+    [SerializeField] private TMP_Text _sortColorsText;
     [SerializeField] private TMP_Text _upgradesText;
     
     [SerializeField] private TMP_Text _titleText;
@@ -25,6 +27,7 @@ public class SkinStoreManager : MonoBehaviour {
     private SkinItem hatSkin;
     private SkinItem glassesSkin;
     private SkinItem maskSkin;
+    private SkinItem colorSkin;
 
     private BuyType _windowCategoryLastOpened = BuyType.Hat;
     
@@ -39,6 +42,7 @@ public class SkinStoreManager : MonoBehaviour {
         _sortHats.onClick.AddListener(() => SortSkins(BuyType.Hat));
         _sortGlasses.onClick.AddListener(() => SortSkins(BuyType.Glasses));
         _sortMasks.onClick.AddListener(() => SortSkins(BuyType.Mask));
+        _sortColors.onClick.AddListener(() => SortSkins(BuyType.Color));
         
     }
 
@@ -103,8 +107,10 @@ public class SkinStoreManager : MonoBehaviour {
     public void ShowHideStoreWindow() {
         _storeCanvas.SetActive(!_storeCanvas.activeSelf);
         if (!_storeCanvas.activeSelf) {
+            PlayerBankVisual.Instance.HideBank();
             return;
         }
+        PlayerBankVisual.Instance.ShowBank();
         foreach (var skin in _skins) {
             if (PlayerSkinChanger.Instance.HasSkin(skin.SkinObject)) {
                 if (PlayerSkinChanger.Instance.SkinIsEquipped(skin.SkinObject)) {
@@ -128,6 +134,7 @@ public class SkinStoreManager : MonoBehaviour {
         _sortHatsText.text =  LocalizationManager.Get("SortHats");
         _sortGlassesText.text =  LocalizationManager.Get("SortGlasses");
         _sortMasksText.text =  LocalizationManager.Get("SortMasks");
+        _sortColorsText.text =  LocalizationManager.Get("Colors");
         _upgradesText.text =  LocalizationManager.Get("Upgrades");
     }
 
@@ -151,6 +158,12 @@ public class SkinStoreManager : MonoBehaviour {
                 maskSkin.SetSkinDequipped();
             }
             maskSkin = skin;
+        }
+        else if (skin.SkinType == BuyType.Color) {
+            if (colorSkin != null && colorSkin != skin) {
+                colorSkin.SetSkinDequipped();
+            }
+            colorSkin = skin;
         }
     }
 }

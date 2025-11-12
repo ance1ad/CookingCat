@@ -98,17 +98,21 @@ public class OrderManager : BaseCounter {
         CreateNewOrder("OM");
     }
 
-
-    public void AssignOrderToPlate(Plate plate) {
-        if (CurrentOrder == null || plate.Order != null) return;
-        if(orderIsAppointed) return;
+    
+    
+    public void AssignOrder() {
+        // Не тарелке а просто как принятый
         orderIsAppointed = true;
 
-        MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OrderTaken", orderNumber));
-        
         _visual.SetOrderNumVisual(LocalizationManager.Get("OrderNumber", orderNumber.ToString("D3")) );
 
-        
+        ResetParams();
+
+        StartCoroutine(_visual.TimerToCloseOrderInfo(timeToShowIngredients, orderNumber));
+ 
+    }
+
+    private void ResetParams() {
         _visual.DeleteAllIcons();
         _visual.HideContainers();
         _visual.AddIcons();
@@ -117,24 +121,28 @@ public class OrderManager : BaseCounter {
         _visual.SetOrderDishesName(CurrentOrder);
         
         _visual.ShowButtonToOpenOrder(true);
-        
-
-        plate.SetOrder(CurrentOrder);
-        StartCoroutine(_visual.TimerToCloseOrderInfo(timeToShowIngredients));
- 
     }
 
 
     
     private string _levelProgressText;
     public void SayLevelResult() {
-        MessageUI.Instance.SetText(LocalizationManager.Get(_levelProgressText), MessageUI.Emotions.happy);
+        if (!string.IsNullOrEmpty(_levelProgressText)) {
+            MessageUI.Instance.SetText(LocalizationManager.Get(_levelProgressText), MessageUI.Emotions.happy);
+        }
     }
 
     public int _tryCounts = 0;
 
 
     private bool orderIsCreated = false;
+    
+    public IEnumerator CreateFirstOrderLater(float time) {
+        yield return new WaitForSeconds(time);
+        CreateNewOrder("OM");
+    }
+    
+    
     public void CreateNewOrder(string client) {
         Debug.Log(client);
         if (orderIsCreated) {
@@ -142,7 +150,6 @@ public class OrderManager : BaseCounter {
         }
         orderIsCreated = true;
         
-        Debug.Log("CreateNewOrder");
         Debug.Log("Level:" + Level);
         ++orderNumber;
         SoundManager.Instance.PlaySFX("NewOrder");
@@ -157,6 +164,7 @@ public class OrderManager : BaseCounter {
             lastEmotion = MessageUI.Emotions.happy;
             lastStepKey = "GoodJobAndReady";
             MessageUI.Instance.SetText(LocalizationManager.Get(lastStepKey), MessageUI.Emotions.happy);
+            lastStepKey = "";
         }
         
         if (Level <= 4) {
@@ -198,6 +206,7 @@ public class OrderManager : BaseCounter {
                 MessageUI.Instance.SetText(LocalizationManager.Get(lastStepKey), lastEmotion);
                 orderDishes[0] = GetRandomDish(_firstDishes);
                 orderDishes[2] = GetRandomDish(_drinks);
+                _levelProgressText = "CombineOrderTutorial";
             }
             SetEducationParams();
         }
@@ -223,14 +232,14 @@ public class OrderManager : BaseCounter {
         SetTimeToShowIngredients(orderDishes);
         CurrentOrder = new Order(orderDishes[0], orderDishes[1], orderDishes[2], orderNumber);
 
-        if (Level == 1) {
+        if (Level <= 2) {
             _visual._firstTimeShowResourceArrow = true;
         }
     }
 
 
     private void SetEducationParams() {
-        _visual._countToShowOrder = 99;
+        _visual._countToShowOrder = 10;
         _timeToCompleteOrder = 1000;
         _visual._timeToCompleteOrder = _timeToCompleteOrder;
     }
@@ -243,6 +252,8 @@ public class OrderManager : BaseCounter {
                 countToShowOrder--;
             }
         }
+
+        countToShowOrder *= 3;
         _visual._countToShowOrder = countToShowOrder;
     }
 
@@ -250,7 +261,7 @@ public class OrderManager : BaseCounter {
     private void SetTimeToCompleteOrder(DishSO[] orderDishes) {
         int countIngredients = CountOrderIngredients(orderDishes);
         // условно на 1 ингредиент чтоб собрать 5 секунд
-        int secondsMultiply = 15;
+        int secondsMultiply = 20;
         _timeToCompleteOrder = countIngredients * secondsMultiply;
         _visual._timeToCompleteOrder = _timeToCompleteOrder;
     }
@@ -259,7 +270,10 @@ public class OrderManager : BaseCounter {
         int countIngredients = CountOrderIngredients(orderDishes);
         int secondsMultiply = 1;
         timeToShowIngredients = countIngredients * secondsMultiply;
-        timeToShowIngredients--;
+        int minimalTime = 7;
+        if (timeToShowIngredients < minimalTime) {
+            timeToShowIngredients = minimalTime;
+        }
     }
 
     private int CountOrderIngredients(DishSO[] orderDishes) {
@@ -280,26 +294,37 @@ public class OrderManager : BaseCounter {
 
 
     public override void Interact(Player player) {
-        // Отдать заказ
-        if (player.HasKitchenObject() && player.GetKitchenObject() is Plate) {
-            Plate plate = player.GetKitchenObject() as Plate;
-            // Выдать заказ
-            if (!orderIsAppointed) {
-                Instance.AssignOrderToPlate(plate);
-                _visual.HideInfinityPopupText();
-                // показать заказ
-                return;
-            }
-            if (plate.burgerIngredientsAdded.Count == 0 && plate.pizzaIngredientsAdded.Count == 0 && plate.drinkIngredientsAdded.Count == 0) {
-                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("AddDishes"));
-                return;
-            }
-            // Все ок
+        // Выдача логики без подноса
 
-            StartCoroutine(OrderIsCompleted(plate));
+        if (orderIsAppointed) {
+            Debug.Log("Проверка заказа");
+            
+            // Проверка выполнения заказа
+            if (player.HasKitchenObject() && player.GetKitchenObject() is Plate) {
+                Plate plate = player.GetKitchenObject() as Plate;
+                // Проверка, что хоть чето есть
+                if (plate.burgerIngredientsAdded.Count == 0 && plate.pizzaIngredientsAdded.Count == 0 && plate.drinkIngredientsAdded.Count == 0) {
+                    MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("AddDishes"));
+                    return;
+                }
+                // Все ок
+                if (_visual._orderIsShowed) {
+                    StartCoroutine(OrderIsCompleted(plate));
+                }
+            }
+            else {
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontHaveTray"));
+            }
+        }   
+        // Выдача заказа
+        else if (!orderIsAppointed && orderIsCreated) {
+            Debug.Log("Выдача заказа");
+            Instance.AssignOrder();
+            _visual.HideInfinityPopupText();
         }
-        else {
-            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontHaveTray"));
+
+        if (!orderIsCreated) {
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NoOrders"));
         }
          
     }

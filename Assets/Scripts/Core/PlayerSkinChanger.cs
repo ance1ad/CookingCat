@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,28 +6,32 @@ public class PlayerSkinChanger : MonoBehaviour {
     [SerializeField] private Transform _hatPointSpawn;
     [SerializeField] private Transform _glassesPointSpawn;
     [SerializeField] private Transform _maskPointSpawn;
+    [SerializeField] private SkinObjectSO _defaultSkinColor;
+    [SerializeField] private Renderer _catRenderer;
     
     private List<SkinObjectSO> _playerSkins = new List<SkinObjectSO>() {};
 
     public bool HasSkin(SkinObjectSO skin) => _playerSkins.Contains(skin);
     public void AddSkin(SkinObjectSO skin) => _playerSkins.Add(skin);
     
+    
     public bool SkinIsEquipped(SkinObjectSO skinObjectSo) {
-        return HatCurrentSkin == skinObjectSo || 
-               GlassesCurrentSkin ==  skinObjectSo ||
-               MaskCurrentSkin == skinObjectSo;
+        return HatCurrentSkin == skinObjectSo ||
+               GlassesCurrentSkin == skinObjectSo ||
+               MaskCurrentSkin == skinObjectSo ||
+               ColorCurrentSkin == skinObjectSo;
     }
     public SkinObjectSO HatCurrentSkin {get; private set;}
     public SkinObjectSO GlassesCurrentSkin {get; private set;}
     public SkinObjectSO MaskCurrentSkin {get; private set;}
+    public SkinObjectSO ColorCurrentSkin {get; private set;}
 
 
 
     public static PlayerSkinChanger Instance { get; private set; }
+
     
-    
-    
-    
+
     private void Awake() {
         if (Instance != null) {
             Debug.LogWarning("2 PlayerSkinChanger has already been instantiated");
@@ -47,6 +50,9 @@ public class PlayerSkinChanger : MonoBehaviour {
         else if (skinSO._skinType == BuyType.Mask) {
             SetMaskSkin(skinSO);
         }
+        else if (skinSO._skinType == BuyType.Color) {
+            SetColor(skinSO);
+        }
     }
 
     public void DequipSkin(SkinObjectSO skinSO) {
@@ -61,6 +67,10 @@ public class PlayerSkinChanger : MonoBehaviour {
         else if (skinSO._skinType == BuyType.Mask) {
             DestroySkin(_maskPointSpawn);
             MaskCurrentSkin = null;
+        }
+        else if (skinSO._skinType == BuyType.Color) {
+            SetColor(_defaultSkinColor);
+            ColorCurrentSkin = _defaultSkinColor;
         }
     }
 
@@ -125,5 +135,11 @@ public class PlayerSkinChanger : MonoBehaviour {
         
         Debug.Log("Я надел маску");
         MaskCurrentSkin = maskSkinSO;
+    }
+
+    private void SetColor(SkinObjectSO colorSkinSO) {
+        Debug.Log("Смена шёрстки");
+        _catRenderer.material.mainTexture = colorSkinSO._texture;
+        ColorCurrentSkin = colorSkinSO;
     }
 }

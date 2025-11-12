@@ -11,11 +11,11 @@ public class MessageUI : MonoBehaviour
     [SerializeField] private TMP_Text _text;
     [SerializeField] private List<EmotionsAccordance> _emotions;
     [SerializeField] private PlayerVisual _playerVisual;
-    [SerializeField] private GameObject _nextButton;
+    [SerializeField] private Button _nextButton;
     [SerializeField] private Image _focus;
 
 
-
+    public event Action OnButtonClick;
     
     
     private Coroutine _currentRoutine;
@@ -33,6 +33,19 @@ public class MessageUI : MonoBehaviour
         Show(false);
     }
 
+    private void Start() {
+        _nextButton.gameObject.SetActive(true);
+        _nextButton.onClick.AddListener(ButtonClick);
+    }
+
+    private void ButtonClick() {
+        OnButtonClick?.Invoke();
+        if (TutorialManager.Instance.TutorialStarted) {
+            return;
+        }
+        Show(false);
+    }
+
     public void Show(bool state) {
         if (_canvas.gameObject.activeSelf != state) {
             _canvas.gameObject.SetActive(state);
@@ -40,23 +53,27 @@ public class MessageUI : MonoBehaviour
     }
 
     public void SetText(string text, Emotions emotion) {
+        if (string.IsNullOrEmpty(text)) {
+            return;
+        }
         Show(true);
         _text.text = text;
         SetEmotion(emotion, "CatSay");
-        if (_currentRoutine != null) {
-            StopCoroutine(_currentRoutine);
-            _currentRoutine = null;
-        }
+        // Попробую со скипом чисто
+        // if (_currentRoutine != null) {
+        //     StopCoroutine(_currentRoutine);
+        //     _currentRoutine = null;
+        // }
 
-        _currentRoutine = StartCoroutine(TextShowRoutine());
+        // _currentRoutine = StartCoroutine(TextShowRoutine());
     }
     
     public void SetTextInfinity(string text, Emotions emotion) {
         // В этом случае будет меняться только текст
-        if (_currentRoutine != null) {
-            StopCoroutine(_currentRoutine);
-            _currentRoutine = null;
-        }
+        // if (_currentRoutine != null) {
+        //     StopCoroutine(_currentRoutine);
+        //     _currentRoutine = null;
+        // }
         Show(true);
         _text.text = text;
         SetEmotion(emotion, "NextTutorStep");
@@ -66,7 +83,6 @@ public class MessageUI : MonoBehaviour
     public void HideInfinityText() {
         if (_currentRoutine == null) {
             Show(false);
-            _nextButton.gameObject.SetActive(false);
         }
     }
 

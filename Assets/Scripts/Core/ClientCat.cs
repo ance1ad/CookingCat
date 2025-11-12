@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
+
 
 public class ClientCat : MonoBehaviour {
     [SerializeField] private Transform _exit;
@@ -11,6 +13,8 @@ public class ClientCat : MonoBehaviour {
     [SerializeField] private Animator _animator;
     [SerializeField] private Transform _holdPoint;
     [SerializeField] private TMP_Text _popupText;
+    [SerializeField] private List<Texture> _textures;
+    [SerializeField] private Renderer _catRenderer;
 
     
     
@@ -41,9 +45,15 @@ public class ClientCat : MonoBehaviour {
     }
 
 
+    private void SetRandomColor() {
+        _catRenderer.material.mainTexture = _textures[Random.Range(0, _textures.Count)];
+    }
+    
+    
     public void GoSayOrder() {
         if (isActiveAndEnabled) {
             StartCoroutine(GoSayOrderRoutine());
+            SetRandomColor();
         }
     }
     public void GoEatOrder() {

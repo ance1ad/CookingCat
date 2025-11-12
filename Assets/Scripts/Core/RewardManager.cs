@@ -1,10 +1,8 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using PlasticPipe.PlasticProtocol.Messages;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class RewardManager : MonoBehaviour {   
     // Тут логика вознаграждений
@@ -29,16 +27,28 @@ public class RewardManager : MonoBehaviour {
     private void OnSwipeLanguage() {
         secMeasurement = LocalizationManager.Get("SecMeasurement");
     }
-
+    
+    private Coroutine _giftCoroutine;
     public void StartRewardTimerRoutine() {
         _rewardContainer.SetActive(true);
-        StartCoroutine(RewardTimerRoutine());
+        if (_giftCoroutine == null) {
+            _giftCoroutine = StartCoroutine(RewardTimerRoutine());
+        }
     }
+    
+    public void StopRewardTimerRoutine() {
+        _rewardContainer.SetActive(false);
+        if (_giftCoroutine != null) {
+            StopCoroutine(_giftCoroutine);
+            _giftCoroutine = null;
+        }
+    }
+
 
 
     private string secMeasurement;
     private IEnumerator RewardTimerRoutine() {
-        timer = 10f;
+        timer = 222f;
         _grayBack.SetActive(true);
         _rewardTimer.gameObject.SetActive(true);
         while (timer > 0) {
@@ -55,11 +65,16 @@ public class RewardManager : MonoBehaviour {
         if(!readyToGift) return;
         readyToGift = false;
         // Логика рандома выдачи денег
-        CurrencyManager.Instance.UpdateCash(4000f, 1);
+        RandomRewardLogic();
         StartCoroutine(RewardTimerRoutine());
     }
-    
-    
+
+    private void RandomRewardLogic() {
+        int coins = Random.Range(3000, 10001);
+        int gems = Random.Range(1,6);
+        
+        CurrencyManager.Instance.UpdateCash(coins, gems);
+    }
 
 
     private void Awake() {

@@ -9,10 +9,25 @@ public class PlayerBankVisual : MonoBehaviour {
     [SerializeField] private TMP_Text _coinsReward;
     [SerializeField] private TMP_Text _gemsCount;
     [SerializeField] private TMP_Text _gemsReward;
+    [SerializeField] private GameObject _playerBank;
 
     private void Start() {
         CurrencyManager.Instance.OnBankChangedAction += OnOnBankChangedAction;
         UpdateBank();
+        HideBank();
+    }
+    
+    public static PlayerBankVisual Instance { get; private set; }
+    public void ShowBank() => _playerBank.SetActive(true);
+    public void HideBank() => _playerBank.SetActive(false);
+    
+    
+    private void Awake() {
+        if (Instance != null) {
+            Debug.LogError("There can only be one instance of PlayerBankVisual");
+            return;
+        }
+        Instance = this;
     }
 
     private void OnOnBankChangedAction(CurrencyManager.CurrencyActionArgs obj) {
@@ -49,16 +64,19 @@ public class PlayerBankVisual : MonoBehaviour {
 
 
     private IEnumerator UpdateCoinsCountRoutine() {
+        ShowBank();
         yield return StartCoroutine(FadeTextRoutine(_coinsReward, 0.5f, true));
         yield return new WaitForSeconds(5f);
         yield return StartCoroutine(FadeTextRoutine(_coinsReward, 0.5f, false));
+        HideBank();
     }
     
     private IEnumerator UpdateGemsCountRoutine() {
+        ShowBank();
         yield return StartCoroutine(FadeTextRoutine(_gemsReward, 0.5f, true));
         yield return new WaitForSeconds(5f);
         yield return StartCoroutine(FadeTextRoutine(_gemsReward, 0.5f, false)); 
-
+        HideBank();
     }
     
     

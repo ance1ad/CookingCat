@@ -1,10 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using System;
-using UnityEngine.EventSystems;
-using Unity.VisualScripting;
 using static ThiefCat;
 
 public class Player : MonoBehaviour, IKitchenObjectParent {
@@ -188,7 +184,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     private BaseCounter _lastCounter;
     private void HandleInteractions() {
-        Vector2 inputVector = _gameInput.GetMovementVectorNormalized();
+        Vector2 inputVector = _gameInput.GetMovementVector().normalized;
         Vector3 direction = new Vector3(inputVector.x, 0f, inputVector.y);
 
         if (direction != Vector3.zero)
@@ -258,56 +254,85 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     }
 
 
-    [SerializeField] private float rotateThreshold = 0.9f; // порог для поворота
+    private float joystickDeadZone = 0f; 
+    private float rotateThreshold = 0f;
+
     private void HandleMovement() {
-        if (_stopWalking) {
+        if (_stopWalking) return;
+
+        Vector2 inputVector = _gameInput.GetMovementVector();
+        float inputStrength = inputVector.magnitude;
+
+        if (inputStrength < joystickDeadZone) {
+            _isMoving = false;
             return;
         }
-        Vector2 _inputVector = _gameInput.GetMovementVectorNormalized();
-        Vector3 directoryVector = new Vector3(_inputVector.x, 0f, _inputVector.y);
 
+        Vector3 desiredDir = new Vector3(inputVector.x, 0f, inputVector.y);
         float moveDistance = _velocicy * Time.deltaTime;
-        Vector3 startPosition = transform.position;
+        Vector3 startPos = transform.position;
 
         bool canMove = !Physics.CapsuleCast(
             transform.position,
             transform.position + Vector3.up * _playerHeight,
             _playerRadius,
-            directoryVector,
+            desiredDir,
             moveDistance
         );
 
-        // if (!canMove) {
-        //     // Пробуем X
-        //     Vector3 dirX = new Vector3(directoryVector.x, 0, 0).normalized;
-        //     canMove = directoryVector.x != 0 &&
-        //               !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
-        //                   _playerRadius, dirX, moveDistance);
-        //     if (canMove) directoryVector = dirX;
-        //
-        //     // Пробуем Z
-        //     if (!canMove) {
-        //         Vector3 dirZ = new Vector3(0, 0, directoryVector.z).normalized;
-        //         canMove = directoryVector.z != 0 &&
-        //                   !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
-        //                       _playerRadius, dirZ, moveDistance);
-        //         if (canMove) directoryVector = dirZ;
-        //     }
-        // }
+        Vector3 moveDir = desiredDir;
 
-        if (canMove) {
-            transform.position += directoryVector * moveDistance;
+        if (!canMove) {
+            // Проверяем X и Z
+            Vector3 dirX = new Vector3(desiredDir.x, 0, 0).normalized;
+            bool canMoveX = desiredDir.x != 0 &&
+                            !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
+                                _playerRadius, dirX, moveDistance);
+
+            Vector3 dirZ = new Vector3(0, 0, desiredDir.z).normalized;
+            bool canMoveZ = desiredDir.z != 0 &&
+                            !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * _playerHeight,
+                                _playerRadius, dirZ, moveDistance);
+
+            if (canMoveX) moveDir = dirX;
+            else if (canMoveZ) moveDir = dirZ;
+            else moveDir = Vector3.zero;
         }
 
-        // Теперь _isMoving = true только если реально сдвинулись
-        _isMoving = directoryVector.magnitude > rotateThreshold && (transform.position != startPosition);
+        // 💡 Если движение частично заблокировано — снижаем скорость (эффект "скольжения" по стене)
+        float effectiveSpeed = _velocicy;
+        if (!canMove && moveDir != Vector3.zero) {
+            effectiveSpeed *= 0.4f; // двигается в 2.5 раза медленнее вдоль препятствия
+        }
 
+        if (moveDir != Vector3.zero)
+            transform.position += moveDir * (effectiveSpeed * Time.deltaTime);
 
-        // Но поворачиваем всегда, если есть ввод (иначе не будет крутиться у стены)
-        if (directoryVector.magnitude > rotateThreshold) {
-            transform.forward = Vector3.Slerp(transform.forward, directoryVector, Time.deltaTime * _rotateSpeed);
+        // --- Поворот ---
+        if (canMove && inputStrength > rotateThreshold) {
+            transform.forward = Vector3.Slerp(transform.forward, desiredDir, Time.deltaTime * _rotateSpeed);
+        }
+        else if (!canMove && inputStrength > 0.9f) {
+            transform.forward = Vector3.Slerp(transform.forward, desiredDir, Time.deltaTime * (_rotateSpeed * 0.25f));
+        }
+
+        _isMoving = moveDir.magnitude > 0.1f && transform.position != startPos;
+        
+        // --- Поворот к выбранному контейнеру, если стоим на месте ---
+        if (!_isMoving && selectedCounter != null) {
+            Vector3 lookDir = (selectedCounter.transform.position - transform.position);
+            lookDir.y = 0f; // чтобы не тянул вверх/вниз
+            if (lookDir.sqrMagnitude > 0.001f) {
+                // плавный поворот к объекту
+                transform.forward = Vector3.Slerp(
+                    transform.forward,
+                    lookDir.normalized,
+                    Time.deltaTime * (_rotateSpeed * 0.8f)
+                );
+            }
         }
     }
+
 
 
 
@@ -357,7 +382,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         }
         HighlightManager.Instance.OnObjectTake(_kitchenObject.GetKitchenObjectSO());
         // Сжирает хавку
-        if (UnityEngine.Random.value < .4 &&
+        if (UnityEngine.Random.value < 0.07 &&
             !(_kitchenObject is Plate) &&
             !string.IsNullOrEmpty(_kitchenObject.GetKitchenObjectSO().justification)) {
             _coroutine = StartCoroutine(EatProductRoutine());
@@ -423,6 +448,8 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
             yield return null;
         }
+        SoundManager.Instance.PlaySFX("TrashDrop");
+        
 
         if (obj != null && point != null)
             obj.position = point.position;

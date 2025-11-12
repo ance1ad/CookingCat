@@ -41,16 +41,19 @@ public class GameInput : MonoBehaviour {
 
 
     // ������ ��������
-    public Vector2 GetMovementVectorNormalized() {
-        // пока без джойстика игра
-        // if (joystick != null)
-        // {
-        //     // Используем джойстик, если он подключен
-        //     return joystick.Direction.normalized;
-        // }
-        // ПК: клавиатура/геймпад
-        return playerInputActions.Player.Move.ReadValue<Vector2>().normalized;
-        // playerInputActions.Player.Move.ReadValue<Vector2>().normalized;
-        
+    public Vector2 GetMovementVector() {
+        Vector2 inputVector = Vector2.zero;
+
+        if (playerInputActions != null) {
+            inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
+        }
+
+        if (joystick != null) {
+            Vector2 joyVector = new Vector2(joystick.Horizontal, joystick.Vertical); // вместо joystick.Direction
+            if (joyVector.magnitude > 0.1f)
+                inputVector = joyVector;
+        }
+
+        return inputVector; // без .normalized
     }
 }

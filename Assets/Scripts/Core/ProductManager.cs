@@ -111,6 +111,12 @@ public class ProductManager : MonoBehaviour {
 
     public void ShowHideStoreWindow() {
         _storeCanvas.SetActive(!_storeCanvas.activeSelf);
+        if (_storeCanvas.activeSelf) {
+            PlayerBankVisual.Instance.ShowBank();
+        }
+        else {
+            PlayerBankVisual.Instance.HideBank();
+        }
         UpdateTextLocalization();
     }
 

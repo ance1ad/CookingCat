@@ -22,4 +22,5 @@ public class SkinObjectSO : ScriptableObject {
     public BuyType _skinType;
     public ValuteType _valuteType;
     public GameObject _prefab; // настроенный заранее спаунится правильно
+    public Texture _texture; // настроенный заранее спаунится правильно
 }

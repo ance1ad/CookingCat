@@ -36,7 +36,8 @@ public class OrderCounterVisual : MonoBehaviour {
     [SerializeField] private TMP_Text _orderNumberText; // сверху слева
     [SerializeField] public GameObject _orderNumberTextBackground; // сверху слева
 
-    
+    public bool _orderIsShowed;
+
     
     public void SetOrderDishesName(Order order) {
         if (order.dishStruct[0].dish != null) {
@@ -174,7 +175,8 @@ public class OrderCounterVisual : MonoBehaviour {
 
     private float timeToShowIngredients;
     public bool _firstTimeShowResourceArrow = true;
-    public IEnumerator TimerToCloseOrderInfo(float time) {
+    public IEnumerator TimerToCloseOrderInfo(float time, int orderNumber) {
+        _orderIsShowed = false;
         timeToShowIngredients = time;
         _thief.StopThiefCycle();
 
@@ -205,7 +207,7 @@ public class OrderCounterVisual : MonoBehaviour {
 
 
 
-        if (OrderManager.Instance.Level > 2) {
+        if (OrderManager.Instance.Level > 1) {
             _thief.StartThiefCycle();
         }
         _generalCanvas.SetActive(false);
@@ -213,6 +215,10 @@ public class OrderCounterVisual : MonoBehaviour {
             _firstTimeShowResourceArrow = false;
             TutorialManager.Instance.ShowOrderResource();
             MessageUI.Instance.SetText(LocalizationManager.Get("LastStep"), MessageUI.Emotions.defaultFace);
+        }
+        _orderIsShowed = true;
+        if (orderNumber != -1) {
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OrderTaken", orderNumber));
         }
     }
 
@@ -305,7 +311,7 @@ public class OrderCounterVisual : MonoBehaviour {
         orderStatusText.text = LocalizationManager.Get("OrderStatusText");
         _countToShowOrder--;
         _generalCanvas.SetActive(true);
-        StartCoroutine(TimerToCloseOrderInfo(timeToShowIngredients));
+        StartCoroutine(TimerToCloseOrderInfo(timeToShowIngredients, -1));
         _contToShowOrderText.text = _countToShowOrder.ToString();
         _new.gameObject.SetActive(false);
     }

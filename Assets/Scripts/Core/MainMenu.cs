@@ -17,6 +17,7 @@ public class MainMenu : MonoBehaviour {
     [SerializeField] private TMP_Text _playGameBtnTxt;
     [SerializeField] private TMP_Text _tutorialBtnTxt;
 
+    private readonly float _timeToLoad = 4f;
     
     
     
@@ -67,27 +68,22 @@ public class MainMenu : MonoBehaviour {
     private IEnumerator FirstTimeCreateOrder() {
         yield return new WaitUntil(() => isLoad);
 
+        RewardManager.Instance.StartRewardTimerRoutine();
         if (!TutorialManager.Instance.tutorialPassed) {
             MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("TutorialInvitation"), MessageUI.Emotions.happy);
             yield return new WaitForSeconds(4f);
-            TutorialManager.Instance.StartTutorial();
-            yield break;
-        }
-        else {
-            if (CurrencyManager.Instance.Coins < 1000f) {
-                CurrencyManager.Instance.UpdateCash(5000f, 5);
-                MessageUI.Instance.SetText(LocalizationManager.Get("GladSeeYouReward"), MessageUI.Emotions.eated);
-            }
-            else {
-                MessageUI.Instance.SetText(LocalizationManager.Get("GladSeeYou"), MessageUI.Emotions.eated);
-            }  
         }
         
-        yield return new WaitForSeconds(4f);
-        if (firstTime) {
-            firstTime = false;
-            OrderManager.Instance.CreateNewOrder("MM");
+        
+        if (CurrencyManager.Instance.Coins < 1000f) {
+            CurrencyManager.Instance.UpdateCash(5000f, 5);
+            MessageUI.Instance.SetText(LocalizationManager.Get("GladSeeYouReward"), MessageUI.Emotions.eated);
         }
+        else {
+            MessageUI.Instance.SetText(LocalizationManager.Get("GladSeeYou"), MessageUI.Emotions.eated);
+        }  
+        
+        StartCoroutine(OrderManager.Instance.CreateFirstOrderLater(3f));
     }
     
     private IEnumerator WaitLoadingLevelToTutorial() {
@@ -111,6 +107,7 @@ public class MainMenu : MonoBehaviour {
     public void HideCloseMainMenu() {
         _canvas.SetActive(!_canvas.activeSelf); 
         Time.timeScale = _canvas.activeSelf ?  0 : 1;
+        PlayerBankVisual.Instance.HideBank();
     }
 
     public void OpenMainMenu() {
@@ -127,7 +124,7 @@ public class MainMenu : MonoBehaviour {
         _levelBackground.SetActive(!on);
     }
 
-
+        
     private IEnumerator FillLoadingLevel() {
         ChangeButtonsState(false);
         
@@ -135,11 +132,10 @@ public class MainMenu : MonoBehaviour {
         isLoad = false;
 
         _level.fillAmount = 0;
-        float timeToLoad = 25;
         float timer = 0;
-        while (timer <= timeToLoad) {
+        while (timer <= _timeToLoad) {
             timer += Random.Range(0f, 0.1f);
-            _level.fillAmount = timer / timeToLoad;
+            _level.fillAmount = timer / _timeToLoad;
             yield return null;
         }
 

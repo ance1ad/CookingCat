@@ -13,10 +13,11 @@ public class ContainerCounter : BaseCounter {
     public event Action OnContainerCounterInteract;
 
 
-    public int _productCount { get; private set; } = 20;
+    public int _productCount { get; private set; } = 7;
 
 
     private void Start() {
+        _productCount = 7;
         _visual.ShowCountIcon(2f, _productCount.ToString());
     }
 
@@ -69,7 +70,7 @@ public class ContainerCounter : BaseCounter {
 
             KitchenObject.CreateKitchenObject(_kitchenObjectSO, player);
             HighlightManager.Instance.OnObjectTake(_kitchenObjectSO);
-            if (UnityEngine.Random.value < 0.1f) {
+            if (UnityEngine.Random.value < 0.07f) {
                 player.GetKitchenObject().SetUnfresh();
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));
                 SoundManager.Instance.PlaySFX("ProductRotten");
