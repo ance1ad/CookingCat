@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class PlayerSkinChanger : MonoBehaviour {
@@ -8,30 +9,17 @@ public class PlayerSkinChanger : MonoBehaviour {
     [SerializeField] private Transform _maskPointSpawn;
     [SerializeField] private SkinObjectSO _defaultSkinColor;
     [SerializeField] private Renderer _catRenderer;
-    
-    private List<SkinObjectSO> _playerSkins = new List<SkinObjectSO>() {};
-
-    public bool HasSkin(SkinObjectSO skin) => _playerSkins.Contains(skin);
-    public void AddSkin(SkinObjectSO skin) => _playerSkins.Add(skin);
+    [SerializeField] private PlayerData _data;
     
     
-    public bool SkinIsEquipped(SkinObjectSO skinObjectSo) {
-        return HatCurrentSkin == skinObjectSo ||
-               GlassesCurrentSkin == skinObjectSo ||
-               MaskCurrentSkin == skinObjectSo ||
-               ColorCurrentSkin == skinObjectSo;
-    }
     public SkinObjectSO HatCurrentSkin {get; private set;}
     public SkinObjectSO GlassesCurrentSkin {get; private set;}
     public SkinObjectSO MaskCurrentSkin {get; private set;}
     public SkinObjectSO ColorCurrentSkin {get; private set;}
 
-
-
     public static PlayerSkinChanger Instance { get; private set; }
-
     
-
+    
     private void Awake() {
         if (Instance != null) {
             Debug.LogWarning("2 PlayerSkinChanger has already been instantiated");
@@ -40,106 +28,74 @@ public class PlayerSkinChanger : MonoBehaviour {
         Instance = this;
     }
 
-    public void EquipSkin(SkinObjectSO skinSO) {
-        if (skinSO._skinType == BuyType.Hat) {
-            SetHatSkin(skinSO);
+    private void Start() {
+        _data.OnSkinActivate += EquipSkin;
+        _data.OnSkinDeactivate += DequipSkin;
+    }
+    
+
+    private void EquipSkin(SkinObjectSO skinSO) {
+        Debug.Log("Надевание скина " + skinSO.GetLocalizationName());
+        if (skinSO.PurchaseType == PurchaseType.Hat) {
+            SetSkin(skinSO, HatCurrentSkin, _hatPointSpawn);
         }
-        else if (skinSO._skinType == BuyType.Glasses) {
-            SetGlassesSkin(skinSO);
+        else if (skinSO.PurchaseType == PurchaseType.Glasses) {
+            SetSkin(skinSO, GlassesCurrentSkin, _glassesPointSpawn);
         }
-        else if (skinSO._skinType == BuyType.Mask) {
-            SetMaskSkin(skinSO);
+        else if (skinSO.PurchaseType == PurchaseType.Mask) {
+            SetSkin(skinSO, MaskCurrentSkin, _maskPointSpawn);
         }
-        else if (skinSO._skinType == BuyType.Color) {
+        else if (skinSO.PurchaseType == PurchaseType.Color) {
             SetColor(skinSO);
         }
     }
 
-    public void DequipSkin(SkinObjectSO skinSO) {
-        if (skinSO._skinType == BuyType.Hat) {
+    private void DequipSkin(SkinObjectSO skinSO) {
+        Debug.Log("Деактивирование скина " + skinSO.GetLocalizationName());
+        if (skinSO.PurchaseType == PurchaseType.Hat) {
             DestroySkin(_hatPointSpawn);
             HatCurrentSkin = null;
         }
-        else if (skinSO._skinType == BuyType.Glasses) {
+        else if (skinSO.PurchaseType == PurchaseType.Glasses) {
             DestroySkin(_glassesPointSpawn);
             GlassesCurrentSkin = null;
         }
-        else if (skinSO._skinType == BuyType.Mask) {
+        else if (skinSO.PurchaseType == PurchaseType.Mask) {
             DestroySkin(_maskPointSpawn);
             MaskCurrentSkin = null;
         }
-        else if (skinSO._skinType == BuyType.Color) {
+        else if (skinSO.PurchaseType == PurchaseType.Color) {
             SetColor(_defaultSkinColor);
             ColorCurrentSkin = _defaultSkinColor;
         }
     }
 
+    
+    
+    private void SetSkin(SkinObjectSO skinSO, SkinObjectSO CurrentSkin, Transform pointSpawn) {
+
+        if (skinSO == CurrentSkin) {
+            Debug.LogWarning("This " + CurrentSkin + " skin is already in use");
+            return;
+        }
+
+        DestroySkin(pointSpawn);
+
+        GameObject glassesInstance = Instantiate(skinSO.Prefab,  pointSpawn);
+        Debug.Log("I put on " + CurrentSkin);
+        CurrentSkin = skinSO;
+    }
+    
+
+    private void SetColor(SkinObjectSO colorSkinSO) {
+        Debug.Log("Смена шёрстки");
+        _catRenderer.material.mainTexture = colorSkinSO.Texture;
+        ColorCurrentSkin = colorSkinSO;
+    }
+    
     private void DestroySkin(Transform skinParent) {
         if (skinParent.childCount != 0) {
             Destroy(skinParent.GetChild(0).gameObject);
         }
-    }
-
-    private void SetHatSkin(SkinObjectSO hatSkinSO) {
-        if (!_playerSkins.Contains(hatSkinSO)) {
-            return;
-        }
-        if (hatSkinSO == HatCurrentSkin) {
-            Debug.LogWarning("This hat skin is already in use");
-            return;
-        }
-
-        DestroySkin(_hatPointSpawn);
-
-        GameObject hatInstance = Instantiate(hatSkinSO._prefab, _hatPointSpawn);
-
-        
-        Debug.Log("Я надел шапку");
-        HatCurrentSkin = hatSkinSO;
-    }
-    
-    
-    private void SetGlassesSkin(SkinObjectSO glassesSkinSO) {
-        if (!_playerSkins.Contains(glassesSkinSO)) {
-            return;
-        }
-        if (glassesSkinSO == GlassesCurrentSkin) {
-            Debug.LogWarning("This glasses skin is already in use");
-            return;
-        }
-
-        DestroySkin(_glassesPointSpawn);
-
-        GameObject glassesInstance = Instantiate(glassesSkinSO._prefab,  _glassesPointSpawn);
-        
-        
-        Debug.Log("Я надел очки");
-        
-        GlassesCurrentSkin = glassesSkinSO;
-    }
-    
-    
-    private void SetMaskSkin(SkinObjectSO maskSkinSO) {
-        if (!_playerSkins.Contains(maskSkinSO)) {
-            // Не куплен
-            return;
-        }
-        if (maskSkinSO == MaskCurrentSkin) {
-            Debug.LogWarning("This mask skin is already in use");
-            return;
-        }
-
-        DestroySkin(_maskPointSpawn);
-        GameObject maskInstance = Instantiate(maskSkinSO._prefab,  _maskPointSpawn);
-        
-        
-        Debug.Log("Я надел маску");
-        MaskCurrentSkin = maskSkinSO;
-    }
-
-    private void SetColor(SkinObjectSO colorSkinSO) {
-        Debug.Log("Смена шёрстки");
-        _catRenderer.material.mainTexture = colorSkinSO._texture;
-        ColorCurrentSkin = colorSkinSO;
     }
 }

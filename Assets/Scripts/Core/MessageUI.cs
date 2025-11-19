@@ -13,6 +13,13 @@ public class MessageUI : MonoBehaviour
     [SerializeField] private PlayerVisual _playerVisual;
     [SerializeField] private Button _nextButton;
     [SerializeField] private Image _focus;
+    
+    
+    
+    [SerializeField] private GameObject _platesArrow;
+    [SerializeField] private GameObject _ovenArrow;
+    [SerializeField] private GameObject _stoveArrow;
+    [SerializeField] private GameObject _juicerArrow;
 
 
     public event Action OnButtonClick;
@@ -23,6 +30,15 @@ public class MessageUI : MonoBehaviour
     public static MessageUI Instance;
     private float timeToShow = 5f;
 
+    public void HideNextButton() {
+        _nextButton.gameObject.SetActive(false);
+    }
+    
+    public void ShowNextButton() {
+        _nextButton.gameObject.SetActive(true);
+    }
+    
+    
     public bool PopupIsActive() => _canvas.gameObject.activeSelf;
 
     private void Awake() {
@@ -31,7 +47,9 @@ public class MessageUI : MonoBehaviour
         }
         Instance = this;
         Show(false);
+        HideArrows();
     }
+
 
     private void Start() {
         _nextButton.gameObject.SetActive(true);
@@ -150,6 +168,75 @@ public class MessageUI : MonoBehaviour
         
     }
     
+    public void HideArrows() {
+        if (_platesArrow.activeSelf) {
+            _platesArrow.SetActive(false);
+        }
+
+        if (_stoveArrow.activeSelf) {
+            _stoveArrow.SetActive(false);
+        }
+        
+        if (_ovenArrow.activeSelf) {
+            _ovenArrow.SetActive(false);
+        }
+        
+        if (_juicerArrow.activeSelf) {
+            _juicerArrow.SetActive(false);
+        }
+        
+        
+    }
+
+    public void ShowPlatesArrow() {
+        HideArrows();
+        _platesArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_platesArrow));
+    }
+
+    public void ShowStoveArrow() {
+        HideArrows();
+        _stoveArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_stoveArrow));
+    }
+    
+    public void ShowOvenArrow() {
+        HideArrows();
+        _ovenArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_ovenArrow));
+    }
+    
+    
+    public void ShowJuicerArrow() {
+        HideArrows();
+        _juicerArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_juicerArrow));
+    }
+    
+    
+    
+
+    private IEnumerator ShakeArrow(GameObject arrow) {
+        float upScale = 1f;
+        Vector3 startPos = arrow.transform.position;
+        Vector3 scaleVector = new Vector3(startPos.x, startPos.y + upScale, startPos.z);
+        float currentScale = 0f;
+        for (int i = 0; i < 4; i++) {
+            while (currentScale < upScale) {
+                currentScale += Time.deltaTime * 1.4f / upScale;
+                arrow.transform.position = Vector3.Lerp(startPos, scaleVector, currentScale);
+                yield return null;
+            }
+
+            currentScale = 0f;
+            while (currentScale < upScale) {
+                currentScale += Time.deltaTime * 1.4f / upScale;
+                arrow.transform.position = Vector3.Lerp(scaleVector, startPos, currentScale);
+                yield return null;
+            }
+            currentScale = 0f;
+        }
+    }
     
     
 

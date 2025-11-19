@@ -4,7 +4,7 @@ using System;
 using static ThiefCat;
 
 public class Player : MonoBehaviour, IKitchenObjectParent {
-    [SerializeField] float _velocicy = 4f;
+    [SerializeField] float _velocity = 4f;
     [SerializeField] float _rotateSpeed = 8f;
     [SerializeField] GameInput _gameInput;
     [SerializeField] LayerMask _countersLayerMask;
@@ -19,10 +19,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     [SerializeField] public Transform _plateEdge;
     [SerializeField] private ParticleSystem _particles;
 
-    
-    
-
-    public GameObject visualPlate;
+    [SerializeField] private GameObject visualPlate;
 
     private Vector3 lastDirection;
     public bool _isMoving;
@@ -73,8 +70,12 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     private void Start() {
         _gameInput.OnInteractAction += GameInput_OnInteractAction;
         _gameInput.OnAlternativeInteractAction += GameInput_OnAlternativeInteractAction;
+        PlayerUpgradeManager.Instance.OnUpgrade += UpdatePlayerStats;
     }
-    
+
+    private void UpdatePlayerStats() {
+        _velocity = PlayerUpgradeManager.Instance.PlayerSpeed;
+    }
 
 
     private void GameInput_OnAlternativeInteractAction(object sender, EventArgs e) {
@@ -252,6 +253,10 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         _stopWalking = true;
         _isMoving = false;
     }
+    
+    public void StartWalking() {
+        _stopWalking = false;
+    }
 
 
     private float joystickDeadZone = 0f; 
@@ -269,7 +274,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         }
 
         Vector3 desiredDir = new Vector3(inputVector.x, 0f, inputVector.y);
-        float moveDistance = _velocicy * Time.deltaTime;
+        float moveDistance = _velocity * Time.deltaTime;
         Vector3 startPos = transform.position;
 
         bool canMove = !Physics.CapsuleCast(
@@ -300,7 +305,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         }
 
         // 💡 Если движение частично заблокировано — снижаем скорость (эффект "скольжения" по стене)
-        float effectiveSpeed = _velocicy;
+        float effectiveSpeed = _velocity;
         if (!canMove && moveDir != Vector3.zero) {
             effectiveSpeed *= 0.4f; // двигается в 2.5 раза медленнее вдоль препятствия
         }
@@ -364,10 +369,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     public void ClearKitchenObject() {
         _kitchenObject = null;
         HighlightManager.Instance.OnObjectDrop();
-
-        if (!visualPlate.activeSelf) {
-            visualPlate.SetActive(true);
-        }
+        visualPlate.SetActive(false);
     }
 
     private Coroutine _coroutine;
@@ -380,17 +382,28 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         if(kitchenObject is Plate) {
             visualPlate.SetActive(false); // Взял поднос
         }
+        else {
+            visualPlate.SetActive(true); 
+        }
         HighlightManager.Instance.OnObjectTake(_kitchenObject.GetKitchenObjectSO());
         // Сжирает хавку
-        if (UnityEngine.Random.value < 0.07 &&
+        
+        
+        
+        // СМЕНИТЬ ПОТОМ
+        if (UnityEngine.Random.value < 1 &&
             !(_kitchenObject is Plate) &&
-            !string.IsNullOrEmpty(_kitchenObject.GetKitchenObjectSO().justification)) {
+            !string.IsNullOrEmpty(_kitchenObject.GetKitchenObjectSO().justification)
+            && !TutorialManager.Instance.TutorialStarted ) {
+            
+            
+            MessageUI.Instance.SetText(LocalizationManager.Get("CatWantEat", _kitchenObject.GetKitchenObjectSO().declension), MessageUI.Emotions.happy);
             _coroutine = StartCoroutine(EatProductRoutine());
         }
     }
 
     private IEnumerator EatProductRoutine() {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(5f);
         
         if (HasKitchenObject() && _kitchenObject._isFresh) {
             MessageUI.Instance.SetText(_kitchenObject.GetKitchenObjectSO().justification, MessageUI.Emotions.eated);

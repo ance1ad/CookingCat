@@ -23,8 +23,6 @@ public class ClientCat : MonoBehaviour {
     private const string PLAYER_WALKING_STATE_VARIABLE = "IsWalking";
     public static ClientCat Instance { get; private set; }
     
-    private bool _clientIsGone = false;
-    public bool ClientIsGone => _clientIsGone;
     
     private void Awake() {
         if (Instance != null) {
@@ -64,19 +62,16 @@ public class ClientCat : MonoBehaviour {
         _animator.SetBool(PLAYER_WALKING_STATE_VARIABLE, true);
         yield return new WaitUntil(() => !_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance);
         _animator.SetBool(PLAYER_WALKING_STATE_VARIABLE, false);
-        // Дошел
-        _clientIsGone = false;
     }
     
 
     
     private IEnumerator GoEatOrderRoutine() {
+        Debug.Log("GoEatOrderRoutine");
         _animator.SetBool(PLAYER_WALKING_STATE_VARIABLE, true);
         _agent.SetDestination(_exit.position);
         yield return new WaitUntil(() => !_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance);
         _animator.SetBool(PLAYER_WALKING_STATE_VARIABLE, false);
-        // Дошел
-        _clientIsGone = true;
     }
 
     public void GivePlate(Plate plate) {

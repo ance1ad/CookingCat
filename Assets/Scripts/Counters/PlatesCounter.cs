@@ -41,11 +41,8 @@ public class PlatesCounter : BaseCounter {
     }
 
     public override void Interact(Player player) {
-        // Выдаем тарелку если создана
-        // if (OrderManager.Instance.orderIsAppointed) {
-        //     MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("CompleteOrderFirst"));
-        //     return;
-        // }
+        ScaleInteract();
+
         if (!player.HasKitchenObject()  && _mayGivePlate && topPoint.childCount > 0) {
            
             KitchenObject.CreateKitchenObject(_plate, player);

@@ -1,4 +1,4 @@
-public enum BuyType {
+public enum PurchaseType {
     Glasses,
     Hat,
     Mask,
@@ -10,4 +10,15 @@ public enum BuyType {
 public enum ValuteType {
     Coins,
     Gems,
+};
+
+
+public enum UpgradeType {
+    PlayerSpeed,
+    SliceCount,
+    OvenSpeed,
+    JuicerSpeed,
+    MeatFryingSpeed,
+    MeatOvercookedSpeed,
+    OrderPeek
 };

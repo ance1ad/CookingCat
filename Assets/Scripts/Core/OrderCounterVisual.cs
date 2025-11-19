@@ -89,7 +89,7 @@ public class OrderCounterVisual : MonoBehaviour {
         _drinkContainer.SetActive(false);
     }
     
-    public void ShowCanvas(GameObject canvas) {
+    public void ShowDishCanvas(GameObject canvas) {
         if (canvas == _canvasPizza) {
             _pizzaContainer.SetActive(true);
         }
@@ -104,6 +104,10 @@ public class OrderCounterVisual : MonoBehaviour {
 
     public void AddIcons() {
         Order order = OrderManager.Instance.CurrentOrder;
+        if (order.dishStruct[0] == null ||  order.dishStruct[1] == null || order.dishStruct[2] == null) {
+            Debug.LogWarning("Неправильный вызов создания заказа, заказ пустой");
+            return;
+        }
         if (order.dishStruct[0].dish != null) {
             _pizzaContainer.SetActive(true);
             foreach (var ingredient in order.dishStruct[0].dish.ingredients) {
@@ -177,6 +181,7 @@ public class OrderCounterVisual : MonoBehaviour {
     public bool _firstTimeShowResourceArrow = true;
     public IEnumerator TimerToCloseOrderInfo(float time, int orderNumber) {
         _orderIsShowed = false;
+        Player.Instance.StopWalking();
         timeToShowIngredients = time;
         _thief.StopThiefCycle();
 
@@ -210,15 +215,18 @@ public class OrderCounterVisual : MonoBehaviour {
         if (OrderManager.Instance.Level > 1) {
             _thief.StartThiefCycle();
         }
-        _generalCanvas.SetActive(false);
+        HideCanvas();
         if (OrderManager.Instance.Level == 1 && _firstTimeShowResourceArrow) {
             _firstTimeShowResourceArrow = false;
-            TutorialManager.Instance.ShowOrderResource();
+            TutorialManager.Instance.ShowOrderResource(3f);
             MessageUI.Instance.SetText(LocalizationManager.Get("LastStep"), MessageUI.Emotions.defaultFace);
         }
         _orderIsShowed = true;
+        Player.Instance.StartWalking();
         if (orderNumber != -1) {
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OrderTaken", orderNumber));
+            // Проверить потом
+            KitchenEvents.OrderTake();
         }
     }
 
@@ -285,13 +293,20 @@ public class OrderCounterVisual : MonoBehaviour {
             _closeButton.SetActive(true);
             
         }
-        _generalCanvas.SetActive(true);
+        ShowGeneralCanvas();
     }
 
         
         
     public void HideCanvas() {
         _generalCanvas.SetActive(false);
+        OrderManager.Instance.StopInteract = false;
+        Player.Instance.StartWalking();
+    }
+    
+    public void ShowGeneralCanvas() {
+        _generalCanvas.SetActive(true);
+        OrderManager.Instance.StopInteract = true;
     }
 
     public void ShowButtonToOpenOrder(bool state) {
@@ -310,7 +325,7 @@ public class OrderCounterVisual : MonoBehaviour {
         _closeButton.SetActive(true);
         orderStatusText.text = LocalizationManager.Get("OrderStatusText");
         _countToShowOrder--;
-        _generalCanvas.SetActive(true);
+        ShowGeneralCanvas();
         StartCoroutine(TimerToCloseOrderInfo(timeToShowIngredients, -1));
         _contToShowOrderText.text = _countToShowOrder.ToString();
         _new.gameObject.SetActive(false);

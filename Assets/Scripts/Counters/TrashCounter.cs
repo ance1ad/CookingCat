@@ -18,6 +18,7 @@ public class TrashCounter : BaseCounter,IHasProgress {
 
 
     public override void Interact(Player player) {
+        ScaleInteract();
         if (player.HasKitchenObject()) {
 
             if (player.GetKitchenObject() is Plate) {

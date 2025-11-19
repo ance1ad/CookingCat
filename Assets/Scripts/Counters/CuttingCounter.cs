@@ -27,6 +27,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
 
 
     public override void Interact(Player player) {
+        ScaleInteract();
         if (player.HasKitchenObject() && !HasKitchenObject()) {
             if (!player.GetKitchenObject()._isFresh) {
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));
@@ -76,14 +77,14 @@ public class CuttingCounter : BaseCounter, IHasProgress {
             return;
         }
         if (output != null && HasKitchenObject() ) {
-            cutCount++;
+            cutCount += PlayerUpgradeManager.Instance.SliceCount;
 
             OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
                 Progress = (float)cutCount / output.maxSliceCount
             });
 
             
-            if (cutCount == output.maxSliceCount) { 
+            if (cutCount >= output.maxSliceCount) { 
                 GetKitchenObject().DestroyMyself();
                 KitchenObject.CreateKitchenObject(output.output, this);
                 output = null;

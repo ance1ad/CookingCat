@@ -53,6 +53,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
 
     public override void Interact(Player player) {
+        ScaleInteract();
         if (bakingNow) {
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PizzaIsBaking"));
             return;
@@ -74,6 +75,8 @@ public class OvenCounter : BaseCounter, IHasProgress{
                 return;
             }
             puttedIngredients.Add(playerSO);
+            KitchenEvents.OvenIngredientAdded(puttedIngredients.Count);
+            
             _visual.PlayAnimation();
 
             OnIndridientAddedInOven?.Invoke(new IngredientAddedArgs {
@@ -96,7 +99,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
     private IEnumerator Timer(float time) {
         bakingNow = true;
-        float timeNow = 0f;
+        float timeNow = 0;
         while(timeNow < time) {
             timeNow += Time.deltaTime;
             OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
@@ -109,6 +112,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
         MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PizzaIsReady"));
         
         _visual.SetPizzaReady();
+        KitchenEvents.PizzaReady();
         SoundManager.Instance.PlaySFX("Success");
         SoundManager.Instance.StopLoopSfx("Oven");
         
@@ -117,6 +121,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
     // Запуск готовки и выдача заказа
     public override void AlternativeInteract(Player player) {
+        ScaleInteract();
         if (bakingNow) {
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OvenIsRunning"));
             return;
@@ -137,8 +142,9 @@ public class OvenCounter : BaseCounter, IHasProgress{
 
         MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OvenRun"));
         SoundManager.Instance.PlayLoopSfx("Oven");
+        KitchenEvents.OvenStarted();
         BakePizza();
-        StartCoroutine(Timer(timeToBakePizza));
+        StartCoroutine(Timer(timeToBakePizza - PlayerUpgradeManager.Instance.OvenSpeed));
     }
 
 

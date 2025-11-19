@@ -110,41 +110,28 @@ public class LocalizationManager : MonoBehaviour  {
         {"ComboBreak", "Комбо прервано на x{0}"},
         
         // TUTOR
-        { "Step1Hello", "Привет! Добро пожаловать ко мне на кухню, нажми тут для продолжения" },
-        { "Step2Buttons", "В игре есть 2 кнопки взаимодействия" },
-        { "Step3RightButton", "Кнопка справа (E) используется чтобы что-то брать или класть" },
-        { "Step4LeftButton", "Кнопка слева (F) используется, чтобы нарезать продукты или включать духовку" },
-        { "Step5IntroObjects", "Теперь давай познакомимся с основными предметами на кухне" },
-        { "Step6Containers", "Продукты лежат в холодильниках и контейнерах" },
-        { "Step7Trash", "Иногда продукты пропадают, их придётся выкинуть" },
-        { "Step8Tables", "Столы нужны для того, чтобы класть на них предметы" },
-        { "Step9Cutting", "Продукты нужно резать на разделочных досках" },
-        { "Step10Stove", "Мясо для бургера жарится на плите, следи за тем, чтобы оно не пережарилось!" },
-        { "Step11Oven", "Ингредиенты для пиццы кладутся сразу в волшебную духовку" },
-        { "Step12OvenUse", "После того, как положил все ингредиенты, включай духовку на (F)" },
-        { "Step13JuicerPrep", "Для приготовления сока, на разделочной доске сначала нужно подготовить фрукты или овощи" },
-        { "Step14JuicerUse", "Затем загружай подготовленный продукт в соковыжималку, достаточно 3шт. для приготовления сока" },
-        { "Step15Delivery", "Следи за количеством продуктов на кухне, но если что можно всегда заказать курьера" },
-        { "Step16OrderStart", "Чтобы принять заказ подойти к столу и нажми (E), заказ собирается на подносе" },
-        { "Step17OrderHint", "У тебя будет время запомнить заказ и подсмотреть его пару раз в правом верхнем углу" },
-        { "Step18Timer", "Также следи за временем пока выполняешь заказ, клиенты ждут!" },
-        { "Step19Burger", "Бургер собирается на ранее взятом подносе, клади ингредиенты прямо на него" },
-        { "Step20Pizza", "Пиццу после приготовления вытаскивай из духовки и клади на поднос" },
-        { "Step21JuiceReady", "Тоже самое и с соковыжималкой" },
-        { "Step22Serve", "После сбора заказа беги обратно к клиенту" },
-        { "Step23Shop", "В магазине можно закупиться скинами или апгрейдами" },
-        { "Step24Bonk", "Ну конечно он не признается сам... твой кот иногда может скушать то, что ты держишь, следи за ним!" },
-        { "Step25Thief", "Ах да... следи внимательно за кухней, иногда на нее может забежать вор, обязательно прогони его" },
+        { "StepHello", "Привет! Добро пожаловать ко мне на кухню, нажми тут для продолжения" },
+        { "StepButtons", "В игре есть 2 кнопки взаимодействия" },
+        { "StepRightButton", "Кнопка справа (E) используется чтобы что-то брать или класть" },
+        { "StepLeftButton", "Кнопка слева (F) используется, чтобы нарезать продукты или включать духовку" },
         
-        { "Step26GoodLuck", "Удачи! Держи немного монеток, можешь взять в магазине шапку шефа, она бесплатная!" },
+        { "StepFirstOrder", "Пошли учиться делать бургеры! Бери первый заказ! " },
+        { "FistOrderTaked", "Отлично, ты принял первый заказ! " },
         
+        
+        
+        
+        
+        
+        { "StepBonk", "Ну конечно он не признается сам... твой кот иногда может скушать то, что ты держишь, следи за ним!" },
+        { "StepThief", "Ах да... следи внимательно за кухней, иногда на нее может забежать вор, обязательно прогони его" },
+        { "StepGoodLuck", "Удачи! Держи немного монеток, можешь взять в магазине шапку шефа, она бесплатная!" },
 
-        
         
         { "LastStep", "Ингредиенты можно пару раз подсмотреть слева сверху!" },
         
         // Order Tutorial
-        { "CreateBurgerTutorial", "Давай научимся делать бургеры! Хватай поднос и принимай свой первый заказ!" },
+        { "CreateBurgerTutorial", "Давай ! Хватай поднос и принимай свой первый заказ!" },
         { "CreatePizzaTutorial", "Бургер получился вкусными, а теперь приготовим аппетитную пиццу!" },
         { "CreateDrinkTutorial", "Пицца получилась вкусной! Осталось освоить соковыжималку и сделать вкусный напиток!" },
         { "CombineOrderTutorial", "Попробуем средний заказ из нескольких блюд!" },
@@ -156,7 +143,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "TryAgainDrink", "Давай попробуем еще раз приготовить напиток, запомни ингредиенты, если что, можешь подсмотреть" },
         
         
-        {"TutorialInvitation", "О Привет! Вижу ты не прошел стажировку, советую пройти для понимания процесса готовки!"},
+        {"TutorialInvitation", "О Привет! Вижу ты не прошел стажировку, давай ее быстро пройдем !"},
         {"GladSeeYou", "Привет! рад тебя снова видеть на кухне!"},
         {"GladSeeYouReward", "Привет! рад тебя снова видеть на кухне! Лови небольшое вознаграждение!"},
         {"TimeBonus", "Привет! рад что ты играешь в нашу игру! Лови небольшое вознаграждение!"},
@@ -169,6 +156,15 @@ public class LocalizationManager : MonoBehaviour  {
         
         
         {"SecMeasurement", "c."},
+        {"CatWantEat", "Я сейчас не удержусь и скушаю {0}!"},
+        
+        
+        // Перенос инфы
+        { "Step7Trash", "Иногда продукты пропадают, их придётся выкинуть" },
+        { "Step15Delivery", "Следи за количеством продуктов на кухне, но если что можно всегда заказать курьера" },
+        
+        
+        { "FirstCompleteOrder", "Пока рано отдавать заказ!" },
         
     };
 
@@ -289,32 +285,15 @@ public class LocalizationManager : MonoBehaviour  {
         // Tutoriallo
         
         
-        { "Step1Hello", "Hi there! Welcome to my kitchen. Tap here to continue." },
-        { "Step2Buttons", "There are two main action buttons in the game." },
-        { "Step3RightButton", "The right button (E) is used to pick up or place items." },
-        { "Step4LeftButton", "The left button (F) is for chopping food or turning on the oven." },
+        { "StepHello", "Hi there! Welcome to my kitchen. Tap here to continue." },
+        { "StepButtons", "There are two main action buttons in the game." },
+        { "StepRightButton", "The right button (E) is used to pick up or place items." },
+        { "StepLeftButton", "The left button (F) is for chopping food or turning on the oven." },
         { "Step5IntroObjects", "Now let’s take a look at the main kitchen objects." },
-        { "Step6Containers", "You can find ingredients in fridges and containers." },
-        { "Step7Trash", "Sometimes food goes bad — you’ll need to throw it away." },
-        { "Step8Tables", "Tables are used to place items on." },
-        { "Step9Cutting", "Use cutting boards to chop ingredients." },
-        { "Step10Stove", "Meat for burgers is cooked on the stove — make sure it doesn’t burn!" },
-        { "Step11Oven", "Pizza ingredients go straight into the magical oven." },
-        { "Step12OvenUse", "Once all ingredients are inside, turn on the oven with (F)." },
-        { "Step13JuicerPrep", "To make juice, prepare fruits or veggies on the cutting board first." },
-        { "Step14JuicerUse", "Then put the prepared ingredients into the juicer — 3 pieces are enough." },
-        { "Step15Delivery", "Keep an eye on your ingredient stock. If you run out, you can call a courier." },
-        { "Step16OrderStart", "To accept an order, go to the table and press (E), the order is collected on a tray" },
-        { "Step17OrderHint", "You’ll have some time to remember the order. You can also check it anytime in the top-right corner." },
-        { "Step18Timer", "Keep an eye on the timer — customers don’t like to wait!" },
-        { "Step19Burger", "Assemble burgers right on the tray you picked up earlier." },
-        { "Step20Pizza", "Take the pizza out of the oven when it’s ready and place it on the tray." },
-        { "Step21JuiceReady", "Do the same with the juicer once the juice is done." },
-        { "Step22Serve", "When the order is ready, run back to the customer!" },
-        { "Step23Shop", "In the shop, you can buy skins and upgrades." },
-        { "Step24Bonk", "Of course he won't admit it himself... Your cat can sometimes eat what you're holding, keep an eye on him!" },
-        { "Step25Thief", "Oh, and watch out — sometimes a thief might sneak into the kitchen! Chase him away!" },
-        { "Step26GoodLuck", "Good luck! Here’s some cash, you can get the chef's hat from the store, it's free." },
+        
+        { "StepBonk", "Of course he won't admit it himself... Your cat can sometimes eat what you're holding, keep an eye on him!" },
+        { "StepThief", "Oh, and watch out — sometimes a thief might sneak into the kitchen! Chase him away!" },
+        { "StepGoodLuck", "Good luck! Here’s some cash, you can get the chef's hat from the store, it's free." },
         { "LastStep", "You can check the ingredients a couple of times!" },
         
         // Order Tutorial
@@ -338,6 +317,9 @@ public class LocalizationManager : MonoBehaviour  {
         {"PlayGame", "Play"},
         {"StartTutorial", "Tutorial"},
         {"SecMeasurement", "s."},
+        
+        {"CatWantEat", "I'm going to eat {0} soon!"},
+        
     };
     
 

@@ -18,23 +18,33 @@ public class OrderManager : BaseCounter {
     [SerializeField] private List<DishSO> _firstDishes;
     [SerializeField] private List<DishSO> _secondDishes;
     [SerializeField] private List<DishSO> _drinks;
-    [SerializeField] private OrderCounterVisual _visual;
+   
     [SerializeField] private ThiefCat _thief;
+    [SerializeField] public OrderCounterVisual _visual;
 
     // Запоминание текста и эмодзи при смене языка
     private MessageUI.Emotions lastEmotion;
     private string lastStepKey;
-        
+    public bool NewOrderCreateReady { get; private set; } = true;
+
+
+
     // _____________________________________________________
     public Order CurrentOrder; // Все заказы в системе
     public bool orderIsAppointed;
-    public int orderNumber { get; private set; } = 0;
+    public int orderNumber { get; set; } = 0;
     private int timeToShowIngredients;
     private float _timeToCompleteOrder;
     public int Level; // Увеличивается извне в Reward
 
     public static OrderManager Instance { get; private set; }
     public event Action OnOrderCompleted;
+    
+    // Разрешения
+    public bool AllowCompleteOrder { get; set; }
+    public bool StopInteract = false;
+
+
     
     private void Awake() {
 
@@ -45,7 +55,8 @@ public class OrderManager : BaseCounter {
     }
     
     private void Start() {
-        Level = 1;
+        // Потом увеличить после тутора
+        Level = 0;
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
     }
 
@@ -61,6 +72,7 @@ public class OrderManager : BaseCounter {
 
     private float _newCompletedTime = 0;
     public IEnumerator OrderIsCompleted(Plate plate) {
+        Debug.Log("OrderIsCompleted");
         orderIsCreated = false;
         // Пусть постоит
         // Player.Instance.StopWalking();
@@ -70,10 +82,12 @@ public class OrderManager : BaseCounter {
         _newCompletedTime = _visual._completeTimer;
         
         ClientCat.Instance.GivePlate(plate);
+        
+        // Если тутор запущен, то сжирает моментально
+        bool momentalEating = TutorialManager.Instance.TutorialStarted;
         ClientCat.Instance.GoEatOrder();
         
-        // Подождать пока уйдет клиент
-        // yield return new WaitUntil(() => ClientCat.Instance.ClientIsGone);
+        
         _visual.ShowCanvas();
 
         int allIngredientsAdded = 0;
@@ -83,25 +97,31 @@ public class OrderManager : BaseCounter {
         CurrentOrder.foreignExtraCount = _foreignExtraCount;
         CurrentOrder.elapsedTime = _newCompletedTime; // пишем с + если успел с минусом если опоздание
         CurrentOrder.maxTime = _visual._timeToCompleteOrder;
-        // Подсчет общего accuracy
-        // Передаем в RewardManager Order он разберется
+
         RewardManager.Instance.CalculateOrderStatistic(CurrentOrder);
         _foreignExtraCount = 0;
        
         orderIsAppointed = false;
         OnOrderCompleted?.Invoke();
-        yield return new WaitForSeconds(10f);
-        plate.DestroyPlate();
-        plate.DestroyMyself();
+        
         Player.Instance._stopWalking = false;
         CurrentOrder.ClearOrder();
-        CreateNewOrder("OM");
+        NewOrderCreateReady = true;
+        if (TutorialManager.Instance.TutorialStarted) {
+            yield return new WaitForSeconds(2f);
+            plate.DestroyPlate();
+        } 
+        else if(TutorialManager.Instance.TutorialPassed) {
+            CreateNewOrder();
+            yield return new WaitForSeconds(10f);
+            plate.DestroyPlate();
+        }
+        
     }
 
     
     
     public void AssignOrder() {
-        // Не тарелке а просто как принятый
         orderIsAppointed = true;
 
         _visual.SetOrderNumVisual(LocalizationManager.Get("OrderNumber", orderNumber.ToString("D3")) );
@@ -135,17 +155,26 @@ public class OrderManager : BaseCounter {
     public int _tryCounts = 0;
 
 
-    private bool orderIsCreated = false;
+    public bool orderIsCreated = false;
     
     public IEnumerator CreateFirstOrderLater(float time) {
         yield return new WaitForSeconds(time);
-        CreateNewOrder("OM");
+        CreateNewOrder();
     }
+
+
     
-    
-    public void CreateNewOrder(string client) {
-        Debug.Log(client);
-        if (orderIsCreated) {
+    public bool _burgerIsCreated = false;
+    public bool _pizzaIsCreated = false;
+
+
+
+    public void CreateNewOrder() {
+        if (!NewOrderCreateReady) {
+            Debug.Log("Нельзя создавать новый заказ пока активен настоящий ");
+            return;
+        }
+        if (orderIsCreated || TutorialManager.Instance.TutorialStarted) {
             return;
         }
         orderIsCreated = true;
@@ -238,7 +267,7 @@ public class OrderManager : BaseCounter {
     }
 
 
-    private void SetEducationParams() {
+    public void SetEducationParams() {
         _visual._countToShowOrder = 10;
         _timeToCompleteOrder = 1000;
         _visual._timeToCompleteOrder = _timeToCompleteOrder;
@@ -246,14 +275,15 @@ public class OrderManager : BaseCounter {
 
     private void CountTimesToShowOrder(DishSO[] orderDishes)
     {
-        var countToShowOrder = 3;
+        var countToShowOrder = 5;
         foreach (var dish in orderDishes) {
             if (dish == null) {
                 countToShowOrder--;
             }
         }
 
-        countToShowOrder *= 3;
+        countToShowOrder *= 2;
+        countToShowOrder += PlayerUpgradeManager.Instance.OrderPeekCount;
         _visual._countToShowOrder = countToShowOrder;
     }
 
@@ -266,7 +296,7 @@ public class OrderManager : BaseCounter {
         _visual._timeToCompleteOrder = _timeToCompleteOrder;
     }
     
-    private void SetTimeToShowIngredients(DishSO[] orderDishes) {
+    public void SetTimeToShowIngredients(DishSO[] orderDishes) {
         int countIngredients = CountOrderIngredients(orderDishes);
         int secondsMultiply = 1;
         timeToShowIngredients = countIngredients * secondsMultiply;
@@ -294,6 +324,9 @@ public class OrderManager : BaseCounter {
 
 
     public override void Interact(Player player) {
+        if (StopInteract) {
+            return;
+        }
         // Выдача логики без подноса
 
         if (orderIsAppointed) {
@@ -308,8 +341,17 @@ public class OrderManager : BaseCounter {
                     return;
                 }
                 // Все ок
-                if (_visual._orderIsShowed) {
+                Debug.Log("AllowCompleteOrder = " + AllowCompleteOrder);
+                Debug.Log("_visual._orderIsShowed = " + _visual._orderIsShowed);
+                if (_visual._orderIsShowed && AllowCompleteOrder) {
+                    KitchenEvents.OrderCompleted();
+                    AllowCompleteOrder = false;
+                    orderIsCreated = false;
                     StartCoroutine(OrderIsCompleted(plate));
+                }
+
+                if (!AllowCompleteOrder) {
+                    MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("FirstCompleteOrder"));
                 }
             }
             else {
@@ -320,6 +362,7 @@ public class OrderManager : BaseCounter {
         else if (!orderIsAppointed && orderIsCreated) {
             Debug.Log("Выдача заказа");
             Instance.AssignOrder();
+            NewOrderCreateReady = false; // выдан
             _visual.HideInfinityPopupText();
         }
 
@@ -354,7 +397,7 @@ public class OrderManager : BaseCounter {
             foreach (var ingredient in addedIngredientsList) {
                 // Добавить и показать крестик _visual 
                 dishStruct.extra++;
-                _visual.ShowCanvas(dishCanvas);
+                _visual.ShowDishCanvas(dishCanvas);
                 GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
                 _visual.SetBad(newIcon);
             }
@@ -363,7 +406,7 @@ public class OrderManager : BaseCounter {
         if (dishStruct.dish == null) {
             foreach (var ingredient in addedIngredientsList) {
                 _foreignExtraCount++;
-                _visual.ShowCanvas(dishCanvas);
+                _visual.ShowDishCanvas(dishCanvas);
                 GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
                 _visual.SetBad(newIcon);
             }

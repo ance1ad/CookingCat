@@ -1,0 +1,71 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerUpgradeManager : MonoBehaviour {
+    [SerializeField] private PlayerData _data;
+
+    public float PlayerSpeed { get; private set; } = 4f;
+    public int SliceCount { get; private set; } = 1;
+    public float OvenSpeed { get; private set; } 
+    public float JuicerSpeed { get; private set; }
+    public float MeatFryingSpeed { get; private set; }
+    public float MeatOvercookedSpeed { get; private set; }
+    public int OrderPeekCount { get; private set; }
+    public static PlayerUpgradeManager Instance { get; private set; }
+
+    public event Action OnUpgrade;
+    
+
+    private void Awake() {
+        if (Instance != null) {
+            Debug.Log("WTH, error in Instance");
+            return;
+        }
+        Instance = this;
+    }
+
+    private void Start() {
+        _data.OnUpgradeBought += DataOnUpgradesReload;
+    }
+
+    
+    private void DataOnUpgradesReload(Dictionary<UpgradeObjectSO, int> dict) {
+
+        
+        foreach (var upgradeObject in dict) {
+            int count = upgradeObject.Value;
+            float bonus = upgradeObject.Key.Bonus;
+            switch (upgradeObject.Key.UpgradeType) {
+                case UpgradeType.PlayerSpeed:
+                    PlayerSpeed = 4f;
+                    PlayerSpeed += count * bonus;
+                    break;
+                case UpgradeType.SliceCount:
+                    SliceCount = 1;
+                    SliceCount += (int)(count * bonus);
+                    break;
+                case UpgradeType.OvenSpeed:
+                    OvenSpeed = count * bonus;
+                    break;
+                case UpgradeType.JuicerSpeed:
+                    JuicerSpeed =  count * bonus;
+                    break;
+                case UpgradeType.MeatFryingSpeed:
+                    MeatFryingSpeed = count * bonus;
+                    break;
+                case UpgradeType.MeatOvercookedSpeed:
+                    MeatOvercookedSpeed = count * bonus;
+                    break;
+                case UpgradeType.OrderPeek:
+                    OrderPeekCount = (int)(count * bonus);
+                    break;
+                default:
+                    Debug.Log("Update not found");
+                    break;
+            }
+        }
+        OnUpgrade?.Invoke();
+    }
+}

@@ -38,25 +38,32 @@ public class StoveCounter : BaseCounter, IHasProgress {
             FryMeat();
         }
     }
+    
+    
+    
 
 
     private void FryMeat() {
         // Пользователь положил приготовленное мясо у его выхода т.е у пережаренного мяса нет своего output
         if (transitionToOvercooked == null) {
             transitionToOvercooked = transitionToCooked;
-            timeForCooked = transitionToCooked.fryingTimerMax;
+            timeForCooked = transitionToCooked.fryingTimerMax + PlayerUpgradeManager.Instance.MeatOvercookedSpeed;
             meatIsCooked = true;
         }
 
-        if (timer >= transitionToCooked.fryingTimerMax && !meatIsCooked) {
+        if (!meatIsCooked) {
+            timeForCooked = transitionToCooked.fryingTimerMax - PlayerUpgradeManager.Instance.MeatFryingSpeed;
+        }
+
+        if (timer >= transitionToCooked.fryingTimerMax-PlayerUpgradeManager.Instance.MeatFryingSpeed && !meatIsCooked) {
             timer = 0f;
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("MeatIsReady"));
             GetKitchenObject().DestroyMyself();
             KitchenObject.CreateKitchenObject(transitionToCooked.output, this);
-            timeForCooked = transitionToOvercooked.fryingTimerMax;
+            timeForCooked = transitionToOvercooked.fryingTimerMax + PlayerUpgradeManager.Instance.MeatOvercookedSpeed;
             meatIsCooked = true;
         }
-        else if (timer >= transitionToOvercooked.fryingTimerMax) {
+        else if (timer >= transitionToOvercooked.fryingTimerMax + PlayerUpgradeManager.Instance.MeatOvercookedSpeed) {
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("MeatIsOvercooked"));
             GetKitchenObject().DestroyMyself();
             KitchenObject.CreateKitchenObject(transitionToOvercooked.output, this);
@@ -69,6 +76,8 @@ public class StoveCounter : BaseCounter, IHasProgress {
 
 
     public override void Interact(Player player) {
+        ScaleInteract();
+
         if (player.HasKitchenObject() && !HasKitchenObject()) {
             if (!player.GetKitchenObject()._isFresh) {
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));

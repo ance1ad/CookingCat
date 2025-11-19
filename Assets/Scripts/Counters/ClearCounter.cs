@@ -13,7 +13,7 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
 
 
     public override void Interact(Player player) {
-
+        ScaleInteract();
         if (HasKitchenObject()) {
             // Хотим забрать
             if (!player.HasKitchenObject()) {
@@ -50,6 +50,8 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
                 _counterTopPoint.localRotation = Quaternion.Euler(0f, 90f, 0f);
                 _counterTopPoint.localPosition = new Vector3(-0.136f, 1.3f, 0.134f);
             }
+
+            KitchenEvents.ObjectPutInTable(player.GetKitchenObject());
             player.GetKitchenObject().SetKitchenObjectParent(this);
             SoundManager.Instance.PlaySFX("AtTable");
             

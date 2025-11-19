@@ -13,15 +13,16 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
     [SerializeField] private GameObject[] _outlineObjects;
     public bool outlineIsActive = false;
 
-    private float intensity = 0.2f;
+    private float intensity = 0.5f;
 
     private KitchenObject _kitchenObject;
 
     public Transform CounterTopPoint => _counterTopPoint;
 
-
+    private Vector3 startScale;
     private void Awake() {
         ShowOutline(false);
+        startScale = transform.localScale;
     }
 
 
@@ -69,7 +70,10 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
     private Coroutine pulseRoutine;
 
     public void SetHighlight(bool active) {
-        if (active && !HasKitchenObject()) {
+        if (active) {
+            if (HasKitchenObject() && GetKitchenObject() is not Plate) {
+                return;
+            }
             if (pulseRoutine == null)
                 pulseRoutine = StartCoroutine(PulseHighlight());
             ShowOutline(true);
@@ -107,6 +111,31 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
             }
             yield return null;
         }
+    }
+
+
+    protected void ScaleInteract() {
+        StartCoroutine(ScaleInteractRoutine());
+    }
+
+    private IEnumerator ScaleInteractRoutine() {
+        Vector3 targerScale = startScale * 1.1f;
+        float duration = 0.25f;
+        float t = 0f;
+        
+        while (t < duration) {
+            t += Time.deltaTime / duration;
+            transform.localScale = Vector3.Lerp(startScale, targerScale, t);
+            yield return null;
+        }
+        
+        t = 0f;
+        while (t < duration) {
+            t += Time.deltaTime / duration;
+            transform.localScale = Vector3.Lerp(targerScale, startScale, t);
+            yield return null;
+        }
+        transform.localScale = startScale;
     }
 
 

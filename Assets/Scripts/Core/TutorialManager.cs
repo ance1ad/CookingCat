@@ -16,10 +16,16 @@ public class TutorialManager : MonoBehaviour {
     [SerializeField] private List<BaseCounter> _cuttingCounters;
     [SerializeField] private BaseCounter _ovenCounter;
     [SerializeField] private BaseCounter _stoveCounter;
-    [SerializeField] private BaseCounter _trashCounters;
-    [SerializeField] private BaseCounter _juicerCounters;
+    [SerializeField] private BaseCounter _trashCounter;
+    [SerializeField] private BaseCounter _juicerCounter;
     [SerializeField] private BaseCounter _platesCounter;
     [SerializeField] private BaseCounter _orderCounter;
+
+
+    [SerializeField] private BaseCounter _fridgeBun;
+    [SerializeField] private BaseCounter _fridgeMeat;
+    [SerializeField] private BaseCounter _fridgeTomato;
+    
     
     
     [SerializeField] private Button _skinStoreButton;
@@ -37,9 +43,20 @@ public class TutorialManager : MonoBehaviour {
     [SerializeField] private GameObject _eButtonArrow;
     [SerializeField] private GameObject _orderResourceArrow; // Время и кол-во подсмотроу
 
-
-
     
+    // Продукты
+    [SerializeField] private KitchenObjectSO _bunKO; // Булочко
+    [SerializeField] private KitchenObjectSO _tomatoSliced; // Помидорко
+    [SerializeField] private KitchenObjectSO _fryedMeat; // Мясочкоу
+     
+    // Флаги разрешения
+    // AllowCompleteOrder - в OrderManager
+
+
+
+
+
+
     private bool readyToNext = false;
     // Запоминание текста и эмодзи при смене языка
     private MessageUI.Emotions lastEmotion;
@@ -48,7 +65,7 @@ public class TutorialManager : MonoBehaviour {
     public static TutorialManager Instance {get; private set;}
     public bool TutorialStarted = false;
     
-    public bool tutorialPassed = false;
+    public bool TutorialPassed = false;
     
     private void Awake() {
         if (Instance != null) {
@@ -104,128 +121,67 @@ public class TutorialManager : MonoBehaviour {
 
         ReadyToTutorial();
 
-        yield return ShowStep("Step1Hello", MessageUI.Emotions.happy);
+        yield return ShowStep("StepHello", MessageUI.Emotions.happy);
         ShowArrows(_eButtonArrow, _fButtonArrow);
 
-        yield return ShowStep("Step2Buttons", MessageUI.Emotions.defaultFace);
+        yield return ShowStep("StepButtons", MessageUI.Emotions.defaultFace);
         ShowArrows(_eButtonArrow);
 
-        yield return ShowStep("Step3RightButton", MessageUI.Emotions.eated);
+        yield return ShowStep("StepRightButton", MessageUI.Emotions.eated);
         ShowArrows(_fButtonArrow);
 
-        yield return ShowStep("Step4LeftButton", MessageUI.Emotions.happy);
+        yield return ShowStep("StepLeftButton", MessageUI.Emotions.happy);
         _focus.SetActive(false);
-
         HideArrows();
-        yield return ShowStep("Step5IntroObjects", MessageUI.Emotions.eated);
-        HideAllCounters();
 
-        yield return ShowStep("Step6Containers", MessageUI.Emotions.happy, () => ShowCountersGroup(_containerCounters));
 
-        yield return ShowStep("Step7Trash", MessageUI.Emotions.sad, () =>
-        {
-            HideHighLight(_containerCounters);
-            _trashCounters.gameObject.SetActive(true);
-            _trashCounters.SetHighlight(true);
-        });
+        // РАБОТАЮ ТУТ
 
-        yield return ShowStep("Step8Tables", MessageUI.Emotions.defaultFace, () =>
-        {
-            _trashCounters.SetHighlight(false);
-            ShowCountersGroup(_clearCounters);
-        });
 
-        yield return ShowStep("Step9Cutting", MessageUI.Emotions.happy, () =>
-        {
-            ShowArrows(_fButtonArrow);
-            HideHighLight(_clearCounters);
-            ShowCountersGroup(_cuttingCounters);
-        });
 
-        yield return ShowStep("Step10Stove", MessageUI.Emotions.eated, () =>
-        {
-            HideArrows();
-            HideHighLight(_cuttingCounters);
-            _stoveCounter.gameObject.SetActive(true);
-            _stoveCounter.SetHighlight(true);
-        });
-
-        yield return ShowStep("Step11Oven", MessageUI.Emotions.happy, () =>
-        {
-            _ovenCounter.gameObject.SetActive(true);
-            _ovenCounter.SetHighlight(true);
-            _stoveCounter.SetHighlight(false);
-        });
-
-        yield return ShowStep("Step12OvenUse", MessageUI.Emotions.eated, () => ShowArrows(_fButtonArrow));
-
-        yield return ShowStep("Step13JuicerPrep", MessageUI.Emotions.happy, () =>
-        {
-            HideArrows();
-            _juicerCounters.gameObject.SetActive(true);
-            _juicerCounters.SetHighlight(true);
-            _ovenCounter.SetHighlight(false);
-        });
-
-        yield return ShowStep("Step14JuicerUse", MessageUI.Emotions.eated);
-
-        yield return ShowStep("Step15Delivery", MessageUI.Emotions.defaultFace, () =>
-        {
-            ShowArrows(_productStoreArrow);
-            _focus.SetActive(true);
-            _productStoreButton.gameObject.SetActive(true);
-            _productStoreButton.enabled = false;
-            _juicerCounters.SetHighlight(false);
-        });
-
-        yield return ShowStep("Step16OrderStart", MessageUI.Emotions.happy, () =>
-        {
-            HideArrows();
-            _focus.SetActive(false);
-            ClientCat.Instance.gameObject.SetActive(true);
-            _platesCounter.gameObject.SetActive(true);
-            _orderCounter.gameObject.SetActive(true);
-            _platesCounter.SetHighlight(true);
-            _orderCounter.SetHighlight(true);
-        });
-
-        yield return ShowStep("Step17OrderHint", MessageUI.Emotions.eated);
-        yield return ShowStep("Step18Timer", MessageUI.Emotions.defaultFace);
-        yield return ShowStep("Step19Burger", MessageUI.Emotions.eated);
-        yield return ShowStep("Step20Pizza", MessageUI.Emotions.happy);
-        yield return ShowStep("Step21JuiceReady", MessageUI.Emotions.eated);
-
-        yield return ShowStep("Step22Serve", MessageUI.Emotions.happy, () =>
-        {
-            _orderCounter.SetHighlight(false);
-            _platesCounter.SetHighlight(false);
-        });
-
-        yield return ShowStep("Step23Shop", MessageUI.Emotions.eated, () =>
-        {
-            ShowArrows(_skinStoreArrow);
-            _skinStoreButton.gameObject.SetActive(true);
-            _skinStoreButton.enabled = false;
-            _focus.SetActive(true);
-        });
-
-        yield return ShowStep("Step24Bonk", MessageUI.Emotions.bonk, () =>
-        {
-            HideArrows();
-            SoundManager.Instance.PlaySFX("Bonk");
-        });
-
-        yield return ShowStep("Step25Thief", MessageUI.Emotions.shocked);
-        yield return ShowStep("Step26GoodLuck", MessageUI.Emotions.happy, () =>
-        {
-            MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("Step26GoodLuck"), MessageUI.Emotions.happy);
+        // Поздравляет о взятом заказе
+        yield return Step_TakeFirstOrder();
+        yield return Step_PutPlate();
+        yield return Step_BunPut();
+        yield return Step_TomatoSlice();
+        yield return Step_Meatfry();
+        yield return Step_FirstOrderComplete();
+        // Pizza
+        yield return Step_PizzaDoingReady();
+        yield return Step_HowOvenWork();
+        yield return Step_PeekIngredients();
+        yield return Step_CountIngredientsInOven();
+        yield return Step_TakePizza();
+        yield return Step_CompletePizzaOrder();
+        // Juicer
+        yield return Step_TakeDrinkOrder();
+        yield return Step_JuicerWork();
+        yield return Step_JuicerWorking();
+        yield return Step_JuiceReady();
+        MessageUI.Instance.ShowNextButton();
+        yield return ShowStep("StepBonk", MessageUI.Emotions.bonk);
+        yield return ShowStep("StepThief", MessageUI.Emotions.shocked);
+        yield return ShowStep("StepGoodLuck", MessageUI.Emotions.happy, () => {
             if (CurrencyManager.Instance.Coins < 1000f) {
                 CurrencyManager.Instance.UpdateCash(5000f, 5);
+                CloseTutorial();
             }
-            CloseTutorial();
-            tutorialPassed = true;
-            StartCoroutine(OrderManager.Instance.CreateFirstOrderLater(3f));
         });
+            
+
+
+        
+        
+        // yield return ShowStep("StepGoodLuck", MessageUI.Emotions.happy, () =>
+        // {
+        //     MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("StepGoodLuck"), MessageUI.Emotions.happy);
+        //     if (CurrencyManager.Instance.Coins < 1000f) {
+        //         CurrencyManager.Instance.UpdateCash(5000f, 5);
+        //     }
+        //     CloseTutorial();
+        //     tutorialPassed = true;
+        //     StartCoroutine(OrderManager.Instance.CreateFirstOrderLater(3f));
+        // });
     }
     
 
@@ -241,29 +197,411 @@ public class TutorialManager : MonoBehaviour {
         readyToNext = false;
     }
 
+    private IEnumerator Step_TakeFirstOrder() {
+        Player.Instance.StartWalking();
+        SetHighlightOneCounter(_orderCounter);
+        TutorialOrderCounter.Instance.CreateTutorialBurger();
+        MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("StepFirstOrder"), MessageUI.Emotions.eated);
+        MessageUI.Instance.ShowPlatesArrow();
+        MessageUI.Instance.HideNextButton();
+        
+        readyToNext = false;
+        KitchenEvents.OnOrderTake += Handler;
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            HideHighlightOneCounter(_orderCounter);
+            KitchenEvents.OnOrderTake-=Handler;
+            readyToNext = true;
+        }
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_PutPlate() {
+        readyToNext = false;
+        KitchenEvents.OnObjectPutInTable += Handler;
+        SetHighlightOneCounter(_platesCounter);
+        SetHighlightCountersGroup(_clearCounters);
+            
+        MessageUI.Instance.SetTextInfinity("Отлично, ты взял первый заказ, хватай поднос и клади его на стол", MessageUI.Emotions.happy);
+        void Handler(KitchenObject obj) {
+            if (!TutorialStarted) return;
+            if (obj is not Plate) {
+                return;
+            }
 
-
-    private void HideHighLight(List<BaseCounter> counters) {
-        foreach (var counter in counters) {
-            counter.SetHighlight(false);
+            HideHighlightOneCounter(_platesCounter);
+            HideHighlightCountersGroup(_clearCounters);
+            
+            KitchenEvents.OnObjectPutInTable -= Handler;
+            readyToNext = true;
         }
         
+        yield return new WaitUntil(() => readyToNext);
     }
+    
+    private IEnumerator Step_BunPut() {
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Давай начнём с булки, бери ее из холодильника и клади на поднос", MessageUI.Emotions.defaultFace);
+        SetHighlightOneCounter(_fridgeBun);
+        
+        KitchenEvents.OnIngredientAddedOnPlate += Handler;
+        void Handler(KitchenObjectSO obj)
+        {
+            if (!TutorialStarted) return;
+            if (obj != _bunKO) {
+                return; 
+            }
+            HideHighlightOneCounter(_fridgeBun);
+            KitchenEvents.OnIngredientAddedOnPlate-=Handler;
+            readyToNext = true;
+        }
+        
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    private IEnumerator Step_TomatoSlice() {
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Теперь давай научимся нарезать продукты, нарежь помидор и положи на поднос", MessageUI.Emotions.happy);
+        SetHighlightCountersGroup(_cuttingCounters);
+        SetHighlightOneCounter(_fridgeTomato);
+        KitchenEvents.OnIngredientAddedOnPlate += Handler;
+        
+        
+        void Handler(KitchenObjectSO obj)
+        {
+            if (!TutorialStarted) return;
+            if (obj != _tomatoSliced) {
+                return; 
+            }
+            HideHighlightCountersGroup(_cuttingCounters);
+            HideHighlightOneCounter(_fridgeTomato);
+
+            KitchenEvents.OnIngredientAddedOnPlate-=Handler;
+            readyToNext = true;
+        }
+        
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    private IEnumerator Step_Meatfry() {
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Теперь давай научимся жарить мясо, смотри не пережарь!", MessageUI.Emotions.eated);
+        MessageUI.Instance.ShowPlatesArrow();
+        MessageUI.Instance.ShowStoveArrow();
+        
+        HideHighlightOneCounter(_trashCounter);
+        SetHighlightOneCounter(_stoveCounter);
+        SetHighlightOneCounter(_fridgeMeat);
+        KitchenEvents.OnIngredientAddedOnPlate += Handler;
+        
+        
+        void Handler(KitchenObjectSO obj)
+        {
+            if (!TutorialStarted) return;
+            if (obj != _fryedMeat) {
+                return; 
+            }
+            HideHighlightOneCounter(_stoveCounter);
+            HideHighlightOneCounter(_fridgeMeat);
+
+            KitchenEvents.OnIngredientAddedOnPlate-=Handler;
+            readyToNext = true;
+        }
+        
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_FirstOrderComplete() {
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Отлично! Бургер готов, скорей неси клиенту!", MessageUI.Emotions.happy);
+        OrderManager.Instance.AllowCompleteOrder = true;
+        SetHighlightOneCounter(_orderCounter);
+        KitchenEvents.OnOrderCompleted += Handler;
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            KitchenEvents.OnOrderCompleted-=Handler;
+            readyToNext = true;
+        }
+        
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_PizzaDoingReady() {
+        // УБЕРИ!
+        MessageUI.Instance.HideNextButton();
+        Player.Instance.StartWalking();
+        OrderManager.Instance.AllowCompleteOrder = false;
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Теперь научимся делать пиццу, принимай новый заказ!", MessageUI.Emotions.eated);
+        TutorialOrderCounter.Instance.CreateTutorialPizza();
+        
+        SetHighlightOneCounter(_orderCounter);
+        KitchenEvents.OnOrderTake += Handler;
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            HideHighlightOneCounter(_stoveCounter);
+            HideHighlightOneCounter(_fridgeMeat);
+
+            KitchenEvents.OnOrderTake-=Handler;
+            readyToNext = true;
+        }
+        
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    
+    
+    
+    // Давай собирать пиццу, все ингредиенты кладуться в духовку
+    private IEnumerator Step_HowOvenWork() {
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Пицца собирается сразу в духовке, готовь ингредиенты и клади в духовку!", MessageUI.Emotions.happy);
+        SetHighlightOneCounter(_ovenCounter);
+        KitchenEvents.OnOvenIngredientAdded += Handler;
+        
+        
+        void Handler(int count)
+        {
+            if (!TutorialStarted) return;
+            SetHighlightOneCounter(_ovenCounter);
+            KitchenEvents.OnOvenIngredientAdded-=Handler;
+            readyToNext = true;
+        }
+        
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_PeekIngredients() {
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Отлично! Продолжай собирать пиццу, тут можно подсмотреть ингредиенты еще раз", MessageUI.Emotions.eated);
+        SetHighlightOneCounter(_ovenCounter);
+        KitchenEvents.OnOvenIngredientAdded += Handler;
+        ShowOrderResource(10f);
+        
+        
+        void Handler(int count)
+        {
+            if (!TutorialStarted) return;
+            SetHighlightOneCounter(_ovenCounter);
+            if (count != 3) {
+                return;
+            }
+            KitchenEvents.OnOvenIngredientAdded-=Handler;
+            readyToNext = true;
+        }
+        
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_CountIngredientsInOven() {
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Когда соберёшь все ингредиенты запускай духовку на F", MessageUI.Emotions.happy);
+        SetHighlightOneCounter(_ovenCounter);
+        KitchenEvents.OnOvenStarted += Handler;
+        ShowFButton(3f);
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            SetHighlightOneCounter(_ovenCounter);
+
+            KitchenEvents.OnOvenStarted-=Handler;
+            readyToNext = true;
+        }
+        
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    private IEnumerator Step_TakePizza() {
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Отлично! духовка запущена и пицца готовится... ", MessageUI.Emotions.eated);
+        SetHighlightOneCounter(_ovenCounter);
+        KitchenEvents.OnPizzaReady += Handler;
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            KitchenEvents.OnPizzaReady-=Handler;
+            readyToNext = true;
+        }
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_CompletePizzaOrder() {
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Пицца готова, клади ее на поднос и неси клиенту! ", MessageUI.Emotions.happy);
+        OrderManager.Instance.AllowCompleteOrder = true;
+        SetHighlightOneCounter(_orderCounter);
+        KitchenEvents.OnOrderCompleted += Handler;
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            KitchenEvents.OnOrderCompleted-=Handler;
+            readyToNext = true;
+        }
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_TakeDrinkOrder() {
+        // УБЕРИ!
+        MessageUI.Instance.HideNextButton();
+        Player.Instance.StartWalking();
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Заключительный этап, сделаем вкусный напиток! Бери заказ", MessageUI.Emotions.eated);
+        OrderManager.Instance.AllowCompleteOrder = false;
+        TutorialOrderCounter.Instance.CreateTutorialDrink();
+        SetHighlightOneCounter(_juicerCounter);
+        KitchenEvents.OnOrderTake += Handler;
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            SetHighlightOneCounter(_juicerCounter);
+            KitchenEvents.OnOrderTake-=Handler;
+            readyToNext = true;
+        }
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_JuicerWork() {
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Кидай ингредиенты в соковыжималку, она сама включится", MessageUI.Emotions.happy);
+        SetHighlightOneCounter(_juicerCounter);
+        KitchenEvents.OnJuicerStarted += Handler;
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            SetHighlightOneCounter(_juicerCounter);
+            KitchenEvents.OnJuicerStarted-=Handler;
+            readyToNext = true;
+        }
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_JuicerWorking() {
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Соковыжималка запущена", MessageUI.Emotions.eated);
+        SetHighlightOneCounter(_juicerCounter);
+        KitchenEvents.OnJuiceReady += Handler;
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            SetHighlightOneCounter(_juicerCounter);
+            KitchenEvents.OnJuiceReady-=Handler;
+            readyToNext = true;
+        }
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    private IEnumerator Step_JuiceReady() {
+        
+        readyToNext = false;
+        MessageUI.Instance.SetTextInfinity("Отлично, сок готов, клади его на поднос и неси клиенту!", MessageUI.Emotions.happy);
+        OrderManager.Instance.AllowCompleteOrder = true;
+        SetHighlightOneCounter(_orderCounter);
+        KitchenEvents.OnOrderCompleted += Handler;
+        
+        
+        void Handler()
+        {
+            if (!TutorialStarted) return;
+            HideHighlightOneCounter(_orderCounter);
+            KitchenEvents.OnOrderCompleted-=Handler;
+            readyToNext = true;
+        }
+        yield return new WaitUntil(() => readyToNext);
+    }
+    
+    
+    
+    
+    
+    
+    
+    // После 1 ингредиента в духовке показать шо можно подсматривать ингредиенты
+    // On ingredientsCheck...
+    // После того, как положил все ингредиенты сказать что включается на F
+    // Отлично, пицца готова! Клади на поднос и неси клиенту
 
 
+
+
+    
+    private void SetHighlightOneCounter(BaseCounter counter) {
+        if (counter != null && counter.gameObject != null) {
+            counter.SetHighlight(true);
+        }
+    }
+    
+    private void HideHighlightOneCounter(BaseCounter counter) {
+        if (counter != null && counter.gameObject != null) {
+            counter.SetHighlight(false);
+        }
+    }
+    
+    
+
+    
+    public void HideHighlightCountersGroup(List<BaseCounter> countersList) {
+        foreach (var counter in countersList) {
+            if (counter != null && counter.gameObject != null) {
+                counter.SetHighlight(false);
+            }
+        }
+    }
+    
+    
     private void HideAllCounters() {
         ClientCat.Instance.gameObject.SetActive(false);
         foreach (var counter in _allCounters) {
-            counter.gameObject.SetActive(false);
+            if (counter != null && counter.gameObject != null) {
+                counter.gameObject.SetActive(false);
+            }
         }
     }
     
+
         
     
     // Методы шоб показать конкретную группу
-    public void ShowCountersGroup(List<BaseCounter> countersList) {
+    public void SetHighlightCountersGroup(List<BaseCounter> countersList) {
         foreach (var counter in countersList) {
-            counter.gameObject.SetActive(true);
             counter.SetHighlight(true);
         }
     }
@@ -277,6 +615,8 @@ public class TutorialManager : MonoBehaviour {
         StartCoroutine(MessageUI.Instance.HideFocusRoutine());
         Player.Instance._stopWalking = false;
         RewardManager.Instance.StartRewardTimerRoutine();
+        ResetAllElements();
+        OrderManager.Instance.CreateNewOrder();
     }
 
     private void ShowArrows(params GameObject[] arrows) {
@@ -294,14 +634,24 @@ public class TutorialManager : MonoBehaviour {
         _orderResourceArrow.SetActive(false);
     }
 
-    public void ShowOrderResource() {
+    public void ShowOrderResource(float time) {
         _orderResourceArrow.SetActive(true);
-        StartCoroutine(ShowOrderResourceRoutine());
+        StartCoroutine(ShowOrderResourceRoutine(time));
+    }   
+    
+    private IEnumerator ShowOrderResourceRoutine(float time) {
+        yield return new WaitForSeconds(time);
+        _orderResourceArrow.SetActive(false);
+    }
+    
+    public void ShowFButton(float time) {
+        _fButtonArrow.SetActive(true);
+        StartCoroutine(ShowFButtonRoutine(time));
     }
 
-    private IEnumerator ShowOrderResourceRoutine() {
-        yield return new WaitForSeconds(3f);
-        _orderResourceArrow.SetActive(false);
+    private IEnumerator ShowFButtonRoutine(float time) {
+        yield return new WaitForSeconds(time);
+        _fButtonArrow.SetActive(false);
     }
 
     public void ResetAllElements() {
@@ -335,7 +685,7 @@ public class TutorialManager : MonoBehaviour {
         TutorialStarted = false;
     }
     
-
+    
     
 
 }

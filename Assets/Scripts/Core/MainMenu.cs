@@ -9,12 +9,12 @@ using Random = UnityEngine.Random;
 
 public class MainMenu : MonoBehaviour {
     [SerializeField] private GameObject _canvas;
-    [SerializeField] private Button _playGame;
-    [SerializeField] private Button _playTutorial;
+    [SerializeField] private Button _playGameButton;
+    [SerializeField] private Button _playTutorialButton;
     [SerializeField] private Image _level;
     [SerializeField] private GameObject _levelBackground;
     
-    [SerializeField] private TMP_Text _playGameBtnTxt;
+    [SerializeField] private TMP_Text _playGameButtonBtnTxt;
     [SerializeField] private TMP_Text _tutorialBtnTxt;
 
     private readonly float _timeToLoad = 4f;
@@ -29,8 +29,8 @@ public class MainMenu : MonoBehaviour {
             return;
         }
         Instance = this;
-        _playGame.onClick.AddListener(StartGame);
-        _playTutorial.onClick.AddListener(StartTutorial);
+        _playGameButton.onClick.AddListener(StartGame);
+        _playTutorialButton.onClick.AddListener(StartTutorial);
         Time.timeScale = 0;
 
     }
@@ -45,7 +45,7 @@ public class MainMenu : MonoBehaviour {
     }
 
     private void OnSwipeLanguage() {
-        _playGameBtnTxt.text = LocalizationManager.Get("PlayGame");
+        _playGameButtonBtnTxt.text = LocalizationManager.Get("PlayGame");
         _tutorialBtnTxt.text = LocalizationManager.Get("StartTutorial");
     }
 
@@ -54,8 +54,9 @@ public class MainMenu : MonoBehaviour {
     private bool isLoad = false;
     private Coroutine loadingRoutine;
     private void StartGame() {
-        _playTutorial.enabled = false;
-        _playGame.enabled = false;
+        _playTutorialButton.enabled = false;
+        _playGameButton.enabled = false;
+        
         
         MessageUI.Instance.HideInfinityText();
         TutorialManager.Instance.ResetAllElements(); // На всякий сбрасываем все
@@ -69,9 +70,11 @@ public class MainMenu : MonoBehaviour {
         yield return new WaitUntil(() => isLoad);
 
         RewardManager.Instance.StartRewardTimerRoutine();
-        if (!TutorialManager.Instance.tutorialPassed) {
+        if (!TutorialManager.Instance.TutorialPassed) {
             MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("TutorialInvitation"), MessageUI.Emotions.happy);
-            yield return new WaitForSeconds(4f);
+            yield return new WaitForSeconds(3f);
+            StartCoroutine(WaitLoadingLevelToTutorial());
+            yield break;
         }
         
         
@@ -94,8 +97,8 @@ public class MainMenu : MonoBehaviour {
     
     
     private void StartTutorial() {
-        _playTutorial.enabled = false;
-        _playGame.enabled = false;
+        _playTutorialButton.enabled = false;
+        _playGameButton.enabled = false;
 
         StartCoroutine(FillLoadingLevel());
         StartCoroutine(WaitLoadingLevelToTutorial());
@@ -118,8 +121,8 @@ public class MainMenu : MonoBehaviour {
     }
 
     private void ChangeButtonsState(bool on) {
-        _playTutorial.enabled = on;
-        _playGame.enabled = on;
+        _playTutorialButton.enabled = on;
+        _playGameButton.enabled = on;
         _level.gameObject.SetActive(!on);
         _levelBackground.SetActive(!on);
     }

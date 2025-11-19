@@ -56,6 +56,7 @@ public class ContainerCounter : BaseCounter {
 
 
     public override void Interact(Player player) {
+        ScaleInteract();
         if (!_mayUse) {
             return;
         }
@@ -70,7 +71,7 @@ public class ContainerCounter : BaseCounter {
 
             KitchenObject.CreateKitchenObject(_kitchenObjectSO, player);
             HighlightManager.Instance.OnObjectTake(_kitchenObjectSO);
-            if (UnityEngine.Random.value < 0.07f) {
+            if (UnityEngine.Random.value < 0.07f && !TutorialManager.Instance.TutorialStarted) {
                 player.GetKitchenObject().SetUnfresh();
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));
                 SoundManager.Instance.PlaySFX("ProductRotten");
@@ -80,7 +81,8 @@ public class ContainerCounter : BaseCounter {
         }
         // Положить в холодос
         else if (player.GetKitchenObject().GetKitchenObjectSO() == _kitchenObjectSO && player.GetKitchenObject()._isFresh) {
-            Destroy(player.GetKitchenObject().gameObject);
+            // Destroy(player.GetKitchenObject().gameObject);
+            player.GetKitchenObject()?.DestroyMyself();
             AddProduct(1);
             HighlightManager.Instance.OnObjectDrop();
         }

@@ -101,6 +101,7 @@ public class Plate : KitchenObject {
             
         }
         SoundManager.Instance.PlaySFX("PutProduct");
+        KitchenEvents.IngredientAddOnPlate(ingredient.GetKitchenObjectSO());
         return true;
     }
 
@@ -187,7 +188,7 @@ public class Plate : KitchenObject {
         if (drinkIngredientsAdded != null) drinkIngredientsAdded.Clear();
         if (pizzaInstance != null) Destroy(pizzaInstance);
         if (drinkInstance != null) Destroy(drinkInstance);
-        this.DestroyMyself();
+        DestroyMyself();
     }
 
 

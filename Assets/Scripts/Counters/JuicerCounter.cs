@@ -13,7 +13,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
     [SerializeField] private Plate _plate;
 
     private List<KitchenObjectSO> addedIngredients = new List<KitchenObjectSO>();
-
+    private float workingTime = 8f;
 
 
     public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
@@ -34,6 +34,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
 
 
     public override void Interact(Player player) {
+        ScaleInteract();
         if (_juicerWorking) {
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("JuicerWorking"));
             return;
@@ -48,7 +49,9 @@ public class JuicerCounter : BaseCounter, IHasProgress {
             HighlightManager.Instance.OnObjectDrop();
             player.GetKitchenObject().DestroyMyself();
             if (fruitCurrentCount == fruitCountToEnable) {
+                KitchenEvents.JuicerStarted();
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("JuicerNowWorking"));
+                
                 StartCoroutine(JuicerRoutine());
                 SoundManager.Instance.PlayLoopSfx("Juicer");
             }
@@ -101,8 +104,9 @@ public class JuicerCounter : BaseCounter, IHasProgress {
 
     private bool _juicerWorking;
     private IEnumerator JuicerRoutine () {
+        workingTime = 8f - PlayerUpgradeManager.Instance.JuicerSpeed;
         _juicerWorking = true;
-        float workingTime = 4f;
+
         float progress = 0;
         while(progress < workingTime) {
             OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
@@ -120,6 +124,8 @@ public class JuicerCounter : BaseCounter, IHasProgress {
 
 
         MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("JuiceReady"));
+        KitchenEvents.JuiceReady();
+        
 
         fruitCurrentCount = 0;
         SoundManager.Instance.StopLoopSfx("Juicer");
