@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
+using YG;
 
 public class RewardManager : MonoBehaviour {   
     // Тут логика вознаграждений
@@ -48,7 +49,7 @@ public class RewardManager : MonoBehaviour {
 
     private string secMeasurement;
     private IEnumerator RewardTimerRoutine() {
-        timer = 222f;
+        timer = 4f;
         _grayBack.SetActive(true);
         _rewardTimer.gameObject.SetActive(true);
         while (timer > 0) {
@@ -65,13 +66,16 @@ public class RewardManager : MonoBehaviour {
         if(!readyToGift) return;
         readyToGift = false;
         // Логика рандома выдачи денег
-        RandomRewardLogic();
-        StartCoroutine(RewardTimerRoutine());
+        YGManager.Instance.ShowRewardAdv("ShowIngredientsReward", ()=> {
+            RandomRewardLogic();
+            StartCoroutine(RewardTimerRoutine());
+        });
+        
     }
 
     private void RandomRewardLogic() {
-        int coins = Random.Range(3000, 10001);
-        int gems = Random.Range(1,6);
+        int coins = Random.Range(3000, 6001);
+        int gems = Random.Range(1,4);
         
         CurrencyManager.Instance.UpdateCash(coins, gems);
     }
@@ -139,22 +143,9 @@ public class RewardManager : MonoBehaviour {
         string accuracyText = LocalizationManager.Get("Accuracy", _allAccuracy, comment);
 
         
-        
-        
-        
         CurrencyManager.Instance.SetOrderResult(finalReward, _newGemsCount, timeInfo, accuracyText, _comboStat);
-        if (OrderManager.Instance.Level < 5) {
-            if (_allAccuracy >= 70) {
-                OrderManager.Instance.Level++;
-                OrderManager.Instance._tryCounts = 0;
-            }
-            else {
-                OrderManager.Instance.SayLevelResult();
-                OrderManager.Instance._tryCounts++;
-            }
-        }
-        
-        // --- Сброс ---
+
+
         _sumRightIngredients  = 0;
         _sumActions = 0;
         _allAccuracy = 0f;

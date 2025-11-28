@@ -113,9 +113,11 @@ public class ProductManager : MonoBehaviour {
         _storeCanvas.SetActive(!_storeCanvas.activeSelf);
         if (_storeCanvas.activeSelf) {
             PlayerBankVisual.Instance.ShowBank();
+            KitchenEvents.ShopOpen();
         }
         else {
             PlayerBankVisual.Instance.HideBank();
+            KitchenEvents.ShopClose();
         }
         UpdateTextLocalization();
     }

@@ -11,16 +11,30 @@ public class PlayerBankVisual : MonoBehaviour {
     [SerializeField] private TMP_Text _gemsReward;
     [SerializeField] private GameObject _playerBank;
 
+    private bool _shopOpen;
+    
+    
+    
     private void Start() {
-        CurrencyManager.Instance.OnBankChangedAction += OnOnBankChangedAction;
+        CurrencyManager.Instance.OnBankChangedAction += OnBankChangedAction;
         UpdateBank();
         HideBank();
+        KitchenEvents.OnShopOpen += ShowBank;
+        KitchenEvents.OnShopClose += HideBank;
     }
     
     public static PlayerBankVisual Instance { get; private set; }
-    public void ShowBank() => _playerBank.SetActive(true);
-    public void HideBank() => _playerBank.SetActive(false);
-    
+
+    public void ShowBank() {
+        _shopOpen = true;
+        _playerBank.SetActive(true);  
+    } 
+    public void HideBank() {
+        _shopOpen = false;
+        if (_playerBank.activeSelf) {
+            _playerBank.SetActive(false);  
+        }
+    } 
     
     private void Awake() {
         if (Instance != null) {
@@ -30,7 +44,10 @@ public class PlayerBankVisual : MonoBehaviour {
         Instance = this;
     }
 
-    private void OnOnBankChangedAction(CurrencyManager.CurrencyActionArgs obj) {
+    private Coroutine _currentCoinsRoutine;
+    private Coroutine _currentGemsRoutine;
+    private void OnBankChangedAction(CurrencyManager.CurrencyActionArgs obj) {
+        ShowBank();
         UpdateBank();
         
         // Дальше показываем визуалом больше меньшэ
@@ -38,56 +55,61 @@ public class PlayerBankVisual : MonoBehaviour {
         Debug.Log("countRewardsGems" + obj.countRewardsGems);
         
         Debug.Log("Обновление countRewardsCoins и тп");
+        StopAllCoroutines();
+        
         if (obj.countRewardsCoins > 0) {
-            StartCoroutine(UpdateCoinsCountRoutine());
             _coinsReward.color = Color.green;
             _coinsReward.text = "+" + obj.countRewardsCoins.ToString("0");
+            StartCoroutine(UpdateCoinsCountRoutine());
         }
         else if (obj.countRewardsCoins < 0) {
             _coinsReward.color = Color.red;
-            StartCoroutine(UpdateCoinsCountRoutine());
             _coinsReward.text = obj.countRewardsCoins.ToString("0");
+            StartCoroutine(UpdateCoinsCountRoutine());
         }
         
         if (obj.countRewardsGems > 0) {
             _gemsReward.color = Color.green;
-            StartCoroutine(UpdateGemsCountRoutine());
             _gemsReward.text = "+" + obj.countRewardsGems;
+            _currentGemsRoutine = StartCoroutine(UpdateGemsCountRoutine());
         }
         
         else if (obj.countRewardsGems < 0) {
             _gemsReward.color = Color.red;
-            StartCoroutine(UpdateGemsCountRoutine());
             _gemsReward.text = obj.countRewardsGems.ToString();
+            _currentGemsRoutine = StartCoroutine(UpdateGemsCountRoutine());
         }
     }
 
 
     private IEnumerator UpdateCoinsCountRoutine() {
-        ShowBank();
         yield return StartCoroutine(FadeTextRoutine(_coinsReward, 0.5f, true));
         yield return new WaitForSeconds(5f);
         yield return StartCoroutine(FadeTextRoutine(_coinsReward, 0.5f, false));
-        HideBank();
+        if (!_shopOpen) {
+            HideBank();
+        }
     }
     
     private IEnumerator UpdateGemsCountRoutine() {
-        ShowBank();
         yield return StartCoroutine(FadeTextRoutine(_gemsReward, 0.5f, true));
         yield return new WaitForSeconds(5f);
-        yield return StartCoroutine(FadeTextRoutine(_gemsReward, 0.5f, false)); 
-        HideBank();
+        yield return StartCoroutine(FadeTextRoutine(_gemsReward, 0.5f, false));
+        if (!_shopOpen) {
+            HideBank();
+        }
     }
     
     
-    private IEnumerator FadeTextRoutine(TMP_Text text, float duration, bool fadeIn)
-    {
-        Color startColor = text.color;
+    private IEnumerator FadeTextRoutine(TMP_Text text, float duration, bool fadeIn) {
+        Color baseColor = text.color;
+        baseColor.a = 1f;
+        
         float startAlpha = fadeIn ? 0f : 1f;
         float endAlpha = fadeIn ? 1f : 0f;
 
-        text.color = new Color(startColor.r, startColor.g, startColor.b, startAlpha);
         text.enabled = true;
+        text.color = new Color(baseColor.r, baseColor.g, baseColor.b, startAlpha);
 
         float t = 0f;
         while (t < duration)
@@ -95,11 +117,11 @@ public class PlayerBankVisual : MonoBehaviour {
             t += Time.deltaTime;
             float normalized = t / duration;
             float newAlpha = Mathf.Lerp(startAlpha, endAlpha, normalized);
-            text.color = new Color(startColor.r, startColor.g, startColor.b, newAlpha);
+            text.color = new Color(baseColor.r, baseColor.g, baseColor.b, newAlpha);
             yield return null;
         }
 
-        text.color = new Color(startColor.r, startColor.g, startColor.b, endAlpha);
+        text.color = new Color(baseColor.r, baseColor.g, baseColor.b, endAlpha);
 
         if (!fadeIn)
             text.enabled = false;
@@ -107,10 +129,10 @@ public class PlayerBankVisual : MonoBehaviour {
 
     
     public void UpdateBank() {
-        Debug.Log("Обновление банка");
         _coinsReward.enabled = false;
         _gemsReward.enabled = false;
         _coinsCount.text = CurrencyManager.Instance.Coins.ToString("0");
         _gemsCount.text = CurrencyManager.Instance.Gems.ToString();
     }
+    
 }

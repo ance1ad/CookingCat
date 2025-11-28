@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngineInternal;
 
 public class MessageUI : MonoBehaviour
 {
@@ -15,12 +16,6 @@ public class MessageUI : MonoBehaviour
     [SerializeField] private Image _focus;
     
     
-    
-    [SerializeField] private GameObject _platesArrow;
-    [SerializeField] private GameObject _ovenArrow;
-    [SerializeField] private GameObject _stoveArrow;
-    [SerializeField] private GameObject _juicerArrow;
-
 
     public event Action OnButtonClick;
     
@@ -28,17 +23,77 @@ public class MessageUI : MonoBehaviour
     private Coroutine _currentRoutine;
 
     public static MessageUI Instance;
-    private float timeToShow = 5f;
 
+    private Coroutine _nextButtonPulsing;
     public void HideNextButton() {
         _nextButton.gameObject.SetActive(false);
+        StopPulseCoroutine();
+    }
+
+    private void StopPulseCoroutine() {
+        if (_nextButtonPulsing != null) {
+            StopCoroutine(_nextButtonPulsing);
+            _nextButtonPulsing = null;
+        }
     }
     
     public void ShowNextButton() {
         _nextButton.gameObject.SetActive(true);
+        if (_nextButtonPulsing == null) {
+            _nextButtonPulsing = StartCoroutine(NextButtonPulsingRoutine());
+        }
     }
-    
-    
+
+    private IEnumerator NextButtonPulsingRoutine() {
+        RectTransform rect = _nextButton.GetComponent<RectTransform>();
+        float pulseSpeed = 7f;      // скорость пульса
+        float pulseAmount = 0.1f;   // ±10% масштаб
+
+        
+        Vector3 baseScale = rect.localScale;
+
+        while (true) {
+            float scaleOffset = Mathf.Sin(Time.time * pulseSpeed) * pulseAmount;
+            rect.localScale = baseScale + Vector3.one * scaleOffset;
+            yield return null;
+        }
+    }
+
+
+
+    private IEnumerator ShakeArrow2(GameObject arrow, bool arrow2d) {
+        arrow.GetComponent<ArrowData>().ResetPosition();
+        RectTransform rect = arrow.GetComponent<RectTransform>();
+
+
+        float up = 1f;
+        float speed = 1.4f;
+        if (arrow2d) {
+            up *= 100f;
+            speed *= 100f;
+        }
+
+        Vector2 startPos = rect.anchoredPosition;
+        Vector2 endPose = startPos + up * Vector2.up;
+
+        for (int i = 0; i < 4; i++) {
+            float t = 0f;
+            while (t < 1) {
+                t += Time.deltaTime * speed / up;
+                rect.anchoredPosition = Vector2.Lerp(startPos, endPose, t);
+                yield return null;
+            }
+
+            t = 0f;
+            while (t < 1) {
+                t += Time.deltaTime * speed / up;
+                rect.anchoredPosition = Vector2.Lerp(endPose, startPos, t);
+                yield return null;
+            }
+        }
+    }
+
+
     public bool PopupIsActive() => _canvas.gameObject.activeSelf;
 
     private void Awake() {
@@ -52,7 +107,7 @@ public class MessageUI : MonoBehaviour
 
 
     private void Start() {
-        _nextButton.gameObject.SetActive(true);
+        ShowNextButton();
         _nextButton.onClick.AddListener(ButtonClick);
     }
 
@@ -68,30 +123,38 @@ public class MessageUI : MonoBehaviour
         if (_canvas.gameObject.activeSelf != state) {
             _canvas.gameObject.SetActive(state);
         }
-    }
 
-    public void SetText(string text, Emotions emotion) {
+        if (!state) {
+            StopPulseCoroutine();
+        }
+        else if(_nextButton.gameObject.activeSelf) {
+            ShowNextButton();
+        }
+    }
+    
+    
+    public void SetTextInfinity(string text, Emotions emotion) {
         if (string.IsNullOrEmpty(text)) {
             return;
         }
         Show(true);
         _text.text = text;
-        SetEmotion(emotion, "CatSay");
-        // Попробую со скипом чисто
-        // if (_currentRoutine != null) {
-        //     StopCoroutine(_currentRoutine);
-        //     _currentRoutine = null;
-        // }
-
-        // _currentRoutine = StartCoroutine(TextShowRoutine());
+        SetEmotion(emotion, "NextTutorStep");
+        // + показать кнопку
     }
     
-    public void SetTextInfinity(string text, Emotions emotion) {
-        // В этом случае будет меняться только текст
-        // if (_currentRoutine != null) {
-        //     StopCoroutine(_currentRoutine);
-        //     _currentRoutine = null;
-        // }
+    
+    public void SetTextTemporary(string text, Emotions emotion, float time) {
+        
+        if (string.IsNullOrEmpty(text)) {
+            return;
+        }
+        if (_currentRoutine != null) {
+            StopCoroutine(_currentRoutine);
+            _currentRoutine = null;
+        }
+
+        _currentRoutine = StartCoroutine(TextShowRoutine(time));
         Show(true);
         _text.text = text;
         SetEmotion(emotion, "NextTutorStep");
@@ -105,7 +168,7 @@ public class MessageUI : MonoBehaviour
     }
 
 
-    private IEnumerator TextShowRoutine() {
+    private IEnumerator TextShowRoutine(float timeToShow) {
         yield return new WaitForSeconds(timeToShow);
         Show(false);
         _currentRoutine = null;
@@ -172,69 +235,249 @@ public class MessageUI : MonoBehaviour
         if (_platesArrow.activeSelf) {
             _platesArrow.SetActive(false);
         }
-
         if (_stoveArrow.activeSelf) {
             _stoveArrow.SetActive(false);
         }
-        
         if (_ovenArrow.activeSelf) {
             _ovenArrow.SetActive(false);
         }
-        
         if (_juicerArrow.activeSelf) {
             _juicerArrow.SetActive(false);
         }
-        
+        if (_bunArrow.activeSelf) {
+            _bunArrow.SetActive(false);
+        }
+        if (_tomatoArrow.activeSelf) {
+            _tomatoArrow.SetActive(false);
+        }
+        if (_testoArrow.activeSelf) {
+            _testoArrow.SetActive(false);
+        }
+        if (_cheeseArrow.activeSelf) {
+            _cheeseArrow.SetActive(false);
+        }
+        if (_orangeArrow.activeSelf) {
+            _orangeArrow.SetActive(false);
+        }
+        if (_appleArrow.activeSelf) {
+            _appleArrow.SetActive(false);
+        }
+        if (_meatArrow.activeSelf) {
+            _meatArrow.SetActive(false);
+        }
+        if (_cuttingArrow.activeSelf) {
+            _cuttingArrow.SetActive(false);
+        }
+        if (_getOrderArrow.activeSelf) {
+            _getOrderArrow.SetActive(false);
+        }
+        if (_upClearCounterArrow.activeSelf) {
+            _upClearCounterArrow.SetActive(false);
+        }
+        if (_rightClearCounterArrow.activeSelf) {
+            _rightClearCounterArrow.SetActive(false);
+        }
+        if (_trashArrow.activeSelf) {
+            _trashArrow.SetActive(false);
+        }
         
     }
+    
+        
+    [SerializeField] private GameObject _platesArrow;
+    [SerializeField] private GameObject _ovenArrow;
+    [SerializeField] private GameObject _stoveArrow;
+    [SerializeField] private GameObject _juicerArrow;
+    [SerializeField] private GameObject _bunArrow;
+    [SerializeField] private GameObject _tomatoArrow;
+    [SerializeField] private GameObject _meatArrow;
+    [SerializeField] private GameObject _testoArrow;
+    [SerializeField] private GameObject _cheeseArrow;
+    [SerializeField] private GameObject _orangeArrow;
+    [SerializeField] private GameObject _appleArrow;
+    [SerializeField] private GameObject _cuttingArrow;
+    [SerializeField] private GameObject _getOrderArrow;
+    [SerializeField] private GameObject _upClearCounterArrow;
+    [SerializeField] private GameObject _rightClearCounterArrow;
+    [SerializeField] private GameObject _trashArrow;
+    [SerializeField] private BaseCounter _upClearCounter;
+    [SerializeField] private BaseCounter _rightClearCounter;
+    
+    
 
-    public void ShowPlatesArrow() {
-        HideArrows();
+    public void ShowPlatesArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
         _platesArrow.SetActive(true);
-        StartCoroutine(ShakeArrow(_platesArrow));
+        StartCoroutine(ShakeArrow(_platesArrow, false));
     }
 
-    public void ShowStoveArrow() {
-        HideArrows();
-        _stoveArrow.SetActive(true);
-        StartCoroutine(ShakeArrow(_stoveArrow));
-    }
-    
-    public void ShowOvenArrow() {
-        HideArrows();
+    public void ShowOvenArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
         _ovenArrow.SetActive(true);
-        StartCoroutine(ShakeArrow(_ovenArrow));
+        StartCoroutine(ShakeArrow(_ovenArrow, false));
+    }
+    
+    public void ShowStoveArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _stoveArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_stoveArrow, false));
     }
     
     
-    public void ShowJuicerArrow() {
-        HideArrows();
+    public void ShowJuicerArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
         _juicerArrow.SetActive(true);
-        StartCoroutine(ShakeArrow(_juicerArrow));
+        StartCoroutine(ShakeArrow(_juicerArrow, false));
     }
     
     
+    public void ShowAppleArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _appleArrow.SetActive(true);
+    }
+    
+    public void ShowOrangeArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _orangeArrow.SetActive(true);
+    }
+    
+    public void ShowBunArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _bunArrow.SetActive(true);
+        // StartCoroutine(ShakeArrow(_bunArrow));
+    }
+    
+    public void ShowTomatoArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _tomatoArrow.SetActive(true);
+        // StartCoroutine(ShakeArrow(_tomatoArrow));
+    }
+    
+    
+    public void ShowMeatArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _meatArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_meatArrow,false));
+    }
+    
+    
+    public void ShowCuttingArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _cuttingArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_cuttingArrow, false));
+    }
+    
+    public void ShowGetOrderArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _getOrderArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_getOrderArrow, false));
+    } 
+    
+    
+    
+    public void ShowClearCountersArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _upClearCounterArrow.SetActive(true);
+        _rightClearCounterArrow.SetActive(true);
+    }
+    
+    public void ShowTrashArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _trashArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_trashArrow, false));
+    }
+  
+    
+    // 2d arrows
+    public void ShakeTargetArrow(GameObject arrow) {
+            StartCoroutine(ShakeArrow(arrow, true));
+    } 
+    
+    public void ShowActiveClearCounterArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        // Или или
+        if (_upClearCounter.GetKitchenObject() is Plate) {
+            _upClearCounterArrow.SetActive(true);
+        }
+        else if(_rightClearCounter.GetKitchenObject() is Plate) {
+            _rightClearCounterArrow.SetActive(true);
+        }
+    }
+    
+    public void ShowTestoArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _testoArrow.SetActive(true);
+        // StartCoroutine(ShakeArrow(_testoArrow));
+    } 
+    
+    public void ShowCheeseArrow(bool hidePrevious) {
+        if (hidePrevious) {
+            HideArrows();
+        }
+        _cheeseArrow.SetActive(true);
+        // StartCoroutine(ShakeArrow(_cheeseArrow));
+    } 
+    
     
 
-    private IEnumerator ShakeArrow(GameObject arrow) {
-        float upScale = 1f;
-        Vector3 startPos = arrow.transform.position;
-        Vector3 scaleVector = new Vector3(startPos.x, startPos.y + upScale, startPos.z);
-        float currentScale = 0f;
+    private IEnumerator ShakeArrow(GameObject arrow, bool arrow2d) {
+        arrow.GetComponent<ArrowData>().ResetPosition();
+        RectTransform rect = arrow.GetComponent<RectTransform>();
+        
+        
+        float up = 1f;
+        float speed = 1.4f;
+        if (arrow2d) {
+            up *= 100f;
+            speed *= 100f;
+        }
+   
+        Vector2 startPos = rect.anchoredPosition;
+        Vector2 endPose = startPos + up * Vector2.up;
+        
         for (int i = 0; i < 4; i++) {
-            while (currentScale < upScale) {
-                currentScale += Time.deltaTime * 1.4f / upScale;
-                arrow.transform.position = Vector3.Lerp(startPos, scaleVector, currentScale);
+            float t = 0f;
+            while (t < 1) {
+                t += Time.deltaTime * speed / up;
+                rect.anchoredPosition = Vector2.Lerp(startPos, endPose, t);
                 yield return null;
             }
-
-            currentScale = 0f;
-            while (currentScale < upScale) {
-                currentScale += Time.deltaTime * 1.4f / upScale;
-                arrow.transform.position = Vector3.Lerp(scaleVector, startPos, currentScale);
+            t = 0f;
+            while (t < 1) {
+                t += Time.deltaTime * speed / up;
+                rect.anchoredPosition = Vector2.Lerp(endPose, startPos, t);
                 yield return null;
             }
-            currentScale = 0f;
         }
     }
     

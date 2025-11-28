@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using YG;
 using Random = UnityEngine.Random;
 
 
@@ -17,7 +18,7 @@ public class MainMenu : MonoBehaviour {
     [SerializeField] private TMP_Text _playGameButtonBtnTxt;
     [SerializeField] private TMP_Text _tutorialBtnTxt;
 
-    private readonly float _timeToLoad = 4f;
+    private readonly float _timeToLoad = 15f;
     
     
     
@@ -42,6 +43,7 @@ public class MainMenu : MonoBehaviour {
         _levelBackground.SetActive(false);
         OnSwipeLanguage();
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
+        
     }
 
     private void OnSwipeLanguage() {
@@ -54,6 +56,8 @@ public class MainMenu : MonoBehaviour {
     private bool isLoad = false;
     private Coroutine loadingRoutine;
     private void StartGame() {
+        YGManager.Instance.ShowInterstitialAds();
+        
         _playTutorialButton.enabled = false;
         _playGameButton.enabled = false;
         
@@ -80,10 +84,10 @@ public class MainMenu : MonoBehaviour {
         
         if (CurrencyManager.Instance.Coins < 1000f) {
             CurrencyManager.Instance.UpdateCash(5000f, 5);
-            MessageUI.Instance.SetText(LocalizationManager.Get("GladSeeYouReward"), MessageUI.Emotions.eated);
+            MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("GladSeeYouReward"), MessageUI.Emotions.eated);
         }
         else {
-            MessageUI.Instance.SetText(LocalizationManager.Get("GladSeeYou"), MessageUI.Emotions.eated);
+            MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("GladSeeYou"), MessageUI.Emotions.eated);
         }  
         
         StartCoroutine(OrderManager.Instance.CreateFirstOrderLater(3f));
@@ -97,6 +101,9 @@ public class MainMenu : MonoBehaviour {
     
     
     private void StartTutorial() {
+        YGManager.Instance.ShowInterstitialAds();
+
+        
         _playTutorialButton.enabled = false;
         _playGameButton.enabled = false;
 
@@ -114,6 +121,7 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void OpenMainMenu() {
+        PlayerBankVisual.Instance.HideBank();
         if (_canvas.activeSelf) {
             return;
         }

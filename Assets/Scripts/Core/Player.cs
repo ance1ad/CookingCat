@@ -162,14 +162,14 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         yield return new WaitForSeconds(1f);
         if (newSelected.HasKitchenObject() && !HasKitchenObject()) {
             newSelected.GetKitchenObject().SetKitchenObjectParent(this);
-            MessageUI.Instance.SetText(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy,3f);
         }
         else if (HasKitchenObject() && newSelected.HasKitchenObject()) {
-            MessageUI.Instance.SetText(LocalizationManager.Get("HandsNotFreeForThief"), MessageUI.Emotions.sad);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("HandsNotFreeForThief"), MessageUI.Emotions.sad, 3f);
             newSelected._readyToFight = true;
         }
         else {
-            MessageUI.Instance.SetText(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy,3f);
         }
     }
 
@@ -261,6 +261,10 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     private float joystickDeadZone = 0f; 
     private float rotateThreshold = 0f;
+    
+    
+    private bool _isRotated = false;
+    
 
     private void HandleMovement() {
         if (_stopWalking) return;
@@ -324,16 +328,23 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         _isMoving = moveDir.magnitude > 0.1f && transform.position != startPos;
         
         // --- Поворот к выбранному контейнеру, если стоим на месте ---
-        if (!_isMoving && selectedCounter != null) {
+        if (!_isMoving && selectedCounter != null && !_isRotated) {
             Vector3 lookDir = (selectedCounter.transform.position - transform.position);
             lookDir.y = 0f; // чтобы не тянул вверх/вниз
-            if (lookDir.sqrMagnitude > 0.001f) {
+            
+            Vector3 targetDir = lookDir.normalized;
+            
+            float dot = Vector3.Dot(transform.forward, targetDir);
+            if (dot < 0.999f) {
                 // плавный поворот к объекту
                 transform.forward = Vector3.Slerp(
                     transform.forward,
-                    lookDir.normalized,
+                    targetDir,
                     Time.deltaTime * (_rotateSpeed * 0.8f)
-                );
+                ); 
+            }
+            else {
+                _isRotated = true;
             }
         }
     }
@@ -342,10 +353,11 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
 
 
-
     private void SetSelectedCounter(BaseCounter counter) {
         selectedCounter = counter;
-
+        _isRotated = false;
+        
+        
         OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs {
             selectedCounter = selectedCounter
         });
@@ -386,18 +398,14 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             visualPlate.SetActive(true); 
         }
         HighlightManager.Instance.OnObjectTake(_kitchenObject.GetKitchenObjectSO());
+       
         // Сжирает хавку
-        
-        
-        
-        // СМЕНИТЬ ПОТОМ
-        if (UnityEngine.Random.value < 1 &&
+        if (UnityEngine.Random.value < 0.07 &&
             !(_kitchenObject is Plate) &&
             !string.IsNullOrEmpty(_kitchenObject.GetKitchenObjectSO().justification)
             && !TutorialManager.Instance.TutorialStarted ) {
             
-            
-            MessageUI.Instance.SetText(LocalizationManager.Get("CatWantEat", _kitchenObject.GetKitchenObjectSO().declension), MessageUI.Emotions.happy);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("CatWantEat", _kitchenObject.GetKitchenObjectSO().declension), MessageUI.Emotions.happy, 3f);
             _coroutine = StartCoroutine(EatProductRoutine());
         }
     }
@@ -406,7 +414,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         yield return new WaitForSeconds(5f);
         
         if (HasKitchenObject() && _kitchenObject._isFresh) {
-            MessageUI.Instance.SetText(_kitchenObject.GetKitchenObjectSO().justification, MessageUI.Emotions.eated);
+            MessageUI.Instance.SetTextTemporary(_kitchenObject.GetKitchenObjectSO().justification, MessageUI.Emotions.eated, 3f);
             SoundManager.Instance.PlaySFX("Happy");
             MoveToPoint(_mouthPoint, 1f);
             yield return new WaitUntil(() => _objectMoveCoroutine == null);

@@ -8,16 +8,16 @@ public class ContainerCounter : BaseCounter {
 
     [SerializeField] public KitchenObjectSO _kitchenObjectSO;
     [SerializeField] public ContainerCounterVisual _visual;
-
+    private bool firstTimeShowProductsArrow = true;
 
     public event Action OnContainerCounterInteract;
 
 
-    public int _productCount { get; private set; } = 7;
+    public int _productCount { get; private set; }
 
 
     private void Start() {
-        _productCount = 7;
+        _productCount = 5;
         _visual.ShowCountIcon(2f, _productCount.ToString());
     }
 
@@ -56,7 +56,6 @@ public class ContainerCounter : BaseCounter {
 
 
     public override void Interact(Player player) {
-        ScaleInteract();
         if (!_mayUse) {
             return;
         }
@@ -64,15 +63,21 @@ public class ContainerCounter : BaseCounter {
         if (!player.HasKitchenObject()) {
             
             if (!TryUseProduct()) {
+                if (firstTimeShowProductsArrow) {
+                    firstTimeShowProductsArrow = false;
+                    TutorialManager.Instance.ShowProductStoreArrow();
+                    return;
+                }
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NeedCourier"));
                 return;
             }
-
-
+            ScaleInteract();
             KitchenObject.CreateKitchenObject(_kitchenObjectSO, player);
             HighlightManager.Instance.OnObjectTake(_kitchenObjectSO);
             if (UnityEngine.Random.value < 0.07f && !TutorialManager.Instance.TutorialStarted) {
                 player.GetKitchenObject().SetUnfresh();
+                // First Time Show Arrow on trash
+                TutorialManager.Instance.SayTrashDropInfo();
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));
                 SoundManager.Instance.PlaySFX("ProductRotten");
                 return;
@@ -84,6 +89,7 @@ public class ContainerCounter : BaseCounter {
             // Destroy(player.GetKitchenObject().gameObject);
             player.GetKitchenObject()?.DestroyMyself();
             AddProduct(1);
+            ScaleInteract();
             HighlightManager.Instance.OnObjectDrop();
         }
         else if (!player.GetKitchenObject()._isFresh) {

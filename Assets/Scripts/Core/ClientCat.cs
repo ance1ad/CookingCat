@@ -67,7 +67,6 @@ public class ClientCat : MonoBehaviour {
 
     
     private IEnumerator GoEatOrderRoutine() {
-        Debug.Log("GoEatOrderRoutine");
         _animator.SetBool(PLAYER_WALKING_STATE_VARIABLE, true);
         _agent.SetDestination(_exit.position);
         yield return new WaitUntil(() => !_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance);

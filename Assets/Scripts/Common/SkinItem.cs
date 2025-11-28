@@ -18,7 +18,6 @@ public class SkinItem : PurchaseObject {
     [SerializeField] private TMP_Text _equipButtonText;
     [SerializeField] private TMP_Text _dequipButtonText;
 
-
     public override float CurrentPrice => _objectSO.Price;
     public override IPurchase PurchaseSO => _objectSO;
     public IEquipable EquipItem => _objectSO;
@@ -33,6 +32,7 @@ public class SkinItem : PurchaseObject {
         _equipButton.onClick.AddListener(() => OnSkinEquipped?.Invoke(this));
         _dequipButton.onClick.AddListener(() => OnSkinDequipped?.Invoke(this));
         _greenBackground.enabled = false;
+        _name.fontSize = 70;
     }
 
     private void Start() {

@@ -111,7 +111,7 @@ public class StoreManager : MonoBehaviour {
                 return;
             }
         }
-        item.SetMessageResultText("Скин успешно куплен",true);
+        item.SetMessageResultText("Покупка успешна",true);
         item.PurchaseSO.Buy(_data);
         item.SetBought();
     }
@@ -136,8 +136,10 @@ public class StoreManager : MonoBehaviour {
         _storeCanvas.SetActive(!_storeCanvas.activeSelf);
         if (!_storeCanvas.activeSelf) {
             PlayerBankVisual.Instance.HideBank();
+            KitchenEvents.ShopClose();
             return;
         }
+        KitchenEvents.ShopOpen();
         PlayerBankVisual.Instance.ShowBank();
         foreach (var skin in _skins) {
             // if (_data.HasItem(skin.ObjectSO.Id)) {

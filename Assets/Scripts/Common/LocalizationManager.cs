@@ -116,7 +116,25 @@ public class LocalizationManager : MonoBehaviour  {
         { "StepLeftButton", "Кнопка слева (F) используется, чтобы нарезать продукты или включать духовку" },
         
         { "StepFirstOrder", "Пошли учиться делать бургеры! Бери первый заказ! " },
-        { "FistOrderTaked", "Отлично, ты принял первый заказ! " },
+        { "FistOrderTaked", "Отлично, ты взял первый заказ, хватай поднос и клади его на стол" },
+        { "TakeBun", "Давай начнём с булки, бери ее из холодильника и клади на поднос" },
+        { "TomatoSlice", "Давай начнём с булки, бери ее из холодильника и клади на поднос" },
+        { "MeatFry", "Теперь давай научимся жарить мясо, смотри не пережарь!" },
+        { "BurgerReady", "Отлично! Бургер готов, скорей неси клиенту!" },
+        { "PizzaDoing", "Теперь научимся делать пиццу, принимай новый заказ!" },
+        { "HowPizzaMade", "Пицца собирается прямо в духовке, клади ингредиенты прямо туда!" },
+        { "PizzaContinue", "Отлично! Продолжай собирать пиццу, тут можно подсмотреть ингредиенты еще раз" },
+        { "FPress", "Когда соберёшь все ингредиенты запускай духовку на F" },
+        { "OvenStarted", "Отлично! духовка запущена, пицца готовится..." },
+        { "PizzaReady", "Пицца готова, клади ее на поднос и неси клиенту!" },
+        { "DrinkReady", "Заключительный этап, сделаем вкусный напиток! Бери заказ"},
+        { "DropInJuicer", "Кидай ингредиенты в соковыжималку, она сама включится"},
+        { "JuicerOn", "Соковыжималка запущена"},
+        { "JuiceReadyPutInTray", "Отлично, сок готов, клади его на поднос и неси клиенту!"},
+        { "ByProductsOnStore", "Продукты нужно закупать в магазине"},
+        
+        
+        
         
         
         
@@ -138,10 +156,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "GoodJobAndReady", "Отличная работа! Ты освоил базу — готовься к настоящим испытаниям!" },
 
         // Unf.. try again
-        { "TryAgainBurger", "Давай попробуем еще раз приготовить бургер, запомни ингредиенты, если что, можешь подсмотреть" },
-        { "TryAgainPizza", "Давай попробуем еще раз приготовить пиццу, запомни ингредиенты, если что, можешь подсмотреть" },
-        { "TryAgainDrink", "Давай попробуем еще раз приготовить напиток, запомни ингредиенты, если что, можешь подсмотреть" },
-        
+
         
         {"TutorialInvitation", "О Привет! Вижу ты не прошел стажировку, давай ее быстро пройдем !"},
         {"GladSeeYou", "Привет! рад тебя снова видеть на кухне!"},
@@ -165,6 +180,9 @@ public class LocalizationManager : MonoBehaviour  {
         
         
         { "FirstCompleteOrder", "Пока рано отдавать заказ!" },
+        
+        
+        { "AdvTimer", "Реклама через {0} сек." },
         
     };
 
@@ -273,8 +291,8 @@ public class LocalizationManager : MonoBehaviour  {
         { "ClientUnhappy", "The customer is unhappy..." },
         { "NotBad", "Not bad!" },
         { "GoodJob", "Great job!" },
-        { "TimeNotLate", "Time: {0:00} sec — on time!" },
-        { "TimeLate", "Time: {0:00} sec — too late!" },
+        { "TimeNotLate", "Time: {0:00} sec - on time!" },
+        { "TimeLate", "Time: {0:00} sec - too late!" },
         { "Accuracy", "Accuracy: {0:0}%\n{1}" },
 
         // Combo
@@ -289,7 +307,25 @@ public class LocalizationManager : MonoBehaviour  {
         { "StepButtons", "There are two main action buttons in the game." },
         { "StepRightButton", "The right button (E) is used to pick up or place items." },
         { "StepLeftButton", "The left button (F) is for chopping food or turning on the oven." },
-        { "Step5IntroObjects", "Now let’s take a look at the main kitchen objects." },
+
+        { "StepFirstOrder", "Let's learn how to make burgers! Take your first order!" },
+        { "FistOrderTaked", "Nice! You've grabbed your first order. Pick up the tray and set it on the table." },
+        { "TakeBun", "Let’s start with the bun. Grab it from the fridge and drop it onto the tray." },
+        { "TomatoSlice", "Let’s start with the bun. Grab it from the fridge and put it on the tray." },
+        { "MeatFry", "Time to learn how to fry the meat. Careful now, don’t burn it!" },
+        { "BurgerReady", "Great! The burger’s done — hurry and bring it to the customer!" },
+        { "PizzaDoing", "Now it's time to learn how to make pizza. A new order is coming in!" },
+        { "HowPizzaMade", "The pizza is assembled right in the oven, so just put the ingredients right in there!once" },
+        { "PizzaContinue", "Perfect! Keep building the pizza. You can check the ingredient list again if you need to." },
+        { "FPress", "Once you've added everything, fire up the oven by pressing F." },
+        { "OvenStarted", "Nice! The oven’s running — the pizza is cooking." },
+        { "PizzaReady", "Pizza’s ready! Put it on the tray and deliver it to the customer." },
+        { "DrinkReady", "Final round — let’s make a tasty drink! Go pick up the order." },
+        { "DropInJuicer", "Toss the ingredients into the juicer — it’ll start on its own." },
+        { "JuicerOn", "The juicer's running." },
+        { "JuiceReadyPutInTray", "Awesome, the juice is ready! Pop it on the tray and bring it to the customer." },
+        { "ByProductsOnStore", "You’ll need to buy ingredients at the store." },
+        
         
         { "StepBonk", "Of course he won't admit it himself... Your cat can sometimes eat what you're holding, keep an eye on him!" },
         { "StepThief", "Oh, and watch out — sometimes a thief might sneak into the kitchen! Chase him away!" },
@@ -302,11 +338,6 @@ public class LocalizationManager : MonoBehaviour  {
         { "CreateDrinkTutorial", "Time for the easiest part — making some tasty drinks!" },
         { "CombineOrderTutorial", "Let’s try putting everything together into one average order!" },
         { "GoodJobAndReady", "Great job! You’ve mastered the basics — get ready for some tougher orders!" },
-
-        // Unf.. try again
-        { "TryAgainBurger", "Let's try to make the the burger again, carefully remember the ingredients, if you forget, you can check again." },
-        { "TryAgainPizza", "Let's try to make the pizza again, carefully remember the ingredients, if you forget, you can check again." },
-        { "TryAgainDrink", "Let's try to make the drink again, try to remember the ingredients, if you forget, you can check again." },
         
         {"TutorialInvitation", "Oh, hello! I see you haven't completed the internship, so i advise you to do it to understand the cooking process."},
         
@@ -320,6 +351,7 @@ public class LocalizationManager : MonoBehaviour  {
         
         {"CatWantEat", "I'm going to eat {0} soon!"},
         
+        { "AdvTimer", "Ads in {0} sec."},
     };
     
 

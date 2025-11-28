@@ -3,9 +3,6 @@ using UnityEngine;
 using TMPro;
 
 public class CurrencyManager : MonoBehaviour {
-    
-
-    
     [SerializeField] private TMP_Text _orderTimeText;
     [SerializeField] private TMP_Text _accuracyText;
     [SerializeField] private TMP_Text _comboText;
@@ -67,10 +64,7 @@ public class CurrencyManager : MonoBehaviour {
         SoundManager.Instance.PlaySFX("NewMoney");
         OnBankChangedAction?.Invoke(new CurrencyActionArgs { countRewardsCoins = newCoins, countRewardsGems = newGems  });
     }
-
-    public void ShowHideMoney() {
-        
-    }
+    
 
     public void CloseCanvas() {
         if (_canvas.activeSelf) {

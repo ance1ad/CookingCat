@@ -35,7 +35,10 @@ public class OrderCounterVisual : MonoBehaviour {
 
     [SerializeField] private TMP_Text _orderNumberText; // сверху слева
     [SerializeField] public GameObject _orderNumberTextBackground; // сверху слева
-
+    [SerializeField] public GameObject _advIcon;
+    
+    
+    
     public bool _orderIsShowed;
 
     
@@ -79,6 +82,7 @@ public class OrderCounterVisual : MonoBehaviour {
         _showOrderButton.gameObject.SetActive(false);
         _orderTimerVisual.SetActive(false);
         _orderNumberTextBackground.SetActive(false);
+        SetStateAdvIcon(false);
     }
 
 
@@ -185,7 +189,7 @@ public class OrderCounterVisual : MonoBehaviour {
         timeToShowIngredients = time;
         _thief.StopThiefCycle();
 
-        ShowButtonToOpenOrder(false);
+        // ShowButtonToOpenOrder(false);
         
         float timeNow = 0f;
         while (timeNow < time) {
@@ -198,7 +202,7 @@ public class OrderCounterVisual : MonoBehaviour {
         }
 
         _level.fillAmount = 0;
-        ShowButtonToOpenOrder(true);
+        // ShowButtonToOpenOrder(true);
 
 
         // Показ кнопки и таймера
@@ -211,21 +215,20 @@ public class OrderCounterVisual : MonoBehaviour {
         }
 
 
-
-        if (OrderManager.Instance.Level > 1) {
+        Debug.Log(OrderManager.Instance.CountOrders);
+        if (OrderManager.Instance.CountOrders > 0) {
             _thief.StartThiefCycle();
         }
         HideCanvas();
-        if (OrderManager.Instance.Level == 1 && _firstTimeShowResourceArrow) {
+        if (OrderManager.Instance.CountOrders == 1 && _firstTimeShowResourceArrow) {
             _firstTimeShowResourceArrow = false;
-            TutorialManager.Instance.ShowOrderResource(3f);
-            MessageUI.Instance.SetText(LocalizationManager.Get("LastStep"), MessageUI.Emotions.defaultFace);
+            TutorialManager.Instance.ShowOrderResource(7f);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("LastStep"), MessageUI.Emotions.defaultFace, 15f);
         }
         _orderIsShowed = true;
         Player.Instance.StartWalking();
         if (orderNumber != -1) {
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("OrderTaken", orderNumber));
-            // Проверить потом
             KitchenEvents.OrderTake();
         }
     }
@@ -265,8 +268,13 @@ public class OrderCounterVisual : MonoBehaviour {
             yield return null;
         }
     }
-    
 
+
+
+    private bool _itsResultCanvas;
+    public void SetResultFlag(bool state) => _itsResultCanvas = state;
+
+    
     public void ShowCanvas() {
         if (showOrder) {
             _orderTimerVisual.SetActive(false);
@@ -299,25 +307,34 @@ public class OrderCounterVisual : MonoBehaviour {
         
         
     public void HideCanvas() {
+
         _generalCanvas.SetActive(false);
         OrderManager.Instance.StopInteract = false;
         Player.Instance.StartWalking();
+        if (_itsResultCanvas) {
+            // Реклама после завершения
+            _itsResultCanvas = false;
+            YGManager.Instance.ShowInterstitialWarningAds();
+        }
     }
     
     public void ShowGeneralCanvas() {
         _generalCanvas.SetActive(true);
+        PlayerBankVisual.Instance.HideBank();
         OrderManager.Instance.StopInteract = true;
     }
 
-    public void ShowButtonToOpenOrder(bool state) {
-        _showOrderButton.enabled = state;
-    }
+
     
     
     
     public void ShowOrderByButton() {
         if (_countToShowOrder == 0) {
-            ShowButtonToOpenOrder(false);
+            // Показать рекламу
+            YGManager.Instance.ShowRewardAdv("ShowIngredientsReward");
+            _countToShowOrder++;
+            _contToShowOrderText.text = _countToShowOrder.ToString();
+            SetStateAdvIcon(false);
             return;
         }
         
@@ -325,6 +342,10 @@ public class OrderCounterVisual : MonoBehaviour {
         _closeButton.SetActive(true);
         orderStatusText.text = LocalizationManager.Get("OrderStatusText");
         _countToShowOrder--;
+        if (_countToShowOrder == 0) {
+            // Отобразить кнопку
+            SetStateAdvIcon(true);
+        }
         ShowGeneralCanvas();
         StartCoroutine(TimerToCloseOrderInfo(timeToShowIngredients, -1));
         _contToShowOrderText.text = _countToShowOrder.ToString();
@@ -396,5 +417,6 @@ public class OrderCounterVisual : MonoBehaviour {
         _orderNumberTextBackground.SetActive(false);
     }
 
+    public void SetStateAdvIcon(bool state) => _advIcon.SetActive(state);
 
 }

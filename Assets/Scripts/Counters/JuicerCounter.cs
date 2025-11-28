@@ -42,6 +42,7 @@ public class JuicerCounter : BaseCounter, IHasProgress {
         // Кладет фрукт
         if (player.HasKitchenObject() && ValidateKitchenObject(player.GetKitchenObject().GetKitchenObjectSO()) && !readyToGive) {
             ++fruitCurrentCount;
+            KitchenEvents.JuicerIngredientAdded();
             OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
                 Progress = fruitCurrentCount / fruitCountToEnable
             });

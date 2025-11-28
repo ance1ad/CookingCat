@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YG;
+
 
 public class PlayerData: MonoBehaviour {
     // Будут конкретные SO на Upgrades
@@ -50,4 +52,12 @@ public class PlayerData: MonoBehaviour {
     public bool HasItem(string key) => OwnedPurchase.Contains(key);
     public bool IsWearItem(string id) => AppliedSkins.ContainsValue(id);
 
+
+    private void EnableGra() {
+        // Запуск после загрузки данных пользователя
+        YG2.GameReadyAPI();
+    }
+    
+    
+    
 }

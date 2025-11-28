@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +12,7 @@ public class UpgradeItem : PurchaseObject  {
     // Прогресс
     [SerializeField] private Image _level;
     [SerializeField] private TMP_Text _count;
+    [SerializeField] private GameObject _greenBackground;
 
     private float _newPrice;
     public override float CurrentPrice => _newPrice;
@@ -58,6 +57,7 @@ public class UpgradeItem : PurchaseObject  {
         Debug.Log($"Куплен: {_objectSO.GetLocalizationName()}");
         if (_priceContainer.activeSelf && ObjectSO.MaxCountUpgrades == currentCountUpgrades) {
             _priceContainer.SetActive(false);
+            _greenBackground.SetActive(true);
             _level.fillAmount = 1;
             _buyButton.gameObject.SetActive(false);
             return;

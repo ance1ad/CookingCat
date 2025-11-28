@@ -47,6 +47,7 @@ public class TrashCounter : BaseCounter,IHasProgress {
         player._stopHidingHold = false;
         UIManager.Instance.SetEButton(UIManager.UIButtonState.Take);
         player._stopWalking = false;
+        KitchenEvents.ProductThrow();
     }
 
     private IEnumerator Progress() {

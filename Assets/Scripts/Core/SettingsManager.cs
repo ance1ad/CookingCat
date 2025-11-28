@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
+using YG;
 
 public class SettingsManager : MonoBehaviour {
     [SerializeField] private TMP_Text _windowText;
@@ -84,8 +84,12 @@ public class SettingsManager : MonoBehaviour {
     }
 
     public void ShowHideSettings() {
+        PlayerBankVisual.Instance.HideBank();
         _settingsCanvas.SetActive(!_settingsCanvas.activeSelf);
         Time.timeScale = _settingsCanvas.activeSelf ? 0 : 1;
+        if (!_settingsCanvas.activeSelf) {
+            YGManager.Instance.ShowInterstitialWarningAds();
+        }
     } 
     
     public void OffOnMusic() {
