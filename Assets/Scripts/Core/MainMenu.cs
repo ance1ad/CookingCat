@@ -18,32 +18,38 @@ public class MainMenu : MonoBehaviour {
     [SerializeField] private TMP_Text _playGameButtonBtnTxt;
     [SerializeField] private TMP_Text _tutorialBtnTxt;
 
-    private readonly float _timeToLoad = 15f;
-    
+    private readonly float _timeToLoad = 5f;
+    private bool _autoGraEnable = false;
     
     
     public static MainMenu Instance { get; private set; }
 
     private void Awake() {
         if (Instance) {
-            Debug.Log("MainMenu > 1");
+            Debug.Log("MainMenu count > 1");
             return;
         }
         Instance = this;
         _playGameButton.onClick.AddListener(StartGame);
         _playTutorialButton.onClick.AddListener(StartTutorial);
         Time.timeScale = 0;
-
+        YG2.onGetSDKData += OnGetSDKData;
     }
+
     
-    
+    private bool dataIsLoaded = false;
+    private void OnGetSDKData() {
+        dataIsLoaded = true;
+    }
+
+
     private void Start() {
+        LocalizationManager.SetTextLocalization();
         _canvas.SetActive(true);
         _level.gameObject.SetActive(false);
         _levelBackground.SetActive(false);
         OnSwipeLanguage();
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
-        
     }
 
     private void OnSwipeLanguage() {
@@ -72,7 +78,13 @@ public class MainMenu : MonoBehaviour {
 
     private IEnumerator FirstTimeCreateOrder() {
         yield return new WaitUntil(() => isLoad);
-
+        if (!_autoGraEnable) {
+            _autoGraEnable = true;
+            Debug.Log(_autoGraEnable);
+            YG2.GameReadyAPI();
+        }
+        
+        
         RewardManager.Instance.StartRewardTimerRoutine();
         if (!TutorialManager.Instance.TutorialPassed) {
             MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("TutorialInvitation"), MessageUI.Emotions.happy);
@@ -95,8 +107,12 @@ public class MainMenu : MonoBehaviour {
     
     private IEnumerator WaitLoadingLevelToTutorial() {
         yield return new WaitUntil(() => isLoad);
+        if (!_autoGraEnable) {
+            _autoGraEnable = true;
+            Debug.Log(_autoGraEnable);
+            YG2.GameReadyAPI();
+        }
         TutorialManager.Instance.StartTutorial();
-
     }
     
     
@@ -141,6 +157,7 @@ public class MainMenu : MonoBehaviour {
         
         
         isLoad = false;
+        yield return new WaitUntil(() => dataIsLoaded);
 
         _level.fillAmount = 0;
         float timer = 0;

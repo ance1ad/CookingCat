@@ -30,7 +30,7 @@ public abstract class PurchaseObject : MonoBehaviour {
     public abstract PurchaseType PurchaseType{ get; }
 
     
-    protected virtual void UpdateVisuals() {
+    protected virtual void SetDefaultVisual() {
         Debug.Log("UpdateVisuals");
     }
 

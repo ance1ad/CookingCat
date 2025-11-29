@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 using YG;
 
 public class SettingsManager : MonoBehaviour {
@@ -41,36 +42,8 @@ public class SettingsManager : MonoBehaviour {
         _settingsCanvas.SetActive(false);
         _localizationButton.onClick.AddListener(() => SwipeLanguage());
         _mainMenuButton.onClick.AddListener(OnMainMenuButtonClick);
-        SetText();
     }
-
-    private void OnMainMenuButtonClick() {
-        MainMenu.Instance.OpenMainMenu();
-        _settingsCanvas.SetActive(false);
-    }
-
-    public event Action OnSwipeLanguage;
-        
-    private void SwipeLanguage() {
-        LocalizationManager.SwipeLanguage();
-        SetText();
-        OnSwipeLanguage?.Invoke();
-        Debug.Log("SwipeLanguage");
-    }
-
-    private void SetText() {
-        if (LocalizationManager.CurrentLanguage == Language.EN) {
-            _textUnderBtnLocalization.text = "English language";
-            _textInBtnLocalization.text = "Eng";
-            _windowText.text = "Settings";
-        }
-        else {
-            _textUnderBtnLocalization.text = "Русский язык";
-            _textInBtnLocalization.text = "Rus";
-            _windowText.text = "Настройки";
-        }
-    }
-
+    
     private void Start() {
         musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
         sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
@@ -82,6 +55,39 @@ public class SettingsManager : MonoBehaviour {
         _sfxButton.onClick.AddListener(()=> OffOnSoundEffects());
 
     }
+    
+    
+
+    private void OnMainMenuButtonClick() {
+        MainMenu.Instance.OpenMainMenu();
+        _settingsCanvas.SetActive(false);
+    }
+
+    public event Action OnSwipeLanguage;
+        
+    private void SwipeLanguage() {
+        LocalizationManager.SwipeLanguage();
+        SetTextLanguage();
+        OnSwipeLanguage?.Invoke();
+        Debug.Log("SwipeLanguage");
+    }
+
+    public void SetTextLanguage() {
+        if (LocalizationManager.CurrentLanguage == Language.EN) {
+            Debug.Log("Установка английского языка");
+            _textUnderBtnLocalization.text = "English language";
+            _textInBtnLocalization.text = "Eng";
+            _windowText.text = "Settings";
+        }
+        else {
+            Debug.Log("Установка русского языка");
+            _textUnderBtnLocalization.text = "Русский язык";
+            _textInBtnLocalization.text = "Rus";
+            _windowText.text = "Настройки";
+        }
+    }
+
+
 
     public void ShowHideSettings() {
         PlayerBankVisual.Instance.HideBank();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -33,11 +34,17 @@ public class SkinItem : PurchaseObject {
         _dequipButton.onClick.AddListener(() => OnSkinDequipped?.Invoke(this));
         _greenBackground.enabled = false;
         _name.fontSize = 70;
+        
+        _equipButton.gameObject.SetActive(false);
+        _dequipButton.gameObject.SetActive(false);
+        _buyButton.gameObject.SetActive(false);
     }
 
     private void Start() {
-        UpdateVisuals();
+        SetDefaultVisual();
     }
+    
+
     
     public event Action<SkinItem> OnSkinBought;
     public event Action<SkinItem> OnSkinEquipped;
@@ -47,7 +54,7 @@ public class SkinItem : PurchaseObject {
 
 
 
-    protected override void UpdateVisuals() {
+    protected override void SetDefaultVisual() {
         _warningMessage.text = "";
         _name.text = _objectSO.GetLocalizationName();
         _price.text = FormatPrice(_objectSO.Price);
@@ -60,10 +67,10 @@ public class SkinItem : PurchaseObject {
             _coinsIcon.enabled = false;
             _gemsIcon.enabled = true;
         }
+    }
+
+    public void SetUnbought() {
         _buyButton.gameObject.SetActive(true);
-        _equipButton.gameObject.SetActive(false);
-        _dequipButton.gameObject.SetActive(false);
-        
     }
        
 
@@ -78,25 +85,32 @@ public class SkinItem : PurchaseObject {
 
     
     public override void SetBought() {
+        bool state = gameObject.activeSelf;
+        if (!state) {
+            gameObject.SetActive(true);
+        }
         Debug.Log($"Куплен: {_objectSO.GetLocalizationName()}");
         _priceContainer.SetActive(false);
         _grayBackground.enabled = false;
         _lock.enabled = false;
         _buyButton.gameObject.SetActive(false);
+        
         _equipButton.gameObject.SetActive(true);
         _equipButtonText.text = LocalizationManager.Get("EquipButtonText");
         _greenBackground.enabled = true;
+        
+        if (!state) {
+            gameObject.SetActive(false);
+        }
     }
     
     public void SetSkinEquipped() {
-        Debug.Log($"Надет: {_objectSO.GetLocalizationName()}");
         _equipButton.gameObject.SetActive(false);
         _dequipButton.gameObject.SetActive(true);
         _dequipButtonText.text = LocalizationManager.Get("DequipButtonText");
     }
     
     public void SetSkinDequipped() {
-        Debug.Log($"Снят: {_objectSO.GetLocalizationName()}");
         _dequipButton.gameObject.SetActive(false);
         _equipButton.gameObject.SetActive(true);
         _equipButtonText.text = LocalizationManager.Get("EquipButtonText");

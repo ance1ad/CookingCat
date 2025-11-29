@@ -26,13 +26,9 @@ public class PlayerSkinChanger : MonoBehaviour {
             return;
         }
         Instance = this;
-    }
-
-    private void Start() {
         _data.OnSkinActivate += EquipSkin;
         _data.OnSkinDeactivate += DequipSkin;
     }
-    
 
     private void EquipSkin(SkinObjectSO skinSO) {
         Debug.Log("Надевание скина " + skinSO.GetLocalizationName());

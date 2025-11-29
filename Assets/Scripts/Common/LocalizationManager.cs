@@ -1,13 +1,24 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YG;
 
 public enum Language { RU, EN }
 public class LocalizationManager : MonoBehaviour  {
     public static Language CurrentLanguage = Language.RU;
-
-   
-
+    
+    public static void SetTextLocalization() {
+        if (YG2.envir.language == "en") {
+            CurrentLanguage = Language.EN;
+        }
+        else {
+            CurrentLanguage = Language.RU;
+        }
+        Debug.Log(YG2.envir.language);
+        SettingsManager.Instance.SetTextLanguage();
+    }
+    
     private static Dictionary<string, string> RU = new Dictionary<string, string>
     {
         { "AddDishes", "Добавьте блюда в заказ" },

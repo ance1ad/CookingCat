@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using YG;
 
 public class StoreManager : MonoBehaviour {
     [SerializeField] private GameObject _storeCanvas;
@@ -35,8 +36,10 @@ public class StoreManager : MonoBehaviour {
     
     
     // Обработка нажатий + UI
-    
-    
+    private void Awake() {
+        YG2.onGetSDKData += DownloadData;
+    }
+
     private void Start() {
         _storeCanvas.SetActive(false);
         foreach (var skin in _skins) {
@@ -49,6 +52,39 @@ public class StoreManager : MonoBehaviour {
             upgrade.OnUpgradeBought += OnBought;
         }
         SetSortButtons();
+    }
+    
+    private void DownloadData() {
+        ShowHideStoreWindow();
+        Debug.Log(YG2.saves.OwnedPurchase.Count);
+        // Загрузить из данных значения и отобразить у игрока сё это
+        SetSkinsBought();
+        EquipDownloadSkins();
+        ShowHideStoreWindow();
+    }
+
+    private void SetSkinsBought() {
+        List<string> OwnedPurchase = YG2.saves.OwnedPurchase;
+        foreach (var skin in _skins) {
+            if (OwnedPurchase.Contains(skin.ObjectSO.Id)) {
+                skin.SetBought();
+            }
+            else {
+                skin.SetUnbought();
+            }
+        }
+    }
+
+    private void EquipDownloadSkins() {
+        var AppliedSkins = YG2.saves.AppliedSkins;
+        foreach (var skin in _skins) {
+            if (AppliedSkins.FindIndex(s => s.id == skin.ObjectSO.Id) >= 0) {
+                skin.SetSkinEquipped();
+                RememberSkin(skin);
+                skin.ObjectSO.Apply(_data);
+                skin.PurchaseSO.Buy(_data);
+            }
+        }
     }
 
 
@@ -117,14 +153,12 @@ public class StoreManager : MonoBehaviour {
     }
     
     private void OnSkinDequipped(SkinItem skin) {
-        Debug.Log("Скин снят " + skin.ObjectSO);
         skin.ObjectSO.Remove(_data);
         skin.SetSkinDequipped();
     }
 
 
     private void OnSkinEquipped(SkinItem skin) {
-        Debug.Log("Скин экипирован " + skin.ObjectSO);
         skin.SetSkinEquipped();
         RememberSkin(skin);
         skin.ObjectSO.Apply(_data);
@@ -173,8 +207,6 @@ public class StoreManager : MonoBehaviour {
     private void RememberSkin(SkinItem skin) {
         // Запоминаем надетый скин
         if (skin.PurchaseType == PurchaseType.Hat) {
-            Debug.Log(hatSkin);
-            Debug.Log(skin);
             if (hatSkin != null  &&  hatSkin != skin) {
                 Debug.Log("SetSkinDequipped");
                 hatSkin.SetSkinDequipped();

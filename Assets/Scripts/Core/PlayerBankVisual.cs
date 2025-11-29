@@ -16,11 +16,9 @@ public class PlayerBankVisual : MonoBehaviour {
     
     
     private void Start() {
-        CurrencyManager.Instance.OnBankChangedAction += OnBankChangedAction;
         UpdateBank();
         HideBank();
-        KitchenEvents.OnShopOpen += ShowBank;
-        KitchenEvents.OnShopClose += HideBank;
+        CurrencyManager.Instance.OnBankChangedAction += OnBankChangedAction;
     }
     
     public static PlayerBankVisual Instance { get; private set; }
@@ -29,6 +27,8 @@ public class PlayerBankVisual : MonoBehaviour {
         _shopOpen = true;
         _playerBank.SetActive(true);  
     } 
+    
+    
     public void HideBank() {
         _shopOpen = false;
         if (_playerBank.activeSelf) {
@@ -42,6 +42,8 @@ public class PlayerBankVisual : MonoBehaviour {
             return;
         }
         Instance = this;
+        KitchenEvents.OnShopOpen += ShowBank;
+        KitchenEvents.OnShopClose += HideBank;
     }
 
     private Coroutine _currentCoinsRoutine;

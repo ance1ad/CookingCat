@@ -12,6 +12,9 @@ public class RewardManager : MonoBehaviour {
     [SerializeField] private Button _getGiftButton;
     [SerializeField] private TMP_Text _rewardTimer;
     [SerializeField] private GameObject _grayBack;
+    [SerializeField] private GameObject _advIcon;
+    
+    
     private float timer;
     private bool readyToGift = false;
     public static RewardManager Instance {get; private set; }
@@ -22,6 +25,7 @@ public class RewardManager : MonoBehaviour {
         
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
         OnSwipeLanguage();
+        _grayBack.SetActive(false);
         _rewardContainer.SetActive(false);
     }
 
@@ -51,6 +55,7 @@ public class RewardManager : MonoBehaviour {
     private IEnumerator RewardTimerRoutine() {
         timer = 4f;
         _grayBack.SetActive(true);
+        _advIcon.SetActive(false);
         _rewardTimer.gameObject.SetActive(true);
         while (timer > 0) {
             timer -= Time.deltaTime;
@@ -58,6 +63,7 @@ public class RewardManager : MonoBehaviour {
             yield return null;
         }
         _grayBack.SetActive(false);
+        _advIcon.SetActive(true);
         _rewardTimer.gameObject.SetActive(false);
         readyToGift = true;
     }

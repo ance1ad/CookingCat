@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using TMPro;
+using YG;
+
 
 public class CurrencyManager : MonoBehaviour {
     [SerializeField] private TMP_Text _orderTimeText;
@@ -24,9 +26,16 @@ public class CurrencyManager : MonoBehaviour {
             return;
         }
         Instance = this;
-        
-        
+        YG2.onGetSDKData += OnGetSDKData;
     }
+
+    private void OnGetSDKData() {
+        Debug.Log("OnGetSDKData");
+        Coins = YG2.saves.Coins;
+        Gems = YG2.saves.Gems;
+        PlayerBankVisual.Instance.UpdateBank();
+    }
+
     public class CurrencyActionArgs {
         public float countRewardsCoins;
         public int countRewardsGems;
@@ -61,6 +70,9 @@ public class CurrencyManager : MonoBehaviour {
     public void UpdateCash(float newCoins, int newGems) {
         Coins += newCoins;
         Gems += newGems;
+        YG2.saves.Coins = Coins;
+        YG2.saves.Gems = Gems;
+        YG2.SaveProgress();
         SoundManager.Instance.PlaySFX("NewMoney");
         OnBankChangedAction?.Invoke(new CurrencyActionArgs { countRewardsCoins = newCoins, countRewardsGems = newGems  });
     }
@@ -70,6 +82,7 @@ public class CurrencyManager : MonoBehaviour {
         if (_canvas.activeSelf) {
             _canvas.SetActive(false);
         }
+        PlayerBankVisual.Instance.HideBank();
     }
     
     public void ShowCanvas() {

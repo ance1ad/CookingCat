@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking.PlayerConnection;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
+using YG;
 
 public class TutorialManager : MonoBehaviour {
     [SerializeField] private ThiefCat _thiefCat;
@@ -74,7 +75,12 @@ public class TutorialManager : MonoBehaviour {
         }
         Instance = this;
         HideArrows();
+        YG2.onGetSDKData += OnGetSDKData;
         
+    }
+
+    private void OnGetSDKData() {
+        TutorialPassed = YG2.saves.TutorialPassed;
     }
 
     private void Start() {
@@ -232,6 +238,11 @@ public class TutorialManager : MonoBehaviour {
         lastStepKey = "";
         TutorialStarted = false;
         TutorialPassed = true;
+        
+        // Сохранение 
+        YG2.saves.TutorialPassed = true;
+        YG2.SaveProgress();
+        
         _skinStoreButton.enabled = true;
         _productStoreButton.enabled = true;
         StartCoroutine(MessageUI.Instance.HideFocusRoutine());

@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class PlayerUpgradeManager : MonoBehaviour {
     [SerializeField] private PlayerData _data;
-
+    [SerializeField] private List<UpgradeObjectSO> _upgrades = new List<UpgradeObjectSO>();
+    
     public float PlayerSpeed { get; private set; } = 4f;
     public int SliceCount { get; private set; } = 1;
     public float OvenSpeed { get; private set; } 
@@ -31,41 +32,39 @@ public class PlayerUpgradeManager : MonoBehaviour {
     }
 
     
-    private void DataOnUpgradesReload(Dictionary<UpgradeObjectSO, int> dict) {
-
-        
-        foreach (var upgradeObject in dict) {
-            int count = upgradeObject.Value;
-            float bonus = upgradeObject.Key.Bonus;
-            switch (upgradeObject.Key.UpgradeType) {
-                case UpgradeType.PlayerSpeed:
-                    PlayerSpeed = 4f;
-                    PlayerSpeed += count * bonus;
-                    break;
-                case UpgradeType.SliceCount:
-                    SliceCount = 1;
-                    SliceCount += (int)(count * bonus);
-                    break;
-                case UpgradeType.OvenSpeed:
-                    OvenSpeed = count * bonus;
-                    break;
-                case UpgradeType.JuicerSpeed:
-                    JuicerSpeed =  count * bonus;
-                    break;
-                case UpgradeType.MeatFryingSpeed:
-                    MeatFryingSpeed = count * bonus;
-                    break;
-                case UpgradeType.MeatOvercookedSpeed:
-                    MeatOvercookedSpeed = count * bonus;
-                    break;
-                case UpgradeType.OrderPeek:
-                    OrderPeekCount = (int)(count * bonus);
-                    break;
-                default:
-                    Debug.Log("Update not found");
-                    break;
-            }
+    private void DataOnUpgradesReload(string id, int count) {
+        UpgradeObjectSO upgradeObj = FindUpgradeObjectById(id);
+        float bonus = upgradeObj.Bonus;
+        switch (upgradeObj.UpgradeType) {
+            case UpgradeType.PlayerSpeed:
+                PlayerSpeed = 4f;
+                PlayerSpeed += count * bonus;
+                break;
+            case UpgradeType.SliceCount:
+                SliceCount = 1;
+                SliceCount += (int)(count * bonus);
+                break;
+            case UpgradeType.OvenSpeed:
+                OvenSpeed = count * bonus;
+                break;
+            case UpgradeType.JuicerSpeed:
+                JuicerSpeed =  count * bonus;
+                break;
+            case UpgradeType.MeatFryingSpeed:
+                MeatFryingSpeed = count * bonus;
+                break;
+            case UpgradeType.MeatOvercookedSpeed:
+                MeatOvercookedSpeed = count * bonus;
+                break;
+            case UpgradeType.OrderPeek:
+                OrderPeekCount = (int)(count * bonus);
+                break;
+            default:
+                Debug.Log("Update not found");
+                break;
         }
         OnUpgrade?.Invoke();
     }
+
+    private UpgradeObjectSO FindUpgradeObjectById(string id) => _upgrades.Find(i => i.Id == id);
 }
