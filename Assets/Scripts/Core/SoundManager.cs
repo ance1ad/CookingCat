@@ -2,6 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YG;
+using PlayerPrefs = RedefineYG.PlayerPrefs;
+
+
 
 public class SoundManager : MonoBehaviour {
     [SerializeField] private AudioSource _musicSource;

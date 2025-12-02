@@ -78,13 +78,11 @@ public class PlayerSkinChanger : MonoBehaviour {
         DestroySkin(pointSpawn);
 
         GameObject glassesInstance = Instantiate(skinSO.Prefab,  pointSpawn);
-        Debug.Log("I put on " + CurrentSkin);
         CurrentSkin = skinSO;
     }
     
 
     private void SetColor(SkinObjectSO colorSkinSO) {
-        Debug.Log("Смена шёрстки");
         _catRenderer.material.mainTexture = colorSkinSO.Texture;
         ColorCurrentSkin = colorSkinSO;
     }

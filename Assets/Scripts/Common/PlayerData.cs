@@ -1,23 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting.ReorderableList;
 using UnityEngine;
 using YG;
 
 
 public class PlayerData : MonoBehaviour {
-
-
     public event Action<SkinObjectSO> OnSkinActivate;
     public event Action<SkinObjectSO> OnSkinDeactivate;
     public event Action<string, int> OnUpgradeBought;
     
     
     private void Start() {
-        // OwnedPurchase = new HashSet<string>(YG2.saves.OwnedPurchase);
-        // AppliedSkins =  new Dictionary<PurchaseType, string>(YG2.saves.AppliedSkins);
-        // Upgrades = new Dictionary<UpgradeObjectSO, int>(YG2.saves.Upgrades);
         YG2.onGetSDKData += OnGetSDKData;
     }
 
@@ -41,7 +35,6 @@ public class PlayerData : MonoBehaviour {
         // + добавить логику удаления с этого места старого скина 
         
         if (SkinAppliedContainsKey(YG2.saves.AppliedSkins, skinSO.Id)) {
-            Debug.Log(skinSO.NameRus + " найден, попытка надеть хуйню эту");
             OnSkinActivate?.Invoke(skinSO);
         }
         else if (SkinListContainsKey(YG2.saves.OwnedPurchase, skinSO.Id)) {
@@ -69,6 +62,7 @@ public class PlayerData : MonoBehaviour {
         bool upgradeIsContains = false;
         int count;
         var index = YG2.saves.Upgrades.FindIndex(i => i.id == upgradeObjectSo.Id);
+        // Уже есть
         if (index >= 0) {
             var item = YG2.saves.Upgrades[index];
             item.count += 1;
@@ -83,11 +77,16 @@ public class PlayerData : MonoBehaviour {
             count = 1;
         }
         YG2.SaveProgress();
-        
-
         OnUpgradeBought?.Invoke(upgradeObjectSo.Id, count);
     }
-    
+
+
+    public void DownloadUpgrades() {
+        Debug.Log("Вызов подгрузки всех апгрейдов в PlayerData");
+        foreach (var upgrade in YG2.saves.Upgrades) {
+            OnUpgradeBought?.Invoke(upgrade.id, upgrade.count);
+        }
+    }
 
 
     private bool SkinListContainsKey(List<string> list, string key) {
@@ -97,12 +96,10 @@ public class PlayerData : MonoBehaviour {
     
     private bool SkinAppliedContainsKey(List<SkinObject> list, string id) {
         var index = list.FindIndex(i => i.id == id);
-        Debug.Log(index);
         return index >= 0;
     }
 
     private bool RemoveSkinInList(List<SkinObject> list, PurchaseType type) {
-        Debug.Log(list.Count);
         int index = list.FindIndex(i => i.type == type);
         if (index >= 0) {
             list.RemoveAt(index);

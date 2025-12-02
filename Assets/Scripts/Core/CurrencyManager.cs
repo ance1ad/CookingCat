@@ -30,7 +30,6 @@ public class CurrencyManager : MonoBehaviour {
     }
 
     private void OnGetSDKData() {
-        Debug.Log("OnGetSDKData");
         Coins = YG2.saves.Coins;
         Gems = YG2.saves.Gems;
         PlayerBankVisual.Instance.UpdateBank();

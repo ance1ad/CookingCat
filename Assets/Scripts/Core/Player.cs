@@ -4,7 +4,7 @@ using System;
 using static ThiefCat;
 
 public class Player : MonoBehaviour, IKitchenObjectParent {
-    [SerializeField] float _velocity = 4f;
+    [SerializeField] float _velocity = 4.5f;
     [SerializeField] float _rotateSpeed = 8f;
     [SerializeField] GameInput _gameInput;
     [SerializeField] LayerMask _countersLayerMask;
@@ -44,9 +44,8 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     public class OnThiefInteractEventArgs : EventArgs {
         public ThiefCat thief;
     }
-
-
     
+
 
     // Для синглтона
     private void Awake() {
@@ -55,8 +54,15 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         }
         // Обьект на котором висит скрипт назначается в Instance
         Instance = this;
+        PlayerUpgradeManager.Instance.OnUpgrade += UpdatePlayerStats;
+        _gameInput.OnInteractAction += GameInput_OnInteractAction;
+        _gameInput.OnAlternativeInteractAction += GameInput_OnAlternativeInteractAction;
     }
 
+
+    private void Start() {
+        UpdatePlayerStats();
+    }
 
     private void Update() {
         HandleMovement();
@@ -65,16 +71,11 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     private void FixedUpdate() {
         HandleInteractions();
     }
-
-
-    private void Start() {
-        _gameInput.OnInteractAction += GameInput_OnInteractAction;
-        _gameInput.OnAlternativeInteractAction += GameInput_OnAlternativeInteractAction;
-        PlayerUpgradeManager.Instance.OnUpgrade += UpdatePlayerStats;
-    }
+    
 
     private void UpdatePlayerStats() {
         _velocity = PlayerUpgradeManager.Instance.PlayerSpeed;
+        Debug.Log("Player speed: " + _velocity);
     }
 
 

@@ -7,6 +7,9 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
 using YG;
+using PlayerPrefs = RedefineYG.PlayerPrefs;
+
+
 
 public class SettingsManager : MonoBehaviour {
     [SerializeField] private TMP_Text _windowText;
@@ -26,10 +29,9 @@ public class SettingsManager : MonoBehaviour {
     [SerializeField] private Button _mainMenuButton;
     [SerializeField] private TMP_Text _textUnderBtnLocalization;
     [SerializeField] private TMP_Text _textInBtnLocalization;
+    [SerializeField] private Text _reviewText;
 
     public static SettingsManager Instance { get; private set; }
-
-    
 
 
     private void Awake() {
@@ -42,21 +44,22 @@ public class SettingsManager : MonoBehaviour {
         _settingsCanvas.SetActive(false);
         _localizationButton.onClick.AddListener(() => SwipeLanguage());
         _mainMenuButton.onClick.AddListener(OnMainMenuButtonClick);
+        YG2.onGetSDKData += OnGetSDKData;
     }
-    
-    private void Start() {
+
+    private void OnGetSDKData() {
         musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
         sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
-        // muteToggle.isOn = PlayerPrefs.GetInt("AudioMuted", 0) == 1;
+    }
 
+
+
+    private void Start() {
         musicSlider.onValueChanged.AddListener(SoundManager.Instance.SetMusicVolume);
         sfxSlider.onValueChanged.AddListener(SoundManager.Instance.SetSFXVolume);
         _musicButton.onClick.AddListener(() => OffOnMusic());
         _sfxButton.onClick.AddListener(()=> OffOnSoundEffects());
-
     }
-    
-    
 
     private void OnMainMenuButtonClick() {
         MainMenu.Instance.OpenMainMenu();
@@ -78,12 +81,15 @@ public class SettingsManager : MonoBehaviour {
             _textUnderBtnLocalization.text = "English language";
             _textInBtnLocalization.text = "Eng";
             _windowText.text = "Settings";
+            _reviewText.text = "Leave a review";
         }
         else {
             Debug.Log("Установка русского языка");
             _textUnderBtnLocalization.text = "Русский язык";
             _textInBtnLocalization.text = "Rus";
             _windowText.text = "Настройки";
+            _reviewText.text = "Оставить отзыв";
+            
         }
     }
 
@@ -95,6 +101,8 @@ public class SettingsManager : MonoBehaviour {
         Time.timeScale = _settingsCanvas.activeSelf ? 0 : 1;
         if (!_settingsCanvas.activeSelf) {
             YGManager.Instance.ShowInterstitialWarningAds();
+            // Изменил звук и закрыл окно, обновим
+            PlayerPrefs.Save();
         }
     } 
     

@@ -53,8 +53,6 @@ public class UpgradeItem : PurchaseObject  {
         _newPrice = _objectSO.Price * Mathf.Pow(_objectSO.PriceMultiply, currentCountUpgrades) ;
         _price.text = FormatPrice(CurrentPrice);
         _count.text = $"{currentCountUpgrades}/{ObjectSO.MaxCountUpgrades} ({((float) currentCountUpgrades / ObjectSO.MaxCountUpgrades * 100):F0}%)";
-        Debug.Log(currentCountUpgrades);
-        Debug.Log($"Куплен: {_objectSO.GetLocalizationName()}");
         if (_priceContainer.activeSelf && ObjectSO.MaxCountUpgrades == currentCountUpgrades) {
             _priceContainer.SetActive(false);
             _greenBackground.SetActive(true);
@@ -65,6 +63,13 @@ public class UpgradeItem : PurchaseObject  {
 
         if (ObjectSO.MaxCountUpgrades != 0) {
             _level.fillAmount = (float) currentCountUpgrades / ObjectSO.MaxCountUpgrades;
+        }
+    }
+    
+    
+    public override void SetTextLocalization() {
+        if (_name.text != _objectSO.GetLocalizationName()) {
+            _name.text = _objectSO.GetLocalizationName();
         }
     }
     

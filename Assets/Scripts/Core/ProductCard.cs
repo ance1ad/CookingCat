@@ -26,7 +26,7 @@ public class ProductCard : MonoBehaviour {
         // Добавить обновление цены, названия и иконки
         _icon.sprite = _product.sprite;
         _name.text = _product.objectName;
-        _price.text = _product.price.ToString() + " $";
+        _price.text = _product.price.ToString();
         pieces = LocalizationManager.Get("Pieces");
         _countText.text = (_count.ToString() + pieces);
     }

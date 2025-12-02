@@ -89,7 +89,6 @@ public class SkinItem : PurchaseObject {
         if (!state) {
             gameObject.SetActive(true);
         }
-        Debug.Log($"Куплен: {_objectSO.GetLocalizationName()}");
         _priceContainer.SetActive(false);
         _grayBackground.enabled = false;
         _lock.enabled = false;

@@ -7,7 +7,7 @@ public class PlayerUpgradeManager : MonoBehaviour {
     [SerializeField] private PlayerData _data;
     [SerializeField] private List<UpgradeObjectSO> _upgrades = new List<UpgradeObjectSO>();
     
-    public float PlayerSpeed { get; private set; } = 4f;
+    public float PlayerSpeed { get; private set; } = 4.5f;
     public int SliceCount { get; private set; } = 1;
     public float OvenSpeed { get; private set; } 
     public float JuicerSpeed { get; private set; }
@@ -25,19 +25,18 @@ public class PlayerUpgradeManager : MonoBehaviour {
             return;
         }
         Instance = this;
-    }
-
-    private void Start() {
         _data.OnUpgradeBought += DataOnUpgradesReload;
+        
     }
-
+    
     
     private void DataOnUpgradesReload(string id, int count) {
         UpgradeObjectSO upgradeObj = FindUpgradeObjectById(id);
         float bonus = upgradeObj.Bonus;
+        
         switch (upgradeObj.UpgradeType) {
             case UpgradeType.PlayerSpeed:
-                PlayerSpeed = 4f;
+                PlayerSpeed = 4.5f;
                 PlayerSpeed += count * bonus;
                 break;
             case UpgradeType.SliceCount:

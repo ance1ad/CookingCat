@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -18,6 +19,26 @@ public class RewardManager : MonoBehaviour {
     private float timer;
     private bool readyToGift = false;
     public static RewardManager Instance {get; private set; }
+    public bool dailyReward = false;
+    
+
+    private void Awake() {
+        if (Instance != null) {
+            Debug.LogWarning("Instance already created");
+            return;
+        }
+        Instance = this;
+    }
+
+    private void OnEnable() {
+        YG2.onReviewSent += OnReviewSent;
+    }
+
+    private void OnReviewSent(bool obj) {
+        if (obj) {
+            ReviewReward();
+        }
+    }
 
 
     private void Start() {
@@ -37,7 +58,7 @@ public class RewardManager : MonoBehaviour {
     public void StartRewardTimerRoutine() {
         _rewardContainer.SetActive(true);
         if (_giftCoroutine == null) {
-            _giftCoroutine = StartCoroutine(RewardTimerRoutine());
+            _giftCoroutine = StartCoroutine(RewardAdvTimerRoutine());
         }
     }
     
@@ -52,7 +73,7 @@ public class RewardManager : MonoBehaviour {
 
 
     private string secMeasurement;
-    private IEnumerator RewardTimerRoutine() {
+    private IEnumerator RewardAdvTimerRoutine() {
         timer = 4f;
         _grayBack.SetActive(true);
         _advIcon.SetActive(false);
@@ -74,26 +95,40 @@ public class RewardManager : MonoBehaviour {
         // Логика рандома выдачи денег
         YGManager.Instance.ShowRewardAdv("ShowIngredientsReward", ()=> {
             RandomRewardLogic();
-            StartCoroutine(RewardTimerRoutine());
+            StartCoroutine(RewardAdvTimerRoutine());
         });
         
     }
 
     private void RandomRewardLogic() {
-        int coins = Random.Range(3000, 6001);
-        int gems = Random.Range(1,4);
+        int coins = Random.Range(3000, 5001);
+        int gems = Random.Range(1,3);
         
         CurrencyManager.Instance.UpdateCash(coins, gems);
     }
 
 
-    private void Awake() {
-        if (Instance != null) {
-            Debug.LogWarning("Instance already created");
-            return;
+    public void DailyReward() {
+        Debug.Log("DailyReward");
+        if (dailyReward) {
+            int coins = Random.Range(10000, 20000);
+            int gems = Random.Range(5,10);
+        
+            CurrencyManager.Instance.UpdateCash(coins, gems);
         }
-        Instance = this;
+        dailyReward = false;
     }
+
+
+    private void ReviewReward() {
+        int coins = 26000;
+        int gems = 26;
+        CurrencyManager.Instance.UpdateCash(coins, gems);
+        if (!TutorialManager.Instance.TutorialStarted) {
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThanksForReview"), MessageUI.Emotions.happy, 16f);
+        }
+    }
+
 
     private float _allAccuracy;
     private int _newGemsCount;

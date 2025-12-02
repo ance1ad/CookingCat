@@ -60,6 +60,8 @@ public class StoreManager : MonoBehaviour {
         // Загрузить из данных значения и отобразить у игрока сё это
         SetSkinsBought();
         EquipDownloadSkins();
+        // Загрузка обновочек
+        UpdateUpgrades();
         ShowHideStoreWindow();
     }
 
@@ -83,6 +85,19 @@ public class StoreManager : MonoBehaviour {
                 RememberSkin(skin);
                 skin.ObjectSO.Apply(_data);
                 skin.PurchaseSO.Buy(_data);
+            }
+        }
+    }
+
+
+    private void UpdateUpgrades() {
+        _data.DownloadUpgrades(); 
+        foreach (var upgrade in _upgrades) {
+            int index = YG2.saves.Upgrades.FindIndex(s => s.id == upgrade.ObjectSO.Id);
+            if (index >= 0) {
+                for (int i = 0; i < YG2.saves.Upgrades[index].count; i++) {
+                    upgrade.SetBought();
+                }
             }
         }
     }
@@ -176,16 +191,10 @@ public class StoreManager : MonoBehaviour {
         KitchenEvents.ShopOpen();
         PlayerBankVisual.Instance.ShowBank();
         foreach (var skin in _skins) {
-            // if (_data.HasItem(skin.ObjectSO.Id)) {
-            //     if (_data.IsWearItem(skin.ObjectSO.Id)) {
-            //         skin.SetSkinEquipped();
-            //         RememberSkin(skin);
-            //     }
-            //     else {
-            //         skin.SetSkinDequipped();
-            //     }
-            // }
             skin.SetTextLocalization();
+        }
+        foreach (var upgrade in _upgrades) {
+            upgrade.SetTextLocalization();
         }
         SortItems(_windowCategoryLastOpened);
         LanguageLocalization();

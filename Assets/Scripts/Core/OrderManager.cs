@@ -11,7 +11,8 @@ using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.Profiling;
 using UnityEngine.SocialPlatforms;
 using Random = UnityEngine.Random;
-
+using YG;
+using YG.Utils.LB;
 
 // Ограниченный стек заказов
 public class OrderManager : BaseCounter {
@@ -35,14 +36,17 @@ public class OrderManager : BaseCounter {
     public int orderNumber { get; set; } = 0;
     private int timeToShowIngredients;
     private float _timeToCompleteOrder;
-    public int CountOrders; // Увеличивается извне в Reward
-
+    public int CountCompleteOrders; 
+    
+    
+    
     public static OrderManager Instance { get; private set; }
     public event Action OnOrderCompleted;
     
     // Разрешения
     public bool AllowCompleteOrder { get; set; }
     public bool StopInteract = false;
+    public bool orderIsCreated = false;
 
 
     
@@ -52,12 +56,33 @@ public class OrderManager : BaseCounter {
             Debug.Log("There is no more 2 order managers!");
         }
         Instance = this;
+        YG2.onGetSDKData += OnGetSDKData;
+        YG2.onGetLeaderboard += OnGetLeaderboard;
     }
     
+    
+
+    private void OnGetSDKData() {
+        CountCompleteOrders = YG2.saves.CountCompleteOrders;
+        if (YG2.saves.TutorialPassed) {
+            AllowCompleteOrder = true;
+        }
+    }
+
     private void Start() {
         // Потом увеличить после тутора
-        CountOrders = 0;
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
+
+    }
+
+    private int record;
+    private void OnGetLeaderboard(LBData lb) {
+        record = lb.currentPlayer.score;
+        if (record < CountCompleteOrders) {
+            YG2.SetLeaderboard("MeowLeaderboard", CountCompleteOrders);
+        }
+        Debug.Log("Текущий рекорд: "  + record);
+        Debug.Log("Ранк: "  + lb.currentPlayer.rank);
     }
 
     private void OnSwipeLanguage() {
@@ -72,6 +97,12 @@ public class OrderManager : BaseCounter {
 
     private float _newCompletedTime = 0;
     public IEnumerator OrderIsCompleted(Plate plate) {
+        CountCompleteOrders++;
+        YG2.GetLeaderboard("MeowLeaderboard");
+
+        
+        YG2.SaveProgress();
+        YG2.saves.CountCompleteOrders = CountCompleteOrders;
         orderIsCreated = false;
 
         _visual.HideOrderNumVisual();
@@ -80,7 +111,6 @@ public class OrderManager : BaseCounter {
         _newCompletedTime = _visual._completeTimer;
         
         ClientCat.Instance.GivePlate(plate);
-        
         ClientCat.Instance.GoEatOrder();
         
         
@@ -152,7 +182,6 @@ public class OrderManager : BaseCounter {
 
 
 
-    public bool orderIsCreated = false;
     public IEnumerator CreateFirstOrderLater(float time) {
         yield return new WaitForSeconds(time);
         CreateNewOrder();
@@ -171,10 +200,9 @@ public class OrderManager : BaseCounter {
         if (orderIsCreated || TutorialManager.Instance.TutorialStarted) {
             return;
         }
-        CountOrders++;
+
         orderIsCreated = true;
         
-        Debug.Log("CountOrders:" + CountOrders);
         ++orderNumber;
         SoundManager.Instance.PlaySFX("NewOrder");
         _visual.ShowInfinityPopupText(LocalizationManager.Get("NewOrder", orderNumber.ToString("D3")));
@@ -184,17 +212,17 @@ public class OrderManager : BaseCounter {
         DishSO[] orderDishes = new DishSO[3];
         
         
-        if (CountOrders<= 4) {
-            if (CountOrders == 1) {
+        if (CountCompleteOrders< 4) {
+            if (CountCompleteOrders == 0) {
                 orderDishes[1] = GetRandomDish(_secondDishes);
             }
-            if (CountOrders== 2) {
+            if (CountCompleteOrders== 1) {
                 orderDishes[0] = GetRandomDish(_firstDishes);
             }
-            if (CountOrders== 3) {
+            if (CountCompleteOrders== 2) {
                 orderDishes[2] = GetRandomDish(_drinks);
             }
-            if (CountOrders == 4) {
+            if (CountCompleteOrders == 3) {
                 orderDishes[0] = GetRandomDish(_firstDishes);
                 orderDishes[2] = GetRandomDish(_drinks);
                 _levelProgressText = "CombineOrderTutorial";
@@ -202,15 +230,15 @@ public class OrderManager : BaseCounter {
             
         }
         else {
-            if (Random.Range(0f, 1f) < 0.4) {
+            if (Random.Range(0f, 1f) < 0.25) {
                 orderDishes[0] = GetRandomDish(_firstDishes);
             }
 
-            if (Random.Range(0f, 1f) < 0.4) {
+            if (Random.Range(0f, 1f) < 0.25) {
                 orderDishes[1] = GetRandomDish(_secondDishes);
             
             }
-            if (Random.Range(0f, 1f) < 0.4) {
+            if (Random.Range(0f, 1f) < 0.25) {
                 orderDishes[2] = GetRandomDish(_drinks);
             }
 
@@ -223,7 +251,7 @@ public class OrderManager : BaseCounter {
         SetTimeToShowIngredients(orderDishes);
         CurrentOrder = new Order(orderDishes[0], orderDishes[1], orderDishes[2], orderNumber);
 
-        if (CountOrders<= 2) {
+        if (CountCompleteOrders<= 2) {
             _visual._firstTimeShowResourceArrow = true;
         }
     }
@@ -238,13 +266,14 @@ public class OrderManager : BaseCounter {
     private void CountTimesToShowOrder(DishSO[] orderDishes)
     {
         var countToShowOrder = 1;
-        // foreach (var dish in orderDishes) {
-        //     if (dish == null) {
-        //         countToShowOrder--;
-        //     }
-        // }
+        foreach (var dish in orderDishes) {
+            if (dish == null) {
+                countToShowOrder--;
+            }
+        }
 
-        countToShowOrder += PlayerUpgradeManager.Instance.OrderPeekCount;
+        countToShowOrder = 1 + PlayerUpgradeManager.Instance.OrderPeekCount;
+        Debug.Log(PlayerUpgradeManager.Instance.OrderPeekCount + " PlayerUpgradeManager.Instance.OrderPeekCount");
         _visual._countToShowOrder = countToShowOrder;
         _visual.SetStateAdvIcon(false);
     }
@@ -253,7 +282,7 @@ public class OrderManager : BaseCounter {
     private void SetTimeToCompleteOrder(DishSO[] orderDishes) {
         int countIngredients = CountOrderIngredients(orderDishes);
         // условно на 1 ингредиент чтоб собрать 15! секунд ахуеть
-        int secondsMultiply = 15;
+        int secondsMultiply = 13;
         _timeToCompleteOrder = countIngredients * secondsMultiply;
         _visual._timeToCompleteOrder = _timeToCompleteOrder;
     }
@@ -293,7 +322,6 @@ public class OrderManager : BaseCounter {
         // Выдача логики без подноса
 
         if (orderIsAppointed) {
-            Debug.Log("Проверка заказа");
             
             // Проверка выполнения заказа
             if (player.HasKitchenObject() && player.GetKitchenObject() is Plate) {

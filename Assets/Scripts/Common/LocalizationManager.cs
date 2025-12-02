@@ -89,7 +89,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "HandsNotFreeForThief", "У вас заняты лапы!"},
         // Магазин продуктов
         { "Pieces", "шт."},
-        {"AllPrice", "Итого: {0}$"},
+        {"AllPrice", "Итого: {0} коинов"},
         {"NothingSet", "Вы ничего не выбрали"},
         {"LackCoins", "Недостаточно коинов"},
         {"LackGems", "Недостаточно гемов"},
@@ -194,6 +194,8 @@ public class LocalizationManager : MonoBehaviour  {
         
         
         { "AdvTimer", "Реклама через {0} сек." },
+        { "LeaderBoardName", "Таблица лидеров" },
+        { "ThanksForReview", "Спасибо большое за отзыв, держи вознаграждение!" },
         
     };
 
@@ -276,7 +278,7 @@ public class LocalizationManager : MonoBehaviour  {
 
         // Product store
         { "Pieces", "pcs." },
-        { "AllPrice", "Total: {0}$" },
+        { "AllPrice", "Total: {0} coins" },
         { "NothingSet", "You haven’t selected anything" },
         { "LackCoins", "Not enough coins" },
         { "LackGems", "Not enough gems" },
@@ -363,6 +365,10 @@ public class LocalizationManager : MonoBehaviour  {
         {"CatWantEat", "I'm going to eat {0} soon!"},
         
         { "AdvTimer", "Ads in {0} sec."},
+        
+        { "LeaderBoardName", "Leaderboard" },
+        { "ThanksForReview", "Thank you so much for your feedback, keep the reward!" },
+        
     };
     
 

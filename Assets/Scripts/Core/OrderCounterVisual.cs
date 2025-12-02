@@ -215,12 +215,11 @@ public class OrderCounterVisual : MonoBehaviour {
         }
 
 
-        Debug.Log(OrderManager.Instance.CountOrders);
-        if (OrderManager.Instance.CountOrders > 0) {
+        if (OrderManager.Instance.CountCompleteOrders > 0) {
             _thief.StartThiefCycle();
         }
         HideCanvas();
-        if (OrderManager.Instance.CountOrders == 1 && _firstTimeShowResourceArrow) {
+        if (OrderManager.Instance.CountCompleteOrders == 1 && _firstTimeShowResourceArrow) {
             _firstTimeShowResourceArrow = false;
             TutorialManager.Instance.ShowOrderResource(7f);
             MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("LastStep"), MessageUI.Emotions.defaultFace, 15f);
@@ -250,7 +249,6 @@ public class OrderCounterVisual : MonoBehaviour {
     private IEnumerator StartNewTimerRoutine() {
         _orderCompleteTimerText.text = _timeToCompleteOrder.ToString("0");
         yield return new WaitForSeconds(0.5f);
-        Debug.Log(orderTimerCoroutine);
         _completeTimer = 0f;
         while (_completeTimer <= _timeToCompleteOrder) {
             _timerToCompleteOrderImg.fillAmount = (1 - _completeTimer/_timeToCompleteOrder);

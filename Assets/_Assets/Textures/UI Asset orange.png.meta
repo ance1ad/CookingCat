@@ -206,6 +206,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: UI Asset orange_4
+      rect:
+        serializedVersion: 2
+        x: 651
+        y: 1
+        width: 131
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4a83f5d5b0ccc214091d739ba85a77c8
+      internalID: -186026003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -221,6 +242,7 @@ TextureImporter:
       UI Asset orange_1: -2047325577
       UI Asset orange_2: 1838102045
       UI Asset orange_3: 1027059357
+      UI Asset orange_4: -186026003
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -19,7 +19,7 @@ public class MainMenu : MonoBehaviour {
     [SerializeField] private TMP_Text _tutorialBtnTxt;
 
     private readonly float _timeToLoad = 5f;
-    private bool _autoGraEnable = false;
+    private bool _autoGraEnable;
     
     
     public static MainMenu Instance { get; private set; }
@@ -30,8 +30,6 @@ public class MainMenu : MonoBehaviour {
             return;
         }
         Instance = this;
-        _playGameButton.onClick.AddListener(StartGame);
-        _playTutorialButton.onClick.AddListener(StartTutorial);
         Time.timeScale = 0;
         YG2.onGetSDKData += OnGetSDKData;
     }
@@ -39,7 +37,49 @@ public class MainMenu : MonoBehaviour {
     
     private bool dataIsLoaded = false;
     private void OnGetSDKData() {
+        _playGameButton.onClick.AddListener(StartGame);
+        _playTutorialButton.onClick.AddListener(StartTutorial);
         dataIsLoaded = true;
+        CheckServerTime();
+    }
+
+
+    private void CheckServerTime() {
+
+        // Получить серверное время и сравнить со старым
+        long currentServerTime = YG2.ServerTime();
+        long lastServerTime = YG2.saves.lastPlayTime;
+        
+        if (lastServerTime == 0) {
+            Debug.Log("Играет первый раз, фиксируем UTC: currentDateTime");
+            YG2.saves.lastPlayTime = currentServerTime;
+            YG2.SaveProgress();
+            return;
+        }
+        // Понятное время
+        DateTime currentDateTime = GetUTCTime(currentServerTime);
+        DateTime lastDateTime = GetUTCTime(lastServerTime); 
+        
+
+        
+        // Есть запись сравниваем иначе присваиваем
+        TimeSpan timeSpan = currentDateTime - lastDateTime;
+        if (timeSpan.TotalHours >= 12) {
+            Debug.Log("С возвращением, держи награду!");
+            // Награду вручить ...
+            RewardManager.Instance.dailyReward = true;
+            YG2.saves.lastPlayTime = currentServerTime;
+            YG2.SaveProgress();
+        }
+
+    }
+
+    private DateTime GetUTCTime(long unixTime) {
+        DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        if (unixTime > 1000000000000) { // проверка, что это милисекунды
+            return epoch.AddMilliseconds(unixTime);
+        }
+        return epoch.AddSeconds(unixTime);
     }
 
 
@@ -62,6 +102,7 @@ public class MainMenu : MonoBehaviour {
     private bool isLoad = false;
     private Coroutine loadingRoutine;
     private void StartGame() {
+        Debug.Log("Включение рекламы");
         YGManager.Instance.ShowInterstitialAds();
         
         _playTutorialButton.enabled = false;
@@ -94,8 +135,8 @@ public class MainMenu : MonoBehaviour {
         }
         
         
-        if (CurrencyManager.Instance.Coins < 1000f) {
-            CurrencyManager.Instance.UpdateCash(5000f, 5);
+        if (RewardManager.Instance.dailyReward) {
+            RewardManager.Instance.DailyReward();
             MessageUI.Instance.SetTextInfinity(LocalizationManager.Get("GladSeeYouReward"), MessageUI.Emotions.eated);
         }
         else {
@@ -154,7 +195,7 @@ public class MainMenu : MonoBehaviour {
         
     private IEnumerator FillLoadingLevel() {
         ChangeButtonsState(false);
-        
+        Debug.Log("Загрузка...");
         
         isLoad = false;
         yield return new WaitUntil(() => dataIsLoaded);

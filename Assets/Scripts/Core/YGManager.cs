@@ -26,7 +26,7 @@ public class YGManager : MonoBehaviour {
     private void Start() {
         SetCanvasActive(false);
         _lastTimeShowAdv = DateTime.Now;
-        _advCooldown = 60f;
+        _advCooldown = 10f;
     }
      
     

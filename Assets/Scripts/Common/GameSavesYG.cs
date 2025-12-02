@@ -12,7 +12,14 @@ namespace YG
         public int Gems;
         
         public bool TutorialPassed;
-        public int OrdersEndedCount;
+        public int CountCompleteOrders;
+        
+        public long lastPlayTime;
+        
+        
+        public float SoundForce;
+        public float SFXForce;
+        
         
         public List<string> OwnedPurchase = new (); // Что есть уже у игрока
         public List<SkinObject> AppliedSkins = new ();
