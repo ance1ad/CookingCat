@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 public class Plate : KitchenObject {
     [SerializeField] private Transform _topPoint;
@@ -27,11 +28,7 @@ public class Plate : KitchenObject {
     public List<KitchenObjectSO> burgerIngredientsAdded = new List<KitchenObjectSO>();
     public List<KitchenObjectSO> drinkIngredientsAdded = new List<KitchenObjectSO>();
 
-
     
-    private int pizzaScore = 0;
-    private int burgerScore = 0;
-    private int drinkScore = 0;
     private DishVisual[] dish = new DishVisual[3];
 
     public Order Order { get; set; } // Конкретный заказ
@@ -67,18 +64,24 @@ public class Plate : KitchenObject {
         DishType ingredientType = CheckIngredientType(koSO);
         if (ingredientType == DishType.pizza) {
             if(pizzaInstance != null) {
-                MessageUI.Instance.ShowPlayerPopup("Пицца уже лежит на подносе");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PizzaAlreadyOnTray"));
                 return false;
             }
 
             pizzaInstance = Instantiate(ingredient.gameObject, spawnPoints[0]);
             ShowOtherIngredients(ingredient, pizzaIngredientsAdded);
-            MessageUI.Instance.ShowPlayerPopup("Пицца добавлена на поднос");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("PizzaIsAdded"));
             
         }
         else if(ingredientType == DishType.burger) {
             if (!_fullBurger.ShowIngredient(koSO)) {
-                MessageUI.Instance.ShowPlayerPopup("Ингредиент уже добавлен или его нельзя добавить");
+                if (TutorialManager.Instance.TutorialStarted) {
+                    KitchenEvents.IngredientAddOnPlate(ingredient.GetKitchenObjectSO());
+                    Debug.Log("Повторное добавление");
+                    ingredient.DestroyMyself();
+                    return false;
+                }
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("IngredientAddedOrCannot"));
                 return false;
             }
             if (koSO == bread) {
@@ -90,7 +93,7 @@ public class Plate : KitchenObject {
         }
         else {
             if (drinkInstance != null) {
-                MessageUI.Instance.ShowPlayerPopup("Напиток уже лежит на подносе");
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DrinkAlreadyOnTray"));
                 
                 
                 return false;
@@ -107,35 +110,35 @@ public class Plate : KitchenObject {
 
     private bool CheckSuitability(KitchenObject ingredient, KitchenObjectSO koSO) {
         if (!ingredient._isFresh) {
-            MessageUI.Instance.ShowPlayerPopup("Продукт испорчен, его только выкинуть");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ProductRotten"));
             SoundManager.Instance.PlaySFX("ProductRotten");
             return false;
         }
         if (_forbiddenObjects.Contains(koSO)) {
-            MessageUI.Instance.ShowPlayerPopup("Это нельзя положить в бургер");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("CannotAddInBurger"));
             return false;
         } 
         if (_maySlicedForBurger.Contains(koSO)) {
-            MessageUI.Instance.ShowPlayerPopup(koSO.objectName + " нужно порезать");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NeedSliced", koSO.objectName) );
             return false;
         }
         if (koSO == _meatUncooked) {
-            MessageUI.Instance.ShowPlayerPopup("Мясо нужно пожарить");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("MeetNeedFried"));
             return false;
         }
         if (koSO == _meatOvercooked) {
-            MessageUI.Instance.ShowPlayerPopup("Мясо пережарилось");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("MeetIsOvercooked"));
             return false;
         }
         
         
         if (_onlyJuicerObjects.Contains(koSO)) {
-            MessageUI.Instance.ShowPlayerPopup("Это для соковыжималки");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ItsForJuicer"));
             return false;
         }
 
         if (_onlyPizzaObjects.Contains(koSO)) {
-            MessageUI.Instance.ShowPlayerPopup("Это только для духовки");
+            MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ItsForOven"));
             return false;
         }
 

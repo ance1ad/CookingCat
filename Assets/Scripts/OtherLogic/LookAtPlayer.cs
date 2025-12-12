@@ -8,8 +8,7 @@ public class LookAtPlayer : MonoBehaviour {
     [SerializeField, Range(0.1f, 10f)] private float rotationSpeed = 2f;
     [SerializeField] private Vector3 rotationOffset;   // Смещение в градусах, если голова "кривая"
 
-    void Update()
-    {
+    private void Update() {
         if (player == null || head == null)
             return;
 

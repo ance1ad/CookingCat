@@ -61,39 +61,6 @@ public class MessageUI : MonoBehaviour
 
 
 
-    private IEnumerator ShakeArrow2(GameObject arrow, bool arrow2d) {
-        arrow.GetComponent<ArrowData>().ResetPosition();
-        RectTransform rect = arrow.GetComponent<RectTransform>();
-
-
-        float up = 1f;
-        float speed = 1.4f;
-        if (arrow2d) {
-            up *= 100f;
-            speed *= 100f;
-        }
-
-        Vector2 startPos = rect.anchoredPosition;
-        Vector2 endPose = startPos + up * Vector2.up;
-
-        for (int i = 0; i < 4; i++) {
-            float t = 0f;
-            while (t < 1) {
-                t += Time.deltaTime * speed / up;
-                rect.anchoredPosition = Vector2.Lerp(startPos, endPose, t);
-                yield return null;
-            }
-
-            t = 0f;
-            while (t < 1) {
-                t += Time.deltaTime * speed / up;
-                rect.anchoredPosition = Vector2.Lerp(endPose, startPos, t);
-                yield return null;
-            }
-        }
-    }
-
-
     public bool PopupIsActive() => _canvas.gameObject.activeSelf;
 
     private void Awake() {
@@ -402,7 +369,8 @@ public class MessageUI : MonoBehaviour
             HideArrows();
         }
         _upClearCounterArrow.SetActive(true);
-        _rightClearCounterArrow.SetActive(true);
+        StartCoroutine(ShakeArrow(_upClearCounterArrow, false));
+        // _rightClearCounterArrow.SetActive(true);
     }
     
     public void ShowTrashArrow(bool hidePrevious) {
@@ -453,19 +421,20 @@ public class MessageUI : MonoBehaviour
     private IEnumerator ShakeArrow(GameObject arrow, bool arrow2d) {
         arrow.GetComponent<ArrowData>().ResetPosition();
         RectTransform rect = arrow.GetComponent<RectTransform>();
-        
-        
+
+        int shakeCount = 10;
         float up = 1f;
         float speed = 1.4f;
         if (arrow2d) {
             up *= 100f;
             speed *= 100f;
+            shakeCount = 4;
         }
    
         Vector2 startPos = rect.anchoredPosition;
         Vector2 endPose = startPos + up * Vector2.up;
         
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < shakeCount; i++) {
             float t = 0f;
             while (t < 1) {
                 t += Time.deltaTime * speed / up;

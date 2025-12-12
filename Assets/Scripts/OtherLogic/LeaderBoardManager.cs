@@ -14,11 +14,11 @@ public class LeaderBoardManager : MonoBehaviour {
     // LeaderBoardName: MeowLeaderboard
     private void Awake() {
         SetLeaderBoardState(false);
-        _boardName.text = LocalizationManager.Get("LeaderBoardName");
     }
 
     private void Start() {
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage; 
+        _boardName.text = LocalizationManager.Get("LeaderBoardName");
     }
 
 

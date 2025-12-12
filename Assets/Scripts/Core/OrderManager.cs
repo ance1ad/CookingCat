@@ -51,10 +51,10 @@ public class OrderManager : BaseCounter {
 
     
     private void Awake() {
-
         if (Instance != null) {
             Debug.Log("There is no more 2 order managers!");
         }
+
         Instance = this;
         YG2.onGetSDKData += OnGetSDKData;
         YG2.onGetLeaderboard += OnGetLeaderboard;
@@ -117,7 +117,6 @@ public class OrderManager : BaseCounter {
         _visual.ShowCanvas();
         _visual.SetResultFlag(true);
 
-        int allIngredientsAdded = 0;
         DishValidateVisual(CurrentOrder.dishStruct[0], plate.pizzaIngredientsAdded, _visual.pizzaIcons, _visual._canvasPizza);
         DishValidateVisual(CurrentOrder.dishStruct[1], plate.burgerIngredientsAdded, _visual.burgerIcons, _visual._canvasBurger);
         DishValidateVisual(CurrentOrder.dishStruct[2], plate.drinkIngredientsAdded, _visual.drinkIcons, _visual._canvasDrink);
@@ -144,7 +143,8 @@ public class OrderManager : BaseCounter {
             yield return new WaitForSeconds(6f);
             CreateNewOrder();
         }
-        
+        ProductSaveManager.Instance.SaveProductsCount();
+        Debug.Log("Сохранение продуктов");
     }
 
     
@@ -250,10 +250,6 @@ public class OrderManager : BaseCounter {
         SetTimeToCompleteOrder(orderDishes);
         SetTimeToShowIngredients(orderDishes);
         CurrentOrder = new Order(orderDishes[0], orderDishes[1], orderDishes[2], orderNumber);
-
-        if (CountCompleteOrders<= 2) {
-            _visual._firstTimeShowResourceArrow = true;
-        }
     }
 
 
@@ -265,14 +261,14 @@ public class OrderManager : BaseCounter {
 
     private void CountTimesToShowOrder(DishSO[] orderDishes)
     {
-        var countToShowOrder = 1;
+        var countToShowOrder = 3;
         foreach (var dish in orderDishes) {
             if (dish == null) {
                 countToShowOrder--;
             }
         }
 
-        countToShowOrder = 1 + PlayerUpgradeManager.Instance.OrderPeekCount;
+        countToShowOrder += PlayerUpgradeManager.Instance.OrderPeekCount;
         Debug.Log(PlayerUpgradeManager.Instance.OrderPeekCount + " PlayerUpgradeManager.Instance.OrderPeekCount");
         _visual._countToShowOrder = countToShowOrder;
         _visual.SetStateAdvIcon(false);

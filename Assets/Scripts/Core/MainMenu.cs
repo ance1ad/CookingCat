@@ -37,6 +37,7 @@ public class MainMenu : MonoBehaviour {
     
     private bool dataIsLoaded = false;
     private void OnGetSDKData() {
+        LocalizationManager.SetTextLocalization();
         _playGameButton.onClick.AddListener(StartGame);
         _playTutorialButton.onClick.AddListener(StartTutorial);
         dataIsLoaded = true;
@@ -84,7 +85,7 @@ public class MainMenu : MonoBehaviour {
 
 
     private void Start() {
-        LocalizationManager.SetTextLocalization();
+        
         _canvas.SetActive(true);
         _level.gameObject.SetActive(false);
         _levelBackground.SetActive(false);
@@ -98,7 +99,6 @@ public class MainMenu : MonoBehaviour {
     }
 
 
-    bool firstTime = true;
     private bool isLoad = false;
     private Coroutine loadingRoutine;
     private void StartGame() {
@@ -175,6 +175,7 @@ public class MainMenu : MonoBehaviour {
         _canvas.SetActive(!_canvas.activeSelf); 
         Time.timeScale = _canvas.activeSelf ?  0 : 1;
         PlayerBankVisual.Instance.HideBank();
+        // Сохранить продукты
     }
 
     public void OpenMainMenu() {
@@ -183,6 +184,9 @@ public class MainMenu : MonoBehaviour {
             return;
         }
         _canvas.SetActive(true); 
+        Debug.Log("Сохранение кол-ва продуктов при переходе в главное меню");
+        ProductSaveManager.Instance.SaveProductsCount();
+        
     }
 
     private void ChangeButtonsState(bool on) {
@@ -195,9 +199,6 @@ public class MainMenu : MonoBehaviour {
         
     private IEnumerator FillLoadingLevel() {
         ChangeButtonsState(false);
-        Debug.Log("Загрузка...");
-        
-        isLoad = false;
         yield return new WaitUntil(() => dataIsLoaded);
 
         _level.fillAmount = 0;
@@ -208,8 +209,15 @@ public class MainMenu : MonoBehaviour {
             yield return null;
         }
 
+        isLoad = true;
+
+        if (!_autoGraEnable) {
+            _autoGraEnable = true;
+            YG2.GameReadyAPI();
+        }
+
         ChangeButtonsState(true);
         HideCloseMainMenu();
-        isLoad = true;
     }
+
 }

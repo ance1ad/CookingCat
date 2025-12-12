@@ -8,17 +8,15 @@ public class ContainerCounter : BaseCounter {
 
     [SerializeField] public KitchenObjectSO _kitchenObjectSO;
     [SerializeField] public ContainerCounterVisual _visual;
-    private bool firstTimeShowProductsArrow = true;
 
     public event Action OnContainerCounterInteract;
 
 
-    public int _productCount { get; private set; }
 
 
     private void Start() {
-        _productCount = 5;
-        _visual.ShowCountIcon(2f, _productCount.ToString());
+        // ПЕРЕДЕЛАТЬ
+        _visual.ShowCountIcon(2f, ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO).ToString());
     }
 
 
@@ -28,20 +26,23 @@ public class ContainerCounter : BaseCounter {
         if (count <= 0) {
             return;
         }
-        _productCount += count;
+
+        ProductSaveManager.Instance.UpdateProductCount(_kitchenObjectSO, count);
         StartCoroutine(CloseDoorRoutine());
-        _visual.ShowPlusProducts(count, _productCount);
+        _visual.ShowPlusProducts(count, ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO));
         OnContainerCounterInteract?.Invoke();
     }
 
     public bool TryUseProduct() {
-        if(_productCount == 0) {
+        Debug.Log(ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO));
+        if(ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO) == 0) {
             Debug.Log("У вас 0 продуктов");
             return false;
         }
         StartCoroutine(CloseDoorRoutine());
-        _productCount -= 1;
-        _visual.ShowMinusProduct(_productCount);
+        ProductSaveManager.Instance.UpdateProductCount(_kitchenObjectSO, -1);
+        
+        _visual.ShowMinusProduct(ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO));
         OnContainerCounterInteract?.Invoke();
         return true;
     }
@@ -63,11 +64,7 @@ public class ContainerCounter : BaseCounter {
         if (!player.HasKitchenObject()) {
             
             if (!TryUseProduct()) {
-                if (firstTimeShowProductsArrow) {
-                    firstTimeShowProductsArrow = false;
-                    TutorialManager.Instance.ShowProductStoreArrow();
-                    return;
-                }
+                TutorialManager.Instance.ShowProductStoreArrow();
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NeedCourier"));
                 return;
             }
@@ -118,6 +115,6 @@ public class ContainerCounter : BaseCounter {
         return true;
     }
 
-    public override bool CanTakeObject() => _productCount > 0;
+    public override bool CanTakeObject() => ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO) > 0;
 
 }

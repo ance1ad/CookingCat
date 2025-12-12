@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
 
 public class SkinItem : PurchaseObject {
@@ -72,18 +73,32 @@ public class SkinItem : PurchaseObject {
     public void SetUnbought() {
         _buyButton.gameObject.SetActive(true);
     }
-       
+
+
 
     public override void SetTextLocalization() {
         if (_name.text != _objectSO.GetLocalizationName()) {
             _name.text = _objectSO.GetLocalizationName();
         }
+
         if (_buyButton.gameObject.activeSelf) {
-            _buyButtonText.text = LocalizationManager.Get("BuyButtonText");
+            _buyButtonText.text = LocalizationManager.Get(_buyButtonText.text);
+        }
+        else if (_equipButton.gameObject.activeSelf) {
+            _equipButtonText.text = LocalizationManager.Get(_equipButtonText.text);
+        }
+        else if (_dequipButton.gameObject.activeSelf) {
+            _dequipButtonText.text = LocalizationManager.Get(_dequipButtonText.text);
         }
     }
 
-    
+    public void SetEmptyWarningMessage() {
+        if (!string.IsNullOrEmpty(_warningMessage.text)) {
+            _warningMessage.text = "";
+        }
+        
+    }
+
     public override void SetBought() {
         bool state = gameObject.activeSelf;
         if (!state) {

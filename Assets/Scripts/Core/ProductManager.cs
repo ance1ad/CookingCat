@@ -11,9 +11,6 @@ public class ProductManager : MonoBehaviour {
     [SerializeField] private TMP_Text _allPriceText;
     [SerializeField] private TMP_Text _successMessage;
     
-    [SerializeField] private TMP_Text _coinsCount;
-    [SerializeField] private TMP_Text _gemsCount;
-    [SerializeField] private TMP_Text _spentCount;
     [SerializeField] private TMP_Text _buyButtonText;
 
     
@@ -43,9 +40,13 @@ public class ProductManager : MonoBehaviour {
             _basketDictionary.TryAdd(product.GetProductSO(), 0);
         }
         _successMessage.enabled = false;
-        _coinsCount.text = CurrencyManager.Instance.Coins.ToString();
-        _gemsCount.text = CurrencyManager.Instance.Gems.ToString();
-        _spentCount.enabled = false;
+        KitchenEvents.OnSettingsCanvasOpen += HideCanvas;
+    }
+
+    private void HideCanvas() {
+        if (_storeCanvas.activeSelf) {
+            _storeCanvas.SetActive(false);
+        }
     }
 
     private void ProductOnOnCardChanged(ProductCard productCard) {
@@ -75,10 +76,7 @@ public class ProductManager : MonoBehaviour {
             _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(false, message));
             return;
         }
-        _spentCount.enabled = true;
         CurrencyManager.Instance.UpdateCash(-1 * _allPrice, 0);
-        _coinsCount.text = CurrencyManager.Instance.Coins.ToString();
-        _spentCount.text = "-" + _allPrice;
         _textCoroutine = StartCoroutine(ShowWarningMessageRoutine(true, LocalizationManager.Get("CourierFound")));
         
         // Шоб не удалился

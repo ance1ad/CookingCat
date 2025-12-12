@@ -182,7 +182,6 @@ public class OrderCounterVisual : MonoBehaviour {
 
 
     private float timeToShowIngredients;
-    public bool _firstTimeShowResourceArrow = true;
     public IEnumerator TimerToCloseOrderInfo(float time, int orderNumber) {
         _orderIsShowed = false;
         Player.Instance.StopWalking();
@@ -215,15 +214,11 @@ public class OrderCounterVisual : MonoBehaviour {
         }
 
 
-        if (OrderManager.Instance.CountCompleteOrders > 0) {
+        if (OrderManager.Instance.CountCompleteOrders > 0 && !TutorialManager.Instance.TutorialStarted) {
             _thief.StartThiefCycle();
         }
         HideCanvas();
-        if (OrderManager.Instance.CountCompleteOrders == 1 && _firstTimeShowResourceArrow) {
-            _firstTimeShowResourceArrow = false;
-            TutorialManager.Instance.ShowOrderResource(7f);
-            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("LastStep"), MessageUI.Emotions.defaultFace, 15f);
-        }
+        
         _orderIsShowed = true;
         Player.Instance.StartWalking();
         if (orderNumber != -1) {

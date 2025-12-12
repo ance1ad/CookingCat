@@ -26,7 +26,6 @@ public class PlayerUpgradeManager : MonoBehaviour {
         }
         Instance = this;
         _data.OnUpgradeBought += DataOnUpgradesReload;
-        
     }
     
     

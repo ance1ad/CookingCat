@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using YG;
 
 public class PlayerBankVisual : MonoBehaviour {
     [SerializeField] private TMP_Text _coinsCount;
@@ -14,10 +15,20 @@ public class PlayerBankVisual : MonoBehaviour {
     private bool _shopOpen;
     
     
-    
+    private void Awake() {
+        if (Instance != null) {
+            Debug.LogError("There can only be one instance of PlayerBankVisual");
+            return;
+        }
+        Instance = this;
+        KitchenEvents.OnShopOpen += ShowBank;
+        KitchenEvents.OnShopClose += HideBank;
+    }
+
+
+
     private void Start() {
-        UpdateBank();
-        HideBank();
+        
         CurrencyManager.Instance.OnBankChangedAction += OnBankChangedAction;
     }
     
@@ -36,20 +47,11 @@ public class PlayerBankVisual : MonoBehaviour {
         }
     } 
     
-    private void Awake() {
-        if (Instance != null) {
-            Debug.LogError("There can only be one instance of PlayerBankVisual");
-            return;
-        }
-        Instance = this;
-        KitchenEvents.OnShopOpen += ShowBank;
-        KitchenEvents.OnShopClose += HideBank;
-    }
+
 
     private Coroutine _currentCoinsRoutine;
     private Coroutine _currentGemsRoutine;
     private void OnBankChangedAction(CurrencyManager.CurrencyActionArgs obj) {
-        ShowBank();
         UpdateBank();
         
         // Дальше показываем визуалом больше меньшэ
@@ -131,10 +133,15 @@ public class PlayerBankVisual : MonoBehaviour {
 
     
     public void UpdateBank() {
+        ShowBank();
         _coinsReward.enabled = false;
         _gemsReward.enabled = false;
-        _coinsCount.text = CurrencyManager.Instance.Coins.ToString("0");
+        _coinsCount.text = FormatPrice(CurrencyManager.Instance.Coins);
         _gemsCount.text = CurrencyManager.Instance.Gems.ToString();
+    }
+    
+    private string FormatPrice(float price) {
+        return $"{price / 1000f:0.#}k";
     }
     
 }

@@ -59,7 +59,6 @@ public class PlayerData : MonoBehaviour {
     }
 
     public void UpdateUpgrade(UpgradeObjectSO upgradeObjectSo) {
-        bool upgradeIsContains = false;
         int count;
         var index = YG2.saves.Upgrades.FindIndex(i => i.id == upgradeObjectSo.Id);
         // Уже есть

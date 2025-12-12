@@ -31,6 +31,11 @@ public class ClientCat : MonoBehaviour {
         }
         Instance = this;
         _agent = GetComponent<NavMeshAgent>();
+        
+        YG.YG2.onGetSDKData += OnGetSDKData;
+    }
+
+    private void OnGetSDKData() {
         _popupText.text = LocalizationManager.Get("ClientRole");
     }
 

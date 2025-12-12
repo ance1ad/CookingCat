@@ -63,7 +63,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
             timeForCooked = transitionToOvercooked.fryingTimerMax + PlayerUpgradeManager.Instance.MeatOvercookedSpeed;
             meatIsCooked = true;
         }
-        else if (timer >= transitionToOvercooked.fryingTimerMax + PlayerUpgradeManager.Instance.MeatOvercookedSpeed) {
+        else if (timer >= transitionToOvercooked.fryingTimerMax + PlayerUpgradeManager.Instance.MeatOvercookedSpeed && meatIsCooked) {
             MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("MeatIsOvercooked"));
             GetKitchenObject().DestroyMyself();
             KitchenObject.CreateKitchenObject(transitionToOvercooked.output, this);
@@ -145,6 +145,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
     public override bool ThiefInteract(ThiefCat thief) {
         if (HasKitchenObject()) {
             GetKitchenObject().SetKitchenObjectParent(thief);
+            SoundManager.Instance.StopLoopSfx("Sizzling");
             ClearData();
             return true;
         }

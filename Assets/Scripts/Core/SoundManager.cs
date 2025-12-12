@@ -10,19 +10,13 @@ using PlayerPrefs = RedefineYG.PlayerPrefs;
 public class SoundManager : MonoBehaviour {
     [SerializeField] private AudioSource _musicSource;
     [SerializeField] private AudioSource _sfxSource;
-    
-    
-    
-    
+
     [SerializeField] private List<SoundData> _sounds;
-    
-    
     
     
     private Dictionary<string, SoundData> _soundDict;
     private float _musicVolume = 1f;
     private float _sfxVolume = 1f;
-    
     
     public static SoundManager Instance {get; private set;}
     
@@ -93,7 +87,9 @@ public class SoundManager : MonoBehaviour {
         
         var src = gameObject.AddComponent<AudioSource>();
         src.clip = data.audioClip;
-        src.volume = data.volume;
+        src.volume = data.volume * _sfxVolume;
+        Debug.Log("PlayLoopSfx");
+        Debug.Log("src.volume");
         src.loop = true;
         src.Play();
 

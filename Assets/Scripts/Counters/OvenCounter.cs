@@ -5,11 +5,6 @@ using System.Linq;
 using UnityEngine;
 
 
-/* В целом логика следующая: 
- выдаем пиццу в зависимости от положенных ингредиентов
-если совпадает с 1 из _pizzes то выдаем ее
-если не совпало выдаем абстрактную пиццу
- */
 public class OvenCounter : BaseCounter, IHasProgress{
 
 
@@ -47,10 +42,7 @@ public class OvenCounter : BaseCounter, IHasProgress{
         public float Progress;
     }
     public event Action OnKitchenObjectTake;
-
-    private void Start() {
-    }
-
+    
 
     public override void Interact(Player player) {
         ScaleInteract();

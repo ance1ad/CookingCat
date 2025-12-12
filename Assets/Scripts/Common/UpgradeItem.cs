@@ -71,6 +71,7 @@ public class UpgradeItem : PurchaseObject  {
         if (_name.text != _objectSO.GetLocalizationName()) {
             _name.text = _objectSO.GetLocalizationName();
         }
+
     }
     
     

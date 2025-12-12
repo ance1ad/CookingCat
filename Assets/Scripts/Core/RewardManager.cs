@@ -74,7 +74,7 @@ public class RewardManager : MonoBehaviour {
 
     private string secMeasurement;
     private IEnumerator RewardAdvTimerRoutine() {
-        timer = 4f;
+        timer = 240f;
         _grayBack.SetActive(true);
         _advIcon.SetActive(false);
         _rewardTimer.gameObject.SetActive(true);
@@ -89,6 +89,7 @@ public class RewardManager : MonoBehaviour {
         readyToGift = true;
     }
 
+    
     private void GetGiftButton() {
         if(!readyToGift) return;
         readyToGift = false;

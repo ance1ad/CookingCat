@@ -16,9 +16,16 @@ namespace YG
         
         public long lastPlayTime;
         
-        
-        public float SoundForce;
-        public float SFXForce;
+        public int bunCount;
+        public int tomatoCount;
+        public int cheeseCount;
+        public int greeneryCount;
+        public int meatCount;
+        public int onionCount;
+        public int mushroomCount;
+        public int testoCount;
+        public int appleCount;
+        public int tangerineCount;
         
         
         public List<string> OwnedPurchase = new (); // Что есть уже у игрока

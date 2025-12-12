@@ -25,10 +25,7 @@ public class KitchenEvents {
     public static event Action OnShopOpen;
     public static event Action OnShopClose;
     public static event Action OnProductThrow;
-
-    
-
-    
+    public static event Action OnSettingsCanvasOpen;
     
     public static void OrderTake() {
         OnOrderTake?.Invoke();
@@ -36,6 +33,10 @@ public class KitchenEvents {
     
     public static void IngredientAddOnPlate(KitchenObjectSO objectSO) {
         OnIngredientAddedOnPlate?.Invoke(objectSO);
+    }
+    
+    public static void SettingsCanvasOpen() {
+        OnSettingsCanvasOpen?.Invoke();
     }
     
     

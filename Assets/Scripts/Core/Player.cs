@@ -54,13 +54,13 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         }
         // Обьект на котором висит скрипт назначается в Instance
         Instance = this;
-        PlayerUpgradeManager.Instance.OnUpgrade += UpdatePlayerStats;
         _gameInput.OnInteractAction += GameInput_OnInteractAction;
         _gameInput.OnAlternativeInteractAction += GameInput_OnAlternativeInteractAction;
     }
 
 
     private void Start() {
+        PlayerUpgradeManager.Instance.OnUpgrade += UpdatePlayerStats;
         UpdatePlayerStats();
     }
 

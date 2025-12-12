@@ -116,8 +116,10 @@ public class TutorialManager : MonoBehaviour {
         CurrencyManager.Instance.CloseCanvas();
         
         // Скрыть кнопки покашто, порционно показываем
+        MessageUI.Instance.ShowNextButton();
         _skinStoreButton.gameObject.SetActive(false);
         _productStoreButton.gameObject.SetActive(false);
+        
     }
 
 
@@ -141,26 +143,26 @@ public class TutorialManager : MonoBehaviour {
         _focus.SetActive(false);
         HideArrows();
 
-        // // Поздравляет о взятом заказе
-        // yield return Step_TakeFirstOrder();
-        // yield return Step_PutPlate();
-        // yield return Step_BunPut();
-        // yield return Step_TomatoSlice();
-        // yield return Step_Meatfry();
-        // yield return Step_FirstOrderComplete();
-        // // // Pizza
-        // yield return Step_PizzaDoingReady();
-        // yield return Step_HowOvenWork();
-        // yield return Step_PeekIngredients();
-        // yield return Step_CountIngredientsInOven();
-        // yield return Step_TakePizza();
-        // yield return Step_CompletePizzaOrder();
-        // // // Juicer
-        // yield return Step_TakeDrinkOrder();
-        // yield return Step_JuicerWork();
-        // yield return Step_JuicerIngredientAdded();
-        // yield return Step_JuicerWorking();
-        // yield return Step_JuiceReady();
+        // Поздравляет о взятом заказе
+        yield return Step_TakeFirstOrder();
+        yield return Step_PutPlate();
+        yield return Step_BunPut();
+        yield return Step_TomatoSlice();
+        yield return Step_Meatfry();
+        yield return Step_FirstOrderComplete();
+        // // Pizza
+        yield return Step_PizzaDoingReady();
+        yield return Step_HowOvenWork();
+        yield return Step_PeekIngredients();
+        yield return Step_CountIngredientsInOven();
+        yield return Step_TakePizza();
+        yield return Step_CompletePizzaOrder();
+        // // Juicer
+        yield return Step_TakeDrinkOrder();
+        yield return Step_JuicerWork();
+        yield return Step_JuicerIngredientAdded();
+        yield return Step_JuicerWorking();
+        yield return Step_JuiceReady();
         
         yield return ShowStep("GoodJobAndReady", MessageUI.Emotions.happy);
         yield return ShowStep("StepBonk", MessageUI.Emotions.bonk, () => {
@@ -268,8 +270,14 @@ public class TutorialManager : MonoBehaviour {
         _eButtonArrow.SetActive(false);
         _orderResourceArrow.SetActive(false);
     }
+    
 
+    private bool productArrowNeedShow = true;
     public void ShowProductStoreArrow() {
+        if (!productArrowNeedShow) {
+            return;
+        }
+        productArrowNeedShow = false;
         _productStoreArrow.SetActive(true);
         MessageUI.Instance.ShakeTargetArrow(_productStoreArrow);
         KitchenEvents.OnShopOpen += Handler;
@@ -423,7 +431,7 @@ public class TutorialManager : MonoBehaviour {
         MessageUI.Instance.ShowTomatoArrow(true);
         MessageUI.Instance.ShowCuttingArrow(false);
         MessageUI.Instance.ShowActiveClearCounterArrow(false);
-
+        
         
         
         void Handler(KitchenObjectSO obj)

@@ -11,7 +11,7 @@ public class YGManager : MonoBehaviour {
     [SerializeField] private TMP_Text _timer;
     [SerializeField] private GameObject _canvas;
     public static YGManager Instance { get; private set; }
-    private float _advCooldown = 300f; // каждые 5 минут реклама при 
+    private float _advCooldown = 240f; // каждые 5 минут реклама при 
     
     private DateTime _lastTimeShowAdv;
 
@@ -25,8 +25,8 @@ public class YGManager : MonoBehaviour {
 
     private void Start() {
         SetCanvasActive(false);
-        _lastTimeShowAdv = DateTime.Now;
-        _advCooldown = 10f;
+        _lastTimeShowAdv = DateTime.Now.AddSeconds(-_advCooldown);
+        _advCooldown = 240f; // 4 minutes
     }
      
     
@@ -49,7 +49,7 @@ public class YGManager : MonoBehaviour {
 
     private IEnumerator AdvTimer() {
         SetCanvasActive(true);
-        float currentTime = 3f;
+        float currentTime = 2f;
         while(currentTime >= 0) {
             currentTime -= Time.deltaTime;
             _timer.text = (LocalizationManager.Get("AdvTimer", currentTime.ToString("F1")));

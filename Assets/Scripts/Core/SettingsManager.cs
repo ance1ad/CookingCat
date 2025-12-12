@@ -14,8 +14,6 @@ using PlayerPrefs = RedefineYG.PlayerPrefs;
 public class SettingsManager : MonoBehaviour {
     [SerializeField] private TMP_Text _windowText;
     
-    
-    
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider sfxSlider;
     
@@ -103,6 +101,7 @@ public class SettingsManager : MonoBehaviour {
             YGManager.Instance.ShowInterstitialWarningAds();
             // Изменил звук и закрыл окно, обновим
             PlayerPrefs.Save();
+            KitchenEvents.SettingsCanvasOpen();
         }
     } 
     

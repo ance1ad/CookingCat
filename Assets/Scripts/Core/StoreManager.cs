@@ -52,11 +52,24 @@ public class StoreManager : MonoBehaviour {
             upgrade.OnUpgradeBought += OnBought;
         }
         SetSortButtons();
+        LanguageLocalization();
+        ChangeItemsLanguage();
+        SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
+        KitchenEvents.OnSettingsCanvasOpen += HideCanvas;
     }
-    
+
+    private void HideCanvas() {
+        if (_storeCanvas.activeSelf) {
+            _storeCanvas.SetActive(false);
+        }
+    }
+
+    private void OnSwipeLanguage() {
+        languageIsChanged = true;
+    }
+
     private void DownloadData() {
         ShowHideStoreWindow();
-        Debug.Log(YG2.saves.OwnedPurchase.Count);
         // Загрузить из данных значения и отобразить у игрока сё это
         SetSkinsBought();
         EquipDownloadSkins();
@@ -147,7 +160,7 @@ public class StoreManager : MonoBehaviour {
                 CurrencyManager.Instance.UpdateCash(-1* item.CurrentPrice, 0);
             }
             else{
-                item.SetMessageResultText("Не хватает коинов",false);
+                item.SetMessageResultText(LocalizationManager.Get("NotEnoughCoins"),false);
                 SoundManager.Instance.PlaySFX("Warning");
                 return;
             }
@@ -157,12 +170,12 @@ public class StoreManager : MonoBehaviour {
                 CurrencyManager.Instance.UpdateCash(0, (int)-item.CurrentPrice);
             }
             else{
-                item.SetMessageResultText("Не хватает гемов",false);
+                item.SetMessageResultText(LocalizationManager.Get("NotEnoughGems"),false);
                 SoundManager.Instance.PlaySFX("Warning");
                 return;
             }
         }
-        item.SetMessageResultText("Покупка успешна",true);
+        item.SetMessageResultText(LocalizationManager.Get("PurchaseSuccesfull"),true);
         item.PurchaseSO.Buy(_data);
         item.SetBought();
     }
@@ -180,7 +193,7 @@ public class StoreManager : MonoBehaviour {
     }
 
 
-
+    private bool languageIsChanged = true;
     public void ShowHideStoreWindow() {
         _storeCanvas.SetActive(!_storeCanvas.activeSelf);
         if (!_storeCanvas.activeSelf) {
@@ -190,15 +203,28 @@ public class StoreManager : MonoBehaviour {
         }
         KitchenEvents.ShopOpen();
         PlayerBankVisual.Instance.ShowBank();
+        if (languageIsChanged) {
+            ChangeItemsLanguage();
+            SortItems(_windowCategoryLastOpened);
+            LanguageLocalization();
+            languageIsChanged = false;
+        }
+        foreach (var skin in _skins) {
+            skin.SetEmptyWarningMessage();
+        }
+    }
+
+    private void ChangeItemsLanguage()
+    {
         foreach (var skin in _skins) {
             skin.SetTextLocalization();
         }
+
         foreach (var upgrade in _upgrades) {
             upgrade.SetTextLocalization();
         }
-        SortItems(_windowCategoryLastOpened);
-        LanguageLocalization();
     }
+
 
     private void LanguageLocalization()
     {
