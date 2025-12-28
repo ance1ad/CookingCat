@@ -12,19 +12,19 @@ public class LeaderBoardManager : MonoBehaviour {
     [SerializeField] private TMP_Text _boardName;
     
     // LeaderBoardName: MeowLeaderboard
-    private void Awake() {
-        SetLeaderBoardState(false);
-    }
+
 
     private void Start() {
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage; 
         _boardName.text = LocalizationManager.Get("LeaderBoardName");
+        SetLeaderBoardState(false);
+        
     }
 
 
     private bool needToChangeLanguage = false;
     private void OnSwipeLanguage() {
-        Debug.Log("OnSwipeLanguage");
+        // // Debug.Log("OnSwipeLanguage");
         needToChangeLanguage = true;
     }
 

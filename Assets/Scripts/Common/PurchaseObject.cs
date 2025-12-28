@@ -18,6 +18,7 @@ public abstract class PurchaseObject : MonoBehaviour {
     [SerializeField] protected TMP_Text _price;
     [SerializeField] protected Image _coinsIcon;
     [SerializeField] protected Image _gemsIcon;
+    [SerializeField] protected Image _advIcon;
     [SerializeField] protected TMP_Text _warningMessage;
     [SerializeField] protected Button _buyButton;
     [SerializeField] protected TMP_Text _buyButtonText;
@@ -31,11 +32,11 @@ public abstract class PurchaseObject : MonoBehaviour {
 
     
     protected virtual void SetDefaultVisual() {
-        Debug.Log("UpdateVisuals");
+        // Debug.Log("UpdateVisuals");
     }
 
     public virtual void SetTextLocalization() {
-        Debug.Log("SetTextLocalization");
+        // Debug.Log("SetTextLocalization");
     }
 
     public abstract void SetBought();

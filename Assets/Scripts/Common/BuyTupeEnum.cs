@@ -10,6 +10,7 @@ public enum PurchaseType {
 public enum ValuteType {
     Coins,
     Gems,
+    Adv,
 };
 
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,9 +10,15 @@ public class KitchenObject : MonoBehaviour {
     [SerializeField] private GameObject _particles;
     private IKitchenObjectParent _kitchenObjectParent;
     public bool _isFresh = true;
+    private ParticleSystem ps;
 
-
-
+    
+    
+    private void Start() {
+        if (ps != null) {
+            ps = _particles.GetComponent<ParticleSystem>();
+        }
+    }
 
     public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent) {
         if (this._kitchenObjectParent != null) {
@@ -22,7 +29,7 @@ public class KitchenObject : MonoBehaviour {
         this._kitchenObjectParent = kitchenObjectParent;
 
         if (kitchenObjectParent.HasKitchenObject()) {
-            Debug.Log("���� �� ���, ��� �� ������ ���� ������");
+            // Debug.Log("���� �� ���, ��� �� ������ ���� ������");
         }
 
         this._kitchenObjectParent.SetKitchenObject(this);
@@ -48,9 +55,30 @@ public class KitchenObject : MonoBehaviour {
 
     public void SetUnfresh() {
         _isFresh = false;
-        _particles.SetActive(true);
-        SoundManager.Instance.PlaySFX("ProductRotten");
+
+        ReturnParticlesToPoint();
         
+        _particles.SetActive(true);
+        // Debug.Log("Включение партиклов вони");
+        SoundManager.Instance.PlaySFX("ProductRotten");
     }
 
+    public void ReturnParticlesToParent() {
+        if (_particles == null) return; 
+            
+        
+        _particles.transform.SetParent(transform, false);
+        _particles.transform.localPosition = Vector3.zero;
+        _particles.transform.localRotation = Quaternion.identity;
+    }
+
+    public void ReturnParticlesToPoint() {
+        if (_particles == null) return; 
+        
+        var anchor = Player.Instance._mouthPointForParticles;
+        
+        _particles.transform.SetParent(anchor, false);
+        _particles.transform.localPosition = Vector3.zero;
+        _particles.transform.localRotation = Quaternion.identity;
+    }
 }

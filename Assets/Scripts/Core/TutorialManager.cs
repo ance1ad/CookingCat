@@ -33,6 +33,7 @@ public class TutorialManager : MonoBehaviour {
     
     [SerializeField] private Button _skinStoreButton;
     [SerializeField] private Button _productStoreButton;
+    [SerializeField] private Button _playerScoreButton;
     
     
     
@@ -70,7 +71,7 @@ public class TutorialManager : MonoBehaviour {
     public static TutorialManager Instance {get; private set;}
     private void Awake() {
         if (Instance != null) {
-            Debug.LogWarning("TutorialManager: Instance already set");
+            // Debug.LogWarning("TutorialManager: Instance already set");
             return;
         }
         Instance = this;
@@ -119,6 +120,7 @@ public class TutorialManager : MonoBehaviour {
         MessageUI.Instance.ShowNextButton();
         _skinStoreButton.gameObject.SetActive(false);
         _productStoreButton.gameObject.SetActive(false);
+        _playerScoreButton.gameObject.SetActive(false);
         
     }
 
@@ -247,6 +249,7 @@ public class TutorialManager : MonoBehaviour {
         
         _skinStoreButton.enabled = true;
         _productStoreButton.enabled = true;
+        _playerScoreButton.enabled = true;
         StartCoroutine(MessageUI.Instance.HideFocusRoutine());
         Player.Instance._stopWalking = false;
         RewardManager.Instance.StartRewardTimerRoutine();
@@ -316,6 +319,7 @@ public class TutorialManager : MonoBehaviour {
         HideArrows();
         _skinStoreButton.enabled = true;
         _productStoreButton.enabled = true;
+        _playerScoreButton.enabled = true;
         
         StopAllCoroutines();
         Player.Instance._stopWalking = false;
@@ -325,6 +329,9 @@ public class TutorialManager : MonoBehaviour {
         }
         if (!_productStoreButton.gameObject.activeSelf) {
             _productStoreButton.gameObject.SetActive(true);    
+        }
+        if (!_playerScoreButton.gameObject.activeSelf) {
+            _playerScoreButton.gameObject.SetActive(true);    
         }
         if (_focus.gameObject.activeSelf) { 
             _focus.gameObject.SetActive(false);

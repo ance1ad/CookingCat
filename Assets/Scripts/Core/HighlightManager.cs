@@ -19,7 +19,7 @@ public class HighlightManager : MonoBehaviour
 
     private void Awake() {
         if (Instance != null) {
-            Debug.Log("There is no more 2 highlight managers!");
+            // Debug.Log("There is no more 2 highlight managers!");
         }
         // Обьект на котором висит скрипт назначается в Instance
         Instance = this;
@@ -55,7 +55,7 @@ public class HighlightManager : MonoBehaviour
             foreach (var counters in _rottenProductCounters) {
                 counters.SetHighlight(true);
             }
-            Debug.Log("Только выкинуть");
+            // Debug.Log("Только выкинуть");
             return true;
         }
         return false;

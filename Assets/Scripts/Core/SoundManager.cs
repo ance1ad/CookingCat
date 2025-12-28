@@ -22,7 +22,7 @@ public class SoundManager : MonoBehaviour {
     
     private void Awake() {
         if (Instance != null) {
-            Debug.LogError("Duplicate sound manager detected");
+            // Debug.LogError("Duplicate sound manager detected");
             return;
         }
         Instance = this;
@@ -62,7 +62,7 @@ public class SoundManager : MonoBehaviour {
             return;
         }
         if (!_soundDict.TryGetValue(id, out SoundData data)) {
-            Debug.Log("Не найден " + id);
+            // Debug.Log("Не найден " + id);
             return;
         }
 
@@ -80,7 +80,7 @@ public class SoundManager : MonoBehaviour {
     
     public void PlayLoopSfx(string id) {
         if (!_soundDict.TryGetValue(id, out SoundData data)) {
-            Debug.Log("Не найден " + id);
+            // Debug.Log("Не найден " + id);
         }
         if (_loopSources.ContainsKey(id))
             return; // уже играет
@@ -88,8 +88,7 @@ public class SoundManager : MonoBehaviour {
         var src = gameObject.AddComponent<AudioSource>();
         src.clip = data.audioClip;
         src.volume = data.volume * _sfxVolume;
-        Debug.Log("PlayLoopSfx");
-        Debug.Log("src.volume");
+        // Debug.Log("PlayLoopSfx");
         src.loop = true;
         src.Play();
 
@@ -149,6 +148,9 @@ public class SoundManager : MonoBehaviour {
     
     public void MuteSFX(bool mute) {
         _sfxSource.mute = mute;
+        foreach (var s in _loopSources.Values) {
+            s.mute = mute;
+        }
         PlayerPrefs.SetFloat("SFXVolume", mute ? _sfxVolume : 0f);
 
     }

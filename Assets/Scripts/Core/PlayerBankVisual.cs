@@ -17,7 +17,7 @@ public class PlayerBankVisual : MonoBehaviour {
     
     private void Awake() {
         if (Instance != null) {
-            Debug.LogError("There can only be one instance of PlayerBankVisual");
+            // Debug.LogError("There can only be one instance of PlayerBankVisual");
             return;
         }
         Instance = this;
@@ -28,22 +28,25 @@ public class PlayerBankVisual : MonoBehaviour {
 
 
     private void Start() {
-        
         CurrencyManager.Instance.OnBankChangedAction += OnBankChangedAction;
+        UpdateBank();
     }
     
     public static PlayerBankVisual Instance { get; private set; }
 
     public void ShowBank() {
-        _shopOpen = true;
-        _playerBank.SetActive(true);  
+        if (_playerBank != null) {
+            _shopOpen = true;
+            _playerBank.SetActive(true);
+        }
     } 
     
     
     public void HideBank() {
-        _shopOpen = false;
-        if (_playerBank.activeSelf) {
-            _playerBank.SetActive(false);  
+        
+        if (_playerBank != null && _playerBank.activeSelf) {
+            _shopOpen = false;
+            _playerBank.SetActive(false);
         }
     } 
     
@@ -55,10 +58,10 @@ public class PlayerBankVisual : MonoBehaviour {
         UpdateBank();
         
         // Дальше показываем визуалом больше меньшэ
-        Debug.Log("countRewardsCoins" + obj.countRewardsCoins);
-        Debug.Log("countRewardsGems" + obj.countRewardsGems);
+        // Debug.Log("countRewardsCoins" + obj.countRewardsCoins);
+        // Debug.Log("countRewardsGems" + obj.countRewardsGems);
         
-        Debug.Log("Обновление countRewardsCoins и тп");
+        // Debug.Log("Обновление countRewardsCoins и тп");
         StopAllCoroutines();
         
         if (obj.countRewardsCoins > 0) {

@@ -13,7 +13,7 @@ public class TutorialOrderCounter : MonoBehaviour {
 
     private void Awake() {
         if (Instance!=null) {
-            Debug.Log("TutorialOrderCounter Awoken");
+            // Debug.Log("TutorialOrderCounter Awoken");
             return; 
         }
         Instance = this;
@@ -33,22 +33,22 @@ public class TutorialOrderCounter : MonoBehaviour {
     }
     
     public void CreateTutorialBurger() {
-        Debug.Log("CreateTutorialBurger");
+        // Debug.Log("CreateTutorialBurger");
         
         CreateTutorialState();
         DishSO[] orderDishes = new DishSO[3];
         orderDishes[1] = _easyBurger;
-        Debug.Log("Ожидание на создание нового заказа");
+        // Debug.Log("Ожидание на создание нового заказа");
         StartCoroutine(CreateTutorialOrderRoutine(orderDishes));
     }
     
     public void CreateTutorialPizza() {
-        Debug.Log("CreateTutorialPizza");
+        // Debug.Log("CreateTutorialPizza");
         
         CreateTutorialState();
         DishSO[] orderDishes = new DishSO[3];
         orderDishes[0] = _easyPizza;
-        Debug.Log("Ожидание на создание нового заказа");
+        // Debug.Log("Ожидание на создание нового заказа");
 
         StartCoroutine(CreateTutorialOrderRoutine(orderDishes));
         
@@ -56,12 +56,12 @@ public class TutorialOrderCounter : MonoBehaviour {
 
 
     public void CreateTutorialDrink() {
-        Debug.Log("CreateTutorialDrink");
+        // Debug.Log("CreateTutorialDrink");
         
         CreateTutorialState();
         DishSO[] orderDishes = new DishSO[3];
         orderDishes[2] = _defaultDrink;
-        Debug.Log("Ожидание на создание нового заказа");
+        // Debug.Log("Ожидание на создание нового заказа");
 
         StartCoroutine(CreateTutorialOrderRoutine(orderDishes));
     }
@@ -70,7 +70,7 @@ public class TutorialOrderCounter : MonoBehaviour {
         yield return new WaitUntil(() => OrderManager.Instance.NewOrderCreateReady);
         OrderManager.Instance.SetTimeToShowIngredients(orderDishes);
         OrderManager.Instance.CurrentOrder = new Order(orderDishes[0], orderDishes[1], orderDishes[2], OrderManager.Instance.orderNumber); 
-        Debug.Log("Создание нового заказа");
+        // Debug.Log("Создание нового заказа");
         
     }
 }

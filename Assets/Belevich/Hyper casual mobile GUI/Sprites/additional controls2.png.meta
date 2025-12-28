@@ -206,6 +206,27 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: additional controls2_4
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 32
+        width: 375
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d9bb1f3c6b8b0b144900fca22be01f2e
+      internalID: 1888264089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -221,6 +242,7 @@ TextureImporter:
       additional controls2_1: 186559683
       additional controls2_2: -1844624512
       additional controls2_3: -908284126
+      additional controls2_4: 1888264089
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

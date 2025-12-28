@@ -21,7 +21,7 @@ public class PlayerUpgradeManager : MonoBehaviour {
 
     private void Awake() {
         if (Instance != null) {
-            Debug.Log("WTH, error in Instance");
+            // Debug.Log("WTH, error in Instance");
             return;
         }
         Instance = this;
@@ -58,7 +58,7 @@ public class PlayerUpgradeManager : MonoBehaviour {
                 OrderPeekCount = (int)(count * bonus);
                 break;
             default:
-                Debug.Log("Update not found");
+                // Debug.Log("Update not found");
                 break;
         }
         OnUpgrade?.Invoke();

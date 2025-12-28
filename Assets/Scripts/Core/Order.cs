@@ -23,22 +23,28 @@ public class Order {
     }
     
     public DishStruct[] dishStruct = new DishStruct[3];
-
+    private int orderSize;
+    
+    
     public Order(DishSO first,DishSO second, DishSO drink, int orderNum) {
+        orderSize = 0;
         dishStruct[0] = new DishStruct();
         dishStruct[1] = new DishStruct();
         dishStruct[2] = new DishStruct();
         
         if (first!=null) {
             dishStruct[0].dish = first;
+            orderSize++;
         }
         
         if (second != null) {
             dishStruct[1].dish = second;
+            orderSize++;
         }
 
         if (drink != null) {
             dishStruct[2].dish = drink;
+            orderSize++;
         }
         this.orderNum = orderNum;
     }
@@ -48,7 +54,7 @@ public class Order {
         if (dishStruct[0].dish) dishes.Add(dishStruct[0].dish);
         if (dishStruct[1].dish) dishes.Add(dishStruct[1].dish);
         if (dishStruct[2].dish) dishes.Add(dishStruct[2].dish);
-        Debug.Log(dishStruct[0].dish?.dishName + " " +  dishStruct[1].dish?.dishName + " " + dishStruct[2].dish?.dishName + " №" + orderNum);
+        // Debug.Log(dishStruct[0].dish?.dishName + " " +  dishStruct[1].dish?.dishName + " " + dishStruct[2].dish?.dishName + " №" + orderNum);
         return dishes;
     }
 
@@ -57,6 +63,8 @@ public class Order {
         dishStruct[1] = null;
         dishStruct[2] = null;
     }
+
+    public int GetOrderSize() => orderSize;
 
     public bool OrderIsClean() => dishStruct == null;
 }

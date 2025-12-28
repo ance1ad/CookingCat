@@ -4,6 +4,9 @@ using System;
 using static ThiefCat;
 
 public class Player : MonoBehaviour, IKitchenObjectParent {
+    
+    
+    [SerializeField] private Transform _headTransform;
     [SerializeField] float _velocity = 4.5f;
     [SerializeField] float _rotateSpeed = 8f;
     [SerializeField] GameInput _gameInput;
@@ -20,6 +23,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     [SerializeField] private ParticleSystem _particles;
 
     [SerializeField] private GameObject visualPlate;
+    [SerializeField] public Transform _mouthPointForParticles;
 
     private Vector3 lastDirection;
     public bool _isMoving;
@@ -50,7 +54,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     // Для синглтона
     private void Awake() {
         if (Instance != null) {
-            Debug.Log("There is no more 2 players!");
+            // Debug.Log("There is no more 2 players!");
         }
         // Обьект на котором висит скрипт назначается в Instance
         Instance = this;
@@ -75,7 +79,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     private void UpdatePlayerStats() {
         _velocity = PlayerUpgradeManager.Instance.PlayerSpeed;
-        Debug.Log("Player speed: " + _velocity);
+        // // Debug.Log("Player speed: " + _velocity);
     }
 
 
@@ -163,14 +167,14 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         yield return new WaitForSeconds(1f);
         if (newSelected.HasKitchenObject() && !HasKitchenObject()) {
             newSelected.GetKitchenObject().SetKitchenObjectParent(this);
-            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy,3f);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy,3f, true);
         }
         else if (HasKitchenObject() && newSelected.HasKitchenObject()) {
-            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("HandsNotFreeForThief"), MessageUI.Emotions.sad, 3f);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("HandsNotFreeForThief"), MessageUI.Emotions.sad, 3f, true);
             newSelected._readyToFight = true;
         }
         else {
-            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy,3f);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThiefGetOut"), MessageUI.Emotions.happy,3f, false);
         }
     }
 
@@ -185,44 +189,74 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
 
     private BaseCounter _lastCounter;
+    private Collider[] _interactionHits = new Collider[8];
+
     private void HandleInteractions() {
-        Vector2 inputVector = _gameInput.GetMovementVector().normalized;
-        Vector3 direction = new Vector3(inputVector.x, 0f, inputVector.y);
+        ShowHolding(false);
 
-        if (direction != Vector3.zero)
-            lastDirection = direction;
+        Vector3 origin = _headTransform.position; // теперь отсчёт от головы
+        int hitCount = Physics.OverlapSphereNonAlloc(
+            origin,
+            _interactDistance,
+            _interactionHits,
+            _countersLayerMask
+        );
 
-        if (Physics.Raycast(transform.position, lastDirection, out RaycastHit hit, _interactDistance, _countersLayerMask)) {
-            ShowHolding(false);
-            // ---- Проверка кота ----
-            if (hit.transform.TryGetComponent(out ThiefCat thief)) {
-                SetSelectedCounter(null);
-                SetSelectedThief(thief);
-                if (selectedThief != thief) {
-                    selectedThief = thief;
-                    _lastCounter = null;
+        ThiefCat foundThief = null;
+        BaseCounter foundCounter = null;
+        float closestDist = float.MaxValue;
+
+        for (int i = 0; i < hitCount; i++) {
+            Collider col = _interactionHits[i];
+            Vector3 closestPoint = col.ClosestPoint(origin); // ближайшая точка коллайдера
+            float dist = Vector3.Distance(origin, closestPoint);
+
+            // Debug.DrawLine(origin, closestPoint, Color.cyan, 0.4f); // визуализация от головы
+
+            // ---- Приоритет: кот-вор ----
+            if (col.TryGetComponent(out ThiefCat thief)) {
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    foundThief = thief;
                 }
-                return;
+                continue;
             }
 
-            // ---- Проверка столов ----
-            if (hit.transform.TryGetComponent(out BaseCounter counter)) {
-                selectedThief = null; // кота рядом нет
-
-                if (counter != _lastCounter) {
-                    SetSelectedCounter(counter);
-                    _lastCounter = counter;
+            // ---- Потом столы ----
+            if (col.TryGetComponent(out BaseCounter counter)) {
+                if (foundThief == null && dist < closestDist) {
+                    closestDist = dist;
+                    foundCounter = counter;
                 }
-
-                ShowIcon(true);
-                return;
             }
         }
-        else {
-            ShowHolding(true);
+
+        // ---- Если нашли кота ----
+        if (foundThief != null) {
+            SetSelectedCounter(null);
+            SetSelectedThief(foundThief);
+            _lastCounter = null;
+
+            ShowIcon(false);
+            return;
         }
 
-        // ---- Если никого не нашли ----
+        // ---- Если нашли стол ----
+        if (foundCounter != null) {
+            selectedThief = null;
+
+            if (foundCounter != _lastCounter) {
+                SetSelectedCounter(foundCounter);
+                _lastCounter = foundCounter;
+            }
+
+            ShowIcon(true);
+            return;
+        }
+
+        // ---- Если рядом никого ----
+        ShowHolding(true);
+
         if (_lastCounter != null) {
             SetSelectedCounter(null);
             _lastCounter = null;
@@ -231,6 +265,24 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         selectedThief = null;
         SetSelectedThief(null);
         ShowIcon(false);
+    }
+
+    
+    private void SetSelectedThief(ThiefCat thief) {
+        selectedThief = thief;
+        OnThiefInteract?.Invoke(this, new OnThiefInteractEventArgs {
+            thief = thief
+        });
+    }
+
+    private void SetSelectedCounter(BaseCounter counter) {
+        selectedCounter = counter;
+        _isRotated = false;
+        
+        
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs {
+            selectedCounter = selectedCounter
+        });
     }
 
 
@@ -323,7 +375,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             transform.forward = Vector3.Slerp(transform.forward, desiredDir, Time.deltaTime * _rotateSpeed);
         }
         else if (!canMove && inputStrength > 0.9f) {
-            transform.forward = Vector3.Slerp(transform.forward, desiredDir, Time.deltaTime * (_rotateSpeed * 0.25f));
+            transform.forward = Vector3.Slerp(transform.forward, desiredDir, Time.deltaTime * _rotateSpeed);
         }
 
         _isMoving = moveDir.magnitude > 0.1f && transform.position != startPos;
@@ -349,26 +401,8 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             }
         }
     }
+    
 
-
-
-
-
-    private void SetSelectedCounter(BaseCounter counter) {
-        selectedCounter = counter;
-        _isRotated = false;
-        
-        
-        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs {
-            selectedCounter = selectedCounter
-        });
-    }
-
-    private void SetSelectedThief(ThiefCat thief) {
-        OnThiefInteract?.Invoke(this, new OnThiefInteractEventArgs {
-            thief = thief
-        });
-    }
 
     public Transform GetKitchenObjectTransform() => _objectHoldPoint;
 
@@ -406,7 +440,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
             !string.IsNullOrEmpty(_kitchenObject.GetKitchenObjectSO().justification)
             && !TutorialManager.Instance.TutorialStarted ) {
             
-            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("CatWantEat", _kitchenObject.GetKitchenObjectSO().declension), MessageUI.Emotions.happy, 3f);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("CatWantEat", _kitchenObject.GetKitchenObjectSO().declension), MessageUI.Emotions.happy, 3f, true);
             _coroutine = StartCoroutine(EatProductRoutine());
         }
     }
@@ -415,7 +449,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         yield return new WaitForSeconds(5f);
         
         if (HasKitchenObject() && _kitchenObject._isFresh) {
-            MessageUI.Instance.SetTextTemporary(_kitchenObject.GetKitchenObjectSO().justification, MessageUI.Emotions.eated, 3f);
+            MessageUI.Instance.SetTextTemporary(_kitchenObject.GetKitchenObjectSO().justification, MessageUI.Emotions.eated, 3f, true);
             SoundManager.Instance.PlaySFX("Happy");
             MoveToPoint(_mouthPoint, 1f);
             yield return new WaitUntil(() => _objectMoveCoroutine == null);

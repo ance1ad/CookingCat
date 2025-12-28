@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class ProgressBarUI : MonoBehaviour {
 
     [SerializeField] private Image _image;
-    // т.к юнити не поддерживает перетаскивание интерфейсов мы обойдем это
+    // пїЅ.пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
     [SerializeField] private GameObject hasProgressGO;
     [SerializeField] private GameObject[] visualCanvas;
 
@@ -19,7 +19,7 @@ public class ProgressBarUI : MonoBehaviour {
     private void Start() {
         hasProgress = hasProgressGO.GetComponent<IHasProgress>();
         if(hasProgress == null) {
-            Debug.LogError("Обьект "+ hasProgress + " не имплементирует интерфейс IHasProgress");
+            // Debug.LogError("пїЅпїЅпїЅпїЅпїЅпїЅ "+ hasProgress + " пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ IHasProgress");
             return;
         }
         hasProgress.OnProgressChanged += HasProgress_OnProgressChanged;

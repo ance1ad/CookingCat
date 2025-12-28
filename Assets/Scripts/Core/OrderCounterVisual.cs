@@ -36,6 +36,7 @@ public class OrderCounterVisual : MonoBehaviour {
     [SerializeField] private TMP_Text _orderNumberText; // сверху слева
     [SerializeField] public GameObject _orderNumberTextBackground; // сверху слева
     [SerializeField] public GameObject _advIcon;
+    [SerializeField] public Image _gray;
     
     
     
@@ -63,6 +64,7 @@ public class OrderCounterVisual : MonoBehaviour {
     
     [Header("UI повторного показа заказа")]
     [SerializeField] private Button _showOrderButton;
+    [SerializeField] private GameObject _showOrderButtonVisual;
     [SerializeField] private TMP_Text _contToShowOrderText; // Сколько еще раз показать
     public int _countToShowOrder; // сколько еще раз можно подсмотреть в заказ
 
@@ -80,9 +82,11 @@ public class OrderCounterVisual : MonoBehaviour {
 
     private void Start() {
         _showOrderButton.gameObject.SetActive(false);
+        _showOrderButtonVisual.SetActive(false);
         _orderTimerVisual.SetActive(false);
         _orderNumberTextBackground.SetActive(false);
-        SetStateAdvIcon(false);
+        SetStateAdv(false);
+        _showOrderButton.onClick.AddListener(ShowOrderByButton);
     }
 
 
@@ -93,15 +97,24 @@ public class OrderCounterVisual : MonoBehaviour {
         _drinkContainer.SetActive(false);
     }
     
-    public void ShowDishCanvas(GameObject canvas) {
+    public void ShowDishCanvas(GameObject canvas, bool extra) {
         if (canvas == _canvasPizza) {
             _pizzaContainer.SetActive(true);
+            if (extra) {
+                _pizzaName.text = LocalizationManager.Get("PizzaIngredients");
+            }
         }
         if (canvas == _canvasBurger) {
             _burgerContainer.SetActive(true);
+            if (extra) {
+                _burgerName.text = LocalizationManager.Get("BurgerIngredients");
+            }
         }
         if (canvas == _canvasDrink) {
             _drinkContainer.SetActive(true);
+            if (extra) {
+                _drinkName.text = LocalizationManager.Get("DrinkIngredients");
+            }
         }
     }
     
@@ -109,7 +122,7 @@ public class OrderCounterVisual : MonoBehaviour {
     public void AddIcons() {
         Order order = OrderManager.Instance.CurrentOrder;
         if (order.dishStruct[0] == null ||  order.dishStruct[1] == null || order.dishStruct[2] == null) {
-            Debug.LogWarning("Неправильный вызов создания заказа, заказ пустой");
+            // Debug.LogWarning("Неправильный вызов создания заказа, заказ пустой");
             return;
         }
         if (order.dishStruct[0].dish != null) {
@@ -197,6 +210,10 @@ public class OrderCounterVisual : MonoBehaviour {
 
             timeNow += Time.deltaTime;
             // обновлять потом поле с временем до закрытия
+            if (_canvasIsHide) {
+                _level.fillAmount = 0f;
+                break;
+            }
             yield return null;
         }
 
@@ -207,6 +224,7 @@ public class OrderCounterVisual : MonoBehaviour {
         // Показ кнопки и таймера
         _orderTimerVisual.SetActive(true);
         _showOrderButton.gameObject.SetActive(true);
+        _showOrderButtonVisual.SetActive(true);
         
         if (orderTimerCoroutine == null) {
             orderTimerCoroutine = StartCoroutine(StartNewTimerRoutine());
@@ -270,6 +288,7 @@ public class OrderCounterVisual : MonoBehaviour {
     
     public void ShowCanvas() {
         if (showOrder) {
+            _canvasIsHide = false;
             _orderTimerVisual.SetActive(false);
             _contToShowOrderText.text = _countToShowOrder.ToString();
             orderStatusText.text = LocalizationManager.Get("NewOrderCanvas");
@@ -278,11 +297,12 @@ public class OrderCounterVisual : MonoBehaviour {
             _timerCanvas.gameObject.SetActive(true);
             // Тут текст поменять закроется через
             _closeIn.text = LocalizationManager.Get("CloseIn");
-            _bigCloseButton.SetActive(false);
-            _closeButton.SetActive(false);
+            // _bigCloseButton.SetActive(false);
+            // _closeButton.SetActive(false);
         }
         else {
             _showOrderButton.gameObject.SetActive(false);
+            _showOrderButtonVisual.SetActive(false);
             _orderTimerVisual.SetActive(false);
             orderStatusText.text = LocalizationManager.Get("CompleteOrderCanvas");
             SoundManager.Instance.PlaySFX("GiveOrder");
@@ -290,17 +310,18 @@ public class OrderCounterVisual : MonoBehaviour {
             showOrder = true;
             _new.gameObject.SetActive(false);
             _timerCanvas.SetActive(false);
-            _bigCloseButton.SetActive(true);
-            _closeButton.SetActive(true);
+            // _bigCloseButton.SetActive(true);
+            // _closeButton.SetActive(true);
             
         }
         ShowGeneralCanvas();
     }
 
-        
-        
-    public void HideCanvas() {
 
+
+    private bool _canvasIsHide;
+    public void HideCanvas() {
+        _canvasIsHide = true;
         _generalCanvas.SetActive(false);
         OrderManager.Instance.StopInteract = false;
         Player.Instance.StartWalking();
@@ -312,6 +333,7 @@ public class OrderCounterVisual : MonoBehaviour {
     }
     
     public void ShowGeneralCanvas() {
+        _canvasIsHide = false;
         _generalCanvas.SetActive(true);
         PlayerBankVisual.Instance.HideBank();
         OrderManager.Instance.StopInteract = true;
@@ -324,20 +346,21 @@ public class OrderCounterVisual : MonoBehaviour {
     public void ShowOrderByButton() {
         if (_countToShowOrder == 0) {
             // Показать рекламу
-            YGManager.Instance.ShowRewardAdv("ShowIngredientsReward");
-            _countToShowOrder++;
-            _contToShowOrderText.text = _countToShowOrder.ToString();
-            SetStateAdvIcon(false);
+            YGManager.Instance.ShowRewardAdv("ShowIngredientsReward", () => {
+                _countToShowOrder++;
+                _contToShowOrderText.text = _countToShowOrder.ToString();
+                SetStateAdv(false);
+            });
             return;
         }
         
-        _bigCloseButton.SetActive(true);
-        _closeButton.SetActive(true);
+        // _bigCloseButton.SetActive(true);
+        // _closeButton.SetActive(true);
         orderStatusText.text = LocalizationManager.Get("OrderStatusText");
         _countToShowOrder--;
         if (_countToShowOrder == 0) {
             // Отобразить кнопку
-            SetStateAdvIcon(true);
+            SetStateAdv(true);
         }
         ShowGeneralCanvas();
         StartCoroutine(TimerToCloseOrderInfo(timeToShowIngredients, -1));
@@ -410,6 +433,16 @@ public class OrderCounterVisual : MonoBehaviour {
         _orderNumberTextBackground.SetActive(false);
     }
 
-    public void SetStateAdvIcon(bool state) => _advIcon.SetActive(state);
+    public void SetStateAdv(bool state) {
+        _advIcon.SetActive(state);
+        Color color = _gray.color;
+        if (state) {
+            color.a = 0.5f;
+        }
+        else {
+            color.a = 0f;
+        }
+        _gray.color = color;
+    }
 
 }

@@ -12,14 +12,14 @@ public class PlayerData : MonoBehaviour {
     
     
     private void Start() {
-        YG2.onGetSDKData += OnGetSDKData;
+        // YG2.onGetSDKData += OnGetSDKData;
     }
 
     private void OnGetSDKData() {
-        Debug.Log(YG2.saves.OwnedPurchase.Count);
-        foreach (var item in YG2.saves.OwnedPurchase) {
-            Debug.Log(item);
-        }
+        // Debug.Log(YG2.saves.OwnedPurchase.Count);
+        // foreach (var item in YG2.saves.OwnedPurchase) {
+        //     Debug.Log(item);
+        // }
     }
 
 
@@ -45,7 +45,7 @@ public class PlayerData : MonoBehaviour {
             OnSkinActivate?.Invoke(skinSO);
         }
         else {
-            Debug.LogWarning("Скин " + skinSO.Id + " еще не куплен");
+            // Debug.LogWarning("Скин " + skinSO.Id + " еще не куплен");
         }
 
         YG2.SaveProgress();
@@ -81,7 +81,7 @@ public class PlayerData : MonoBehaviour {
 
 
     public void DownloadUpgrades() {
-        Debug.Log("Вызов подгрузки всех апгрейдов в PlayerData");
+        // Debug.Log("Вызов подгрузки всех апгрейдов в PlayerData");
         foreach (var upgrade in YG2.saves.Upgrades) {
             OnUpgradeBought?.Invoke(upgrade.id, upgrade.count);
         }

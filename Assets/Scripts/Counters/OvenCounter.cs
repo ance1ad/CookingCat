@@ -55,11 +55,11 @@ public class OvenCounter : BaseCounter, IHasProgress{
             playerSO = player.GetKitchenObject().GetKitchenObjectSO();
             // Проверка на запрещёнку
             if (potentialObjects.Contains(playerSO)) {
-                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NeedToSlicedInOven", playerSO.objectName));
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NeedToSlicedInOven", playerSO.declension));
                 return;
             }
             if (forbiddenObjects.Contains(playerSO)) {
-                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontPutInOven", playerSO.objectName));
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("DontPutInOven", playerSO.declension));
                 return;
             }
             if (puttedIngredients.Contains(playerSO)) {

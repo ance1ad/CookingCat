@@ -23,6 +23,9 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
                     _counterTopPoint.localPosition = new Vector3(0, 1.3f, 0);
                 }
 
+                if (!GetKitchenObject()._isFresh) {
+                    GetKitchenObject().ReturnParticlesToPoint();
+                }
                 GetKitchenObject().SetKitchenObjectParent(player);
                 SoundManager.Instance.PlaySFX("Bite");
             }
@@ -52,6 +55,7 @@ public class ClearCounter : BaseCounter, IKitchenObjectParent {
             }
 
             KitchenEvents.ObjectPutInTable(player.GetKitchenObject());
+            player.GetKitchenObject().ReturnParticlesToParent();
             player.GetKitchenObject().SetKitchenObjectParent(this);
             SoundManager.Instance.PlaySFX("AtTable");
             

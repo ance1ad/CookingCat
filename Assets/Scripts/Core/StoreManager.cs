@@ -59,7 +59,7 @@ public class StoreManager : MonoBehaviour {
     }
 
     private void HideCanvas() {
-        if (_storeCanvas.activeSelf) {
+        if (_storeCanvas != null && _storeCanvas.activeSelf) {
             _storeCanvas.SetActive(false);
         }
     }
@@ -153,7 +153,7 @@ public class StoreManager : MonoBehaviour {
     
     
     private void OnBought(PurchaseObject item) {
-        Debug.Log(item.PurchaseSO);
+        // Debug.Log(item.PurchaseSO);
         ValuteType valuteType = item.ValuteType;
         if (valuteType == ValuteType.Coins) {
             if (CurrencyManager.Instance.Coins >= item.CurrentPrice) {
@@ -174,6 +174,15 @@ public class StoreManager : MonoBehaviour {
                 SoundManager.Instance.PlaySFX("Warning");
                 return;
             }
+        }
+        else if (valuteType == ValuteType.Adv) {
+            YGManager.Instance.ShowRewardAdv("BuyItem",
+                () => {
+                    item.SetMessageResultText(LocalizationManager.Get("PurchaseSuccesfull"),true);
+                    item.PurchaseSO.Buy(_data);
+                    item.SetBought();
+                });
+            return;
         }
         item.SetMessageResultText(LocalizationManager.Get("PurchaseSuccesfull"),true);
         item.PurchaseSO.Buy(_data);
@@ -197,12 +206,12 @@ public class StoreManager : MonoBehaviour {
     public void ShowHideStoreWindow() {
         _storeCanvas.SetActive(!_storeCanvas.activeSelf);
         if (!_storeCanvas.activeSelf) {
-            PlayerBankVisual.Instance.HideBank();
+            PlayerBankVisual.Instance?.HideBank();
             KitchenEvents.ShopClose();
             return;
         }
         KitchenEvents.ShopOpen();
-        PlayerBankVisual.Instance.ShowBank();
+        PlayerBankVisual.Instance?.ShowBank();
         if (languageIsChanged) {
             ChangeItemsLanguage();
             SortItems(_windowCategoryLastOpened);
@@ -243,7 +252,7 @@ public class StoreManager : MonoBehaviour {
         // Запоминаем надетый скин
         if (skin.PurchaseType == PurchaseType.Hat) {
             if (hatSkin != null  &&  hatSkin != skin) {
-                Debug.Log("SetSkinDequipped");
+                // Debug.Log("SetSkinDequipped");
                 hatSkin.SetSkinDequipped();
                 hatSkin.ObjectSO.Remove(_data);
             }

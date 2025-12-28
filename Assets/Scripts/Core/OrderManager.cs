@@ -52,7 +52,7 @@ public class OrderManager : BaseCounter {
     
     private void Awake() {
         if (Instance != null) {
-            Debug.Log("There is no more 2 order managers!");
+            // Debug.Log("There is no more 2 order managers!");
         }
 
         Instance = this;
@@ -81,8 +81,9 @@ public class OrderManager : BaseCounter {
         if (record < CountCompleteOrders) {
             YG2.SetLeaderboard("MeowLeaderboard", CountCompleteOrders);
         }
-        Debug.Log("Текущий рекорд: "  + record);
-        Debug.Log("Ранк: "  + lb.currentPlayer.rank);
+        // // Debug.Log("Текущий рекорд: "  + record);
+        // // Debug.Log("Ранк: "  + lb.currentPlayer.rank);
+        GameProgressManager.Instantiate.SetRatingVisual(lb.currentPlayer.rank);
     }
 
     private void OnSwipeLanguage() {
@@ -99,10 +100,10 @@ public class OrderManager : BaseCounter {
     public IEnumerator OrderIsCompleted(Plate plate) {
         CountCompleteOrders++;
         YG2.GetLeaderboard("MeowLeaderboard");
-
-        
-        YG2.SaveProgress();
         YG2.saves.CountCompleteOrders = CountCompleteOrders;
+        YG2.SaveProgress();
+        GameProgressManager.Instantiate.CalculateNewDishesCount(plate);
+        
         orderIsCreated = false;
 
         _visual.HideOrderNumVisual();
@@ -124,6 +125,7 @@ public class OrderManager : BaseCounter {
         CurrentOrder.elapsedTime = _newCompletedTime; // пишем с + если успел с минусом если опоздание
         CurrentOrder.maxTime = _visual._timeToCompleteOrder;
 
+        
         RewardManager.Instance.CalculateOrderStatistic(CurrentOrder);
         _foreignExtraCount = 0;
        
@@ -144,7 +146,7 @@ public class OrderManager : BaseCounter {
             CreateNewOrder();
         }
         ProductSaveManager.Instance.SaveProductsCount();
-        Debug.Log("Сохранение продуктов");
+        // Debug.Log("Сохранение продуктов");
     }
 
     
@@ -194,7 +196,7 @@ public class OrderManager : BaseCounter {
 
     public void CreateNewOrder() {
         if (!NewOrderCreateReady) {
-            Debug.Log("Нельзя создавать новый заказ пока активен настоящий ");
+            // Debug.Log("Нельзя создавать новый заказ пока активен настоящий ");
             return;
         }
         if (orderIsCreated || TutorialManager.Instance.TutorialStarted) {
@@ -269,9 +271,9 @@ public class OrderManager : BaseCounter {
         }
 
         countToShowOrder += PlayerUpgradeManager.Instance.OrderPeekCount;
-        Debug.Log(PlayerUpgradeManager.Instance.OrderPeekCount + " PlayerUpgradeManager.Instance.OrderPeekCount");
+        // // Debug.Log(PlayerUpgradeManager.Instance.OrderPeekCount + " PlayerUpgradeManager.Instance.OrderPeekCount");
         _visual._countToShowOrder = countToShowOrder;
-        _visual.SetStateAdvIcon(false);
+        _visual.SetStateAdv(false);
     }
 
 
@@ -312,7 +314,7 @@ public class OrderManager : BaseCounter {
 
     public override void Interact(Player player) {
         if (StopInteract) {
-            Debug.LogWarning("StopInteract");
+            // Debug.LogWarning("StopInteract");
             return;
         }
         // Выдача логики без подноса
@@ -345,7 +347,7 @@ public class OrderManager : BaseCounter {
         }   
         // Выдача заказа
         else if (!orderIsAppointed && orderIsCreated) {
-            Debug.Log("Выдача заказа");
+            // Debug.Log("Выдача заказа");
             Instance.AssignOrder();
             NewOrderCreateReady = false; // выдан
             _visual.HideInfinityPopupText();
@@ -382,7 +384,7 @@ public class OrderManager : BaseCounter {
             foreach (var ingredient in addedIngredientsList) {
                 // Добавить и показать крестик _visual 
                 dishStruct.extra++;
-                _visual.ShowDishCanvas(dishCanvas);
+                _visual.ShowDishCanvas(dishCanvas, false);
                 GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
                 _visual.SetBad(newIcon);
             }
@@ -391,7 +393,7 @@ public class OrderManager : BaseCounter {
         if (dishStruct.dish == null) {
             foreach (var ingredient in addedIngredientsList) {
                 _foreignExtraCount++;
-                _visual.ShowDishCanvas(dishCanvas);
+                _visual.ShowDishCanvas(dishCanvas, true);
                 GameObject newIcon = _visual.AddIcon(dishCanvas, ingredient, dishIcons);
                 _visual.SetBad(newIcon);
             }

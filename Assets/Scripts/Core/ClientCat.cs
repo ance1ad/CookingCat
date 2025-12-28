@@ -31,19 +31,16 @@ public class ClientCat : MonoBehaviour {
         }
         Instance = this;
         _agent = GetComponent<NavMeshAgent>();
-        
-        YG.YG2.onGetSDKData += OnGetSDKData;
     }
 
-    private void OnGetSDKData() {
-        _popupText.text = LocalizationManager.Get("ClientRole");
-    }
+
 
     private void Start() {
-        SettingsManager.Instance.OnSwipeLanguage += OnOnSwipeLanguage;
+        SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
+        OnSwipeLanguage();
     }
 
-    private void OnOnSwipeLanguage() {
+    private void OnSwipeLanguage() {
         _popupText.text = LocalizationManager.Get("ClientRole");
     }
 

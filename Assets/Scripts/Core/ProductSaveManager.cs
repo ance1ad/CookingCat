@@ -35,7 +35,7 @@ public class ProductSaveManager : MonoBehaviour {
 
     private void Awake() {
         if (Instance!=null) {
-            Debug.Log("Error, > 1 ProductSaveManager");
+            // Debug.Log("Error, > 1 ProductSaveManager");
             return;
         }
         Instance = this;
@@ -166,6 +166,7 @@ public class ProductSaveManager : MonoBehaviour {
     }
     
     public void SaveProductsCount() {
+        // // Debug.Log("Сохранение кол-ва продуктоу");
         YG2.saves.bunCount = bunCount;
         YG2.saves.tomatoCount = tomatoCount;
         YG2.saves.cheeseCount = cheeseCount;

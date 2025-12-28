@@ -33,16 +33,13 @@ public class CourierCat : MonoBehaviour, IKitchenObjectParent {
 
     private void Awake() {
         _agent = GetComponent<NavMeshAgent>();
-        YG2.onGetSDKData += OnGetSDKData;
     }
-
-    private void OnGetSDKData() {
-        _popupText.text = LocalizationManager.Get("CourierRole");
-    }
+    
 
     private void Start() {
         ProductManager.Instance.OnProductCardAdded += InstanceOnOnProductCardAdded;
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
+        OnSwipeLanguage();
     }
 
     private void OnSwipeLanguage() {
@@ -163,7 +160,7 @@ public class CourierCat : MonoBehaviour, IKitchenObjectParent {
         _readyToNewCycle = true;
         _animator.SetBool(PLAYER_WALKING_STATE_VARIABLE, false);
         ProductSaveManager.Instance.SaveProductsCount();
-        Debug.Log("Сохранение продуктов");
+        // Debug.Log("Сохранение продуктов");
         _agent.speed = 7f;
     }
 

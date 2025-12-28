@@ -27,23 +27,23 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
 
 
     public virtual void Interact(Player player) {
-        Debug.Log("Interact");
+        // Debug.Log("Interact");
     }
 
 
     public virtual bool ThiefInteract(ThiefCat thief) {
-        Debug.Log("ThiefInteract");
+        // Debug.Log("ThiefInteract");
         return false;
     }
 
 
     public virtual bool CourierInteract(CourierCat thief) {
-        Debug.Log("CourierInteract");
+        // Debug.Log("CourierInteract");
         return false;
     }
 
     public virtual void AlternativeInteract(Player player) {
-        Debug.Log("AlternativeInteract");
+        // Debug.Log("AlternativeInteract");
     }
 
     // Получить точку спауна

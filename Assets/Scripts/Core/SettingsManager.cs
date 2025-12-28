@@ -34,7 +34,7 @@ public class SettingsManager : MonoBehaviour {
 
     private void Awake() {
         if (Instance != null) {
-            Debug.LogError("There can only be one Instance of type SettingsManager");
+            // Debug.LogError("There can only be one Instance of type SettingsManager");
             return;
         }
 
@@ -70,19 +70,19 @@ public class SettingsManager : MonoBehaviour {
         LocalizationManager.SwipeLanguage();
         SetTextLanguage();
         OnSwipeLanguage?.Invoke();
-        Debug.Log("SwipeLanguage");
+        // // Debug.Log("SwipeLanguage");
     }
 
     public void SetTextLanguage() {
         if (LocalizationManager.CurrentLanguage == Language.EN) {
-            Debug.Log("Установка английского языка");
+            // // Debug.Log("Установка английского языка");
             _textUnderBtnLocalization.text = "English language";
             _textInBtnLocalization.text = "Eng";
             _windowText.text = "Settings";
             _reviewText.text = "Leave a review";
         }
         else {
-            Debug.Log("Установка русского языка");
+            // // Debug.Log("Установка русского языка");
             _textUnderBtnLocalization.text = "Русский язык";
             _textInBtnLocalization.text = "Rus";
             _windowText.text = "Настройки";
@@ -94,14 +94,23 @@ public class SettingsManager : MonoBehaviour {
 
 
     public void ShowHideSettings() {
-        PlayerBankVisual.Instance.HideBank();
+        PlayerBankVisual.Instance?.HideBank();
+        Time.timeScale = _settingsCanvas.activeSelf ? 1 : 0;
         _settingsCanvas.SetActive(!_settingsCanvas.activeSelf);
-        Time.timeScale = _settingsCanvas.activeSelf ? 0 : 1;
-        if (!_settingsCanvas.activeSelf) {
-            YGManager.Instance.ShowInterstitialWarningAds();
+        if (!_settingsCanvas.activeSelf && !MainMenu.Instance.MainMenuActive) {
+            // Уберу рекламу, в пизду
+            // YGManager.Instance.ShowInterstitialWarningAds();
             // Изменил звук и закрыл окно, обновим
             PlayerPrefs.Save();
             KitchenEvents.SettingsCanvasOpen();
+        }
+
+        if (_settingsCanvas.activeSelf) {
+            SoundManager.Instance.MuteSFX(true);
+            ProductSaveManager.Instance.SaveProductsCount();
+        }
+        else if(!MainMenu.Instance.MainMenuActive) {
+            SoundManager.Instance.MuteSFX(false);
         }
     } 
     

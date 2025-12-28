@@ -25,6 +25,14 @@ public class TrashCounter : BaseCounter,IHasProgress {
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("TrayIsDestroyable"));
                 return;
             }
+
+            if (!player.GetKitchenObject()._isFresh) {
+                for (int i = player._mouthPointForParticles.childCount - 1; i >= 0; i--)
+                {
+                    GameObject child = player._mouthPointForParticles.GetChild(i).gameObject;
+                    Destroy(child);
+                }
+            }
             StartCoroutine(DropObject(player));
             return;
         }

@@ -64,9 +64,15 @@ public class SkinItem : PurchaseObject {
             _gemsIcon.enabled = false;
             _coinsIcon.enabled = true;
         }
-        else {
+        else if(_objectSO.ValuteType == ValuteType.Gems){
             _coinsIcon.enabled = false;
             _gemsIcon.enabled = true;
+        }
+        else {
+            _coinsIcon.enabled = false;
+            _coinsIcon.enabled = false;
+            _advIcon.enabled = true;
+            _price.text = LocalizationManager.Get("RewardForAdv");
         }
     }
 
@@ -83,6 +89,9 @@ public class SkinItem : PurchaseObject {
 
         if (_buyButton.gameObject.activeSelf) {
             _buyButtonText.text = LocalizationManager.Get(_buyButtonText.text);
+            if (_objectSO.ValuteType == ValuteType.Adv) {
+                _price.text = LocalizationManager.Get("RewardForAdv");
+            }
         }
         else if (_equipButton.gameObject.activeSelf) {
             _equipButtonText.text = LocalizationManager.Get(_equipButtonText.text);
@@ -90,6 +99,8 @@ public class SkinItem : PurchaseObject {
         else if (_dequipButton.gameObject.activeSelf) {
             _dequipButtonText.text = LocalizationManager.Get(_dequipButtonText.text);
         }
+
+  
     }
 
     public void SetEmptyWarningMessage() {
@@ -112,6 +123,10 @@ public class SkinItem : PurchaseObject {
         _equipButton.gameObject.SetActive(true);
         _equipButtonText.text = LocalizationManager.Get("EquipButtonText");
         _greenBackground.enabled = true;
+        if (_objectSO.ValuteType == ValuteType.Adv) {
+            _price.text = "";
+        }
+        
         
         if (!state) {
             gameObject.SetActive(false);

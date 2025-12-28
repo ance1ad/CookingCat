@@ -77,7 +77,7 @@ public class Plate : KitchenObject {
             if (!_fullBurger.ShowIngredient(koSO)) {
                 if (TutorialManager.Instance.TutorialStarted) {
                     KitchenEvents.IngredientAddOnPlate(ingredient.GetKitchenObjectSO());
-                    Debug.Log("Повторное добавление");
+                    // Debug.Log("Повторное добавление");
                     ingredient.DestroyMyself();
                     return false;
                 }

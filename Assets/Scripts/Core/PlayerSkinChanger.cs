@@ -22,7 +22,7 @@ public class PlayerSkinChanger : MonoBehaviour {
     
     private void Awake() {
         if (Instance != null) {
-            Debug.LogWarning("2 PlayerSkinChanger has already been instantiated");
+            // Debug.LogWarning("2 PlayerSkinChanger has already been instantiated");
             return;
         }
         Instance = this;
@@ -31,7 +31,7 @@ public class PlayerSkinChanger : MonoBehaviour {
     }
 
     private void EquipSkin(SkinObjectSO skinSO) {
-        Debug.Log("Надевание скина " + skinSO.GetLocalizationName());
+        // // Debug.Log("Надевание скина " + skinSO.GetLocalizationName());
         if (skinSO.PurchaseType == PurchaseType.Hat) {
             SetSkin(skinSO, HatCurrentSkin, _hatPointSpawn);
         }
@@ -47,7 +47,7 @@ public class PlayerSkinChanger : MonoBehaviour {
     }
 
     private void DequipSkin(SkinObjectSO skinSO) {
-        Debug.Log("Деактивирование скина " + skinSO.GetLocalizationName());
+        // Debug.Log("Деактивирование скина " + skinSO.GetLocalizationName());
         if (skinSO.PurchaseType == PurchaseType.Hat) {
             DestroySkin(_hatPointSpawn);
             HatCurrentSkin = null;
@@ -71,7 +71,7 @@ public class PlayerSkinChanger : MonoBehaviour {
     private void SetSkin(SkinObjectSO skinSO, SkinObjectSO CurrentSkin, Transform pointSpawn) {
 
         if (skinSO == CurrentSkin) {
-            Debug.LogWarning("This " + CurrentSkin + " skin is already in use");
+            // Debug.LogWarning("This " + CurrentSkin + " skin is already in use");
             return;
         }
 

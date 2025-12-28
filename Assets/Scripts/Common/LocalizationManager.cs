@@ -7,7 +7,15 @@ using YG;
 public enum Language { RU, EN }
 public class LocalizationManager : MonoBehaviour  {
     public static Language CurrentLanguage = Language.RU;
-    
+
+    private void Awake() {
+        SetTextLocalization();
+    }
+
+    private void Start() {
+        SettingsManager.Instance.SetTextLanguage();
+    }
+
     public static void SetTextLocalization() {
         if (YG2.envir.language == "en") {
             CurrentLanguage = Language.EN;
@@ -15,12 +23,10 @@ public class LocalizationManager : MonoBehaviour  {
         else {
             CurrentLanguage = Language.RU;
         }
-        Debug.Log(YG2.envir.language);
-        SettingsManager.Instance.SetTextLanguage();
+        // Debug.Log(YG2.envir.language);
     }
     
-    private static Dictionary<string, string> RU = new Dictionary<string, string>
-    {
+    private static Dictionary<string, string> RU = new Dictionary<string, string> {
         { "AddDishes", "Добавьте блюда в заказ" },
         { "OrderTaken", "Взят заказ: #{0}" },
         { "NoOrders", "Заказов пока нет" },
@@ -51,9 +57,9 @@ public class LocalizationManager : MonoBehaviour  {
         { "OvenIsRunning", "Духовка уже запущена" },
         { "OvenRun", "Запуск духовки..." },
         { "PizzaIsReady", "Пицца готова!" },
-        { "NeedToSlicedInOven", "{0}  нужно сначала нарезать" },
+        { "NeedToSlicedInOven", "{0} нужно сначала нарезать" },
         { "DontPutInOven", "{0} нельзя положить в духовку" },
-        { "AlreadyInOven", "{0}  уже есть в духовке" },
+        { "AlreadyInOven", "{0} уже есть в духовке" },
         { "YourHandsIsEmpty", "У вас в руках ничего нет" },
         { "YourHandsIsBusy", "У вас заняты руки" },
         { "PutMinimumIngredients", "Положите минимум {0} ингредиента" },
@@ -128,7 +134,7 @@ public class LocalizationManager : MonoBehaviour  {
         
         { "StepFirstOrder", "Пошли учиться делать бургеры! Бери первый заказ! " },
         { "FistOrderTaked", "Отлично, ты взял первый заказ, хватай поднос и клади его на стол" },
-        { "TakeBun", "Давай начнём с булки, бери ее из холодильника и клади на поднос" },
+        { "TakeBun", "Бургеры собираются только на подносе, бери булку из холодильника и клади на поднос!" },
         { "TomatoSlice", "Отлично! Теперь нарежь помидор и положи на поднос" },
         { "MeatFry", "Теперь давай научимся жарить мясо, смотри не пережарь!" },
         { "BurgerReady", "Отлично! Бургер готов, скорей неси клиенту!" },
@@ -143,15 +149,7 @@ public class LocalizationManager : MonoBehaviour  {
         { "JuicerOn", "Соковыжималка запущена"},
         { "JuiceReadyPutInTray", "Отлично, сок готов, клади его на поднос и неси клиенту!"},
         { "ByProductsOnStore", "Продукты нужно закупать в магазине"},
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
         { "StepBonk", "Ну конечно он не признается сам... твой кот иногда может скушать то, что ты держишь, следи за ним!" },
         { "StepThief", "Ах да... следи внимательно за кухней, иногда на нее может забежать вор, обязательно прогони его" },
         { "StepGoodLuck", "Удачи! Держи немного монеток, можешь взять в магазине шапку шефа, она бесплатная!" },
@@ -217,7 +215,46 @@ public class LocalizationManager : MonoBehaviour  {
         { "Equip", "Надеть" },
         { "Unequip", "Снять" },
         
+        { "PlayerName", "Неназванный повар" },
         
+        // Ранк повара
+        { "rank1", "Ученик" },
+        { "rank2", "Подмастерье" },
+        { "rank3", "Повар" },
+        { "rank4", "Старший повар" },
+        { "rank5", "Шеф-повар" },
+        
+        { "WorldRating", "Рейтинг: {0}" },
+        { "Level", "Уровень: {0}" },
+        
+        
+        { "LevelUp", "Новый уровень" },
+        { "StatusUp", "Повышение" },
+        
+        { "YouHaveNewLevel", "У вас новый уровень: {0}" },
+        { "YouHaveNewStatus", "Вы теперь: {0}" },
+        { "ProgressTitle", "Прогресс" },
+        { "StatisticTitle", "Статистика" },
+        
+        
+        { "AllOrdersCount", "Выполнено заказов" },
+        { "AllBurgersCount", "Собрано бургеров" },
+        { "AllPizzasCount", "Запечено пицц" },
+        { "AllDrinksCount", "Намешано напитков" },
+        
+        // Next statuses
+        { "NextNewStatusNum", "Следующее повышение на уровне {0} ({1})" },
+        { "YouAreLegend", "Вы легенда" },
+        { "Congratulations", "Поздравляем !" },
+
+        
+        // Fix bug
+        { "PizzaIngredients", "Ингредиенты пиццы" },
+        { "BurgerIngredients", "Ингредиенты бургера" },
+        { "DrinkIngredients", "Ингредиенты напитка" },
+        
+        { "RewardForAdv", "Рекл." },
+
         
     };
 
@@ -345,7 +382,7 @@ public class LocalizationManager : MonoBehaviour  {
 
         { "StepFirstOrder", "Let's learn how to make burgers! Take your first order!" },
         { "FistOrderTaked", "Nice! You've grabbed your first order. Pick up the tray and set it on the table." },
-        { "TakeBun", "Let’s start with the bun. Grab it from the fridge and drop it onto the tray." },
+        { "TakeBun", "Burgers are collected only on a tray, take a bun from the refrigerator and put it on the tray!" },
         { "TomatoSlice", "Great! Now slice the tomato and put it on the tray." },
         { "MeatFry", "Time to learn how to fry the meat. Careful now, don’t burn it!" },
         { "BurgerReady", "Great! The burger’s done - hurry and bring it to the customer!" },
@@ -377,7 +414,7 @@ public class LocalizationManager : MonoBehaviour  {
         {"TutorialInvitation", "Oh, hello! I see you haven't completed the internship, so i advise you to do it to understand the cooking process."},
         
         {"GladSeeYou", "Hi! Glad to see you in the kitchen!"},
-        {"GladSeeYouReward", "Hi! Glad to see you in the kitchen! Here’s a little reward - you can grab the chef’s hat in the shop, it’s free."},
+        {"GladSeeYouReward", "Hi! Glad to see you in the kitchen! Here’s a little reward"},
         {"TimeBonus", "Hi! I'm glad you're playing our game! Catch a small reward!"},
         // MainMenu
         {"PlayGame", "Play"},
@@ -410,6 +447,51 @@ public class LocalizationManager : MonoBehaviour  {
         { "Купить", "Buy" },
         { "Надеть", "Equip" },
         { "Снять", "Unequip" },
+        
+        
+        
+        { "PlayerName", "Unnamed cook" },
+        
+        // Ранк повара
+        { "rank1", "Apprentice" },
+        { "rank2", "Journeyman" },
+        { "rank3", "Cook" },
+        { "rank4", "Senior Cook" },
+        { "rank5", "Head Chef" },
+        
+        { "WorldRating", "Rating: {0}" },
+        { "Level", "Level: {0}" },
+        
+        
+        { "LevelUp", "Level up" },
+        { "StatusUp", "Status up" },
+        { "YouHaveNewLevel", "You have a new level: {0}" },
+        { "YouHaveNewStatus", "You're a {0} now !" },
+        
+        
+        
+        { "ProgressTitle", "Progress" },
+        { "StatisticTitle", "Statistics" },
+        
+        
+        { "AllOrdersCount", "Complete orders" },
+        { "AllBurgersCount", "Burgers collected" },
+        { "AllPizzasCount", "Baked pizzas" },
+        { "AllDrinksCount", "Mixed drinks" },
+        
+        // Next statuses
+        { "NextNewStatusNum", "The next upgrade is at level {0} ({1})" },
+        { "YouAreLegend", "You're a legend!" },
+        { "Congratulations", "Congratulations !" },
+        
+        // Fix bug
+        { "PizzaIngredients", "Pizza ingredients" },
+        { "BurgerIngredients", "Burger ingredients" },
+        { "DrinkIngredients", "Drink ingredients" },
+        { "RewardForAdv", "Adv" },
+        
+
+        
     };
     
 

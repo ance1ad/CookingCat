@@ -13,6 +13,7 @@ public class RewardManager : MonoBehaviour {
     [SerializeField] private Button _getGiftButton;
     [SerializeField] private TMP_Text _rewardTimer;
     [SerializeField] private GameObject _grayBack;
+    [SerializeField] private GameObject _rewardCountContainer;
     [SerializeField] private GameObject _advIcon;
     
     
@@ -24,7 +25,7 @@ public class RewardManager : MonoBehaviour {
 
     private void Awake() {
         if (Instance != null) {
-            Debug.LogWarning("Instance already created");
+            // Debug.LogWarning("Instance already created");
             return;
         }
         Instance = this;
@@ -39,6 +40,9 @@ public class RewardManager : MonoBehaviour {
             ReviewReward();
         }
     }
+    
+    
+    
 
 
     private void Start() {
@@ -47,6 +51,7 @@ public class RewardManager : MonoBehaviour {
         SettingsManager.Instance.OnSwipeLanguage += OnSwipeLanguage;
         OnSwipeLanguage();
         _grayBack.SetActive(false);
+        _rewardCountContainer.SetActive(false);
         _rewardContainer.SetActive(false);
     }
 
@@ -76,6 +81,7 @@ public class RewardManager : MonoBehaviour {
     private IEnumerator RewardAdvTimerRoutine() {
         timer = 240f;
         _grayBack.SetActive(true);
+        _rewardCountContainer.SetActive(false);
         _advIcon.SetActive(false);
         _rewardTimer.gameObject.SetActive(true);
         while (timer > 0) {
@@ -84,6 +90,7 @@ public class RewardManager : MonoBehaviour {
             yield return null;
         }
         _grayBack.SetActive(false);
+        _rewardCountContainer.SetActive(true);
         _advIcon.SetActive(true);
         _rewardTimer.gameObject.SetActive(false);
         readyToGift = true;
@@ -92,25 +99,25 @@ public class RewardManager : MonoBehaviour {
     
     private void GetGiftButton() {
         if(!readyToGift) return;
-        readyToGift = false;
         // Логика рандома выдачи денег
-        YGManager.Instance.ShowRewardAdv("ShowIngredientsReward", ()=> {
-            RandomRewardLogic();
+        YGManager.Instance.ShowRewardAdv("ShowIngredientsReward", 
+            () => {
+            readyToGift = false;
+            RewardLogic();
             StartCoroutine(RewardAdvTimerRoutine());
         });
-        
     }
 
-    private void RandomRewardLogic() {
-        int coins = Random.Range(3000, 5001);
-        int gems = Random.Range(1,3);
+    private void RewardLogic() {
+        int coins = 10000;
+        int gems = 5;
         
         CurrencyManager.Instance.UpdateCash(coins, gems);
     }
 
 
     public void DailyReward() {
-        Debug.Log("DailyReward");
+        // Debug.Log("DailyReward");
         if (dailyReward) {
             int coins = Random.Range(10000, 20000);
             int gems = Random.Range(5,10);
@@ -126,7 +133,7 @@ public class RewardManager : MonoBehaviour {
         int gems = 26;
         CurrencyManager.Instance.UpdateCash(coins, gems);
         if (!TutorialManager.Instance.TutorialStarted) {
-            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThanksForReview"), MessageUI.Emotions.happy, 16f);
+            MessageUI.Instance.SetTextTemporary(LocalizationManager.Get("ThanksForReview"), MessageUI.Emotions.happy, 10f, false);
         }
     }
 
@@ -144,6 +151,7 @@ public class RewardManager : MonoBehaviour {
     public void CalculateOrderStatistic(Order order) {
         int countDishes = 0;
         float allReward = 0f;
+        
 
         foreach (var element in order.dishStruct) {
             if (element.dish != null) {
@@ -169,7 +177,13 @@ public class RewardManager : MonoBehaviour {
 
         float finalReward = allReward * penaltyMultiplier;
 
-
+        
+        int xp = GameProgressManager.Instantiate.CalculateXpByAccuracy(_allAccuracy, order.GetOrderSize());
+        // Debug.Log("Размер заказа: " + order.GetOrderSize());
+        // Debug.Log("+ : " + xp + "XP");
+        
+        
+        
         // --- Комментарии игроку ---
         string comment;
         if (_allAccuracy < 50f) comment = LocalizationManager.Get("ManyErrors");
@@ -185,7 +199,7 @@ public class RewardManager : MonoBehaviour {
         string accuracyText = LocalizationManager.Get("Accuracy", _allAccuracy, comment);
 
         
-        CurrencyManager.Instance.SetOrderResult(finalReward, _newGemsCount, timeInfo, accuracyText, _comboStat);
+        CurrencyManager.Instance.SetOrderResult(finalReward, _newGemsCount, timeInfo, accuracyText, _comboStat, xp);
 
 
         _sumRightIngredients  = 0;
@@ -198,7 +212,7 @@ public class RewardManager : MonoBehaviour {
 
 
     private float CalculateRewardForDish(Order.DishStruct oderInfo, float elapsedTime, float maxTime) {
-        int correct = oderInfo.correct; // я правильно добавил
+        int correct = oderInfo.correct; 
         int extra = oderInfo.extra;
         int missing = oderInfo.missing;
         int total = oderInfo.total; // всего ингредиентов в блюде т.е правильных типо

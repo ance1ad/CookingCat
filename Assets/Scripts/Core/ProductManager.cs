@@ -25,7 +25,7 @@ public class ProductManager : MonoBehaviour {
 
     private void Awake() {
         if (Instance != null) {
-            Debug.Log("Ошибко, 2 манажара");
+            // Debug.Log("Ошибко, 2 манажара");
             return;
         }
         Instance = this;
@@ -44,7 +44,7 @@ public class ProductManager : MonoBehaviour {
     }
 
     private void HideCanvas() {
-        if (_storeCanvas.activeSelf) {
+        if (_storeCanvas != null && _storeCanvas.activeSelf) {
             _storeCanvas.SetActive(false);
         }
     }
@@ -110,11 +110,11 @@ public class ProductManager : MonoBehaviour {
     public void ShowHideStoreWindow() {
         _storeCanvas.SetActive(!_storeCanvas.activeSelf);
         if (_storeCanvas.activeSelf) {
-            PlayerBankVisual.Instance.ShowBank();
+            PlayerBankVisual.Instance?.ShowBank();
             KitchenEvents.ShopOpen();
         }
         else {
-            PlayerBankVisual.Instance.HideBank();
+            PlayerBankVisual.Instance?.HideBank();
             KitchenEvents.ShopClose();
         }
         UpdateTextLocalization();

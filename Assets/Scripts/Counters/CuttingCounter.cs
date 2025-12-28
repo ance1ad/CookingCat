@@ -43,7 +43,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
                 cutCount = 0;
             }
             else {
-                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ObjectNotSlicable", player.GetKitchenObject().GetKitchenObjectSO().objectName));
+                MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("ObjectNotSlicable", player.GetKitchenObject().GetKitchenObjectSO().declension));
             }
         }
         else if (HasKitchenObject()) {

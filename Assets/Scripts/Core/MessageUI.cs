@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngineInternal;
@@ -14,17 +15,34 @@ public class MessageUI : MonoBehaviour
     [SerializeField] private PlayerVisual _playerVisual;
     [SerializeField] private Button _nextButton;
     [SerializeField] private Image _focus;
+    [SerializeField] private Image _borderWarning;
     
-    
-
     public event Action OnButtonClick;
-    
-    
     private Coroutine _currentRoutine;
-
     public static MessageUI Instance;
-
+    
     private Coroutine _nextButtonPulsing;
+    private RectTransform btnTransform;   // ссылка на RectTransform кнопки
+    private Vector3 initialScale;
+
+    private void Awake() {
+        if (Instance != null) {
+            // Debug.Log("There is no more 2 MessageUI!");
+        }
+        Instance = this;
+    }
+
+    private void Start() {
+        _nextButton.onClick.AddListener(ButtonClick);
+        
+        btnTransform = _nextButton.GetComponent<RectTransform>();
+        initialScale = btnTransform.localScale;
+        
+        // ShowNextButton();
+        // Show(false);
+        HideArrows();
+    }
+    
     public void HideNextButton() {
         _nextButton.gameObject.SetActive(false);
         StopPulseCoroutine();
@@ -35,7 +53,16 @@ public class MessageUI : MonoBehaviour
             StopCoroutine(_nextButtonPulsing);
             _nextButtonPulsing = null;
         }
+        btnTransform.localScale = initialScale;
+        // Стоп пульса предупреждения
+        if (pulseBorder != null) {
+            StopCoroutine(pulseBorder);
+            pulseBorder = null;
+        }
+        
     }
+
+
     
     public void ShowNextButton() {
         _nextButton.gameObject.SetActive(true);
@@ -44,39 +71,24 @@ public class MessageUI : MonoBehaviour
         }
     }
 
+    
+    
     private IEnumerator NextButtonPulsingRoutine() {
-        RectTransform rect = _nextButton.GetComponent<RectTransform>();
         float pulseSpeed = 7f;      // скорость пульса
         float pulseAmount = 0.1f;   // ±10% масштаб
 
-        
-        Vector3 baseScale = rect.localScale;
-
         while (true) {
             float scaleOffset = Mathf.Sin(Time.time * pulseSpeed) * pulseAmount;
-            rect.localScale = baseScale + Vector3.one * scaleOffset;
+            btnTransform.localScale = initialScale * (1f + scaleOffset);
             yield return null;
         }
     }
 
-
-
     public bool PopupIsActive() => _canvas.gameObject.activeSelf;
 
-    private void Awake() {
-        if (Instance != null) {
-            Debug.Log("There is no more 2 MessageUI!");
-        }
-        Instance = this;
-        Show(false);
-        HideArrows();
-    }
 
 
-    private void Start() {
-        ShowNextButton();
-        _nextButton.onClick.AddListener(ButtonClick);
-    }
+
 
     private void ButtonClick() {
         OnButtonClick?.Invoke();
@@ -88,31 +100,44 @@ public class MessageUI : MonoBehaviour
 
     public void Show(bool state) {
         if (_canvas.gameObject.activeSelf != state) {
+            if (!state) {
+                StopPulseCoroutine();
+            }
+            else if(_nextButton.gameObject.activeSelf) {
+                ShowNextButton();
+            }
             _canvas.gameObject.SetActive(state);
         }
-
-        if (!state) {
-            StopPulseCoroutine();
-        }
-        else if(_nextButton.gameObject.activeSelf) {
-            ShowNextButton();
-        }
     }
-    
-    
+
+
+    private Coroutine pulseBorder;
     public void SetTextInfinity(string text, Emotions emotion) {
+        // Всегда зеленая
         if (string.IsNullOrEmpty(text)) {
             return;
         }
         Show(true);
         _text.text = text;
         SetEmotion(emotion, "NextTutorStep");
-        // + показать кнопку
+
+        if (pulseBorder != null) {
+            StopCoroutine(pulseBorder);
+        }
+
+        if (_borderWarning.color != Color.green) {
+            _borderWarning.color = Color.green;
+        }
+
+        if (_borderWarning.color.a < 1f) {
+            Color borderColor = _borderWarning.color;
+            borderColor.a = 1f;
+            _borderWarning.color = borderColor;
+        }
     }
     
     
-    public void SetTextTemporary(string text, Emotions emotion, float time) {
-        
+    public void SetTextTemporary(string text, Emotions emotion, float time, bool isWarning) {
         if (string.IsNullOrEmpty(text)) {
             return;
         }
@@ -126,7 +151,45 @@ public class MessageUI : MonoBehaviour
         _text.text = text;
         SetEmotion(emotion, "NextTutorStep");
         // + показать кнопку
+            
+        if (pulseBorder != null) {
+            StopCoroutine(pulseBorder);
+        }
+        
+        if (isWarning) {
+            pulseBorder = StartCoroutine(PulseBorderRoutine());
+        }
+        else {
+            _borderWarning.color = Color.green;
+        }
     }
+    
+    
+    private IEnumerator PulseBorderRoutine() {
+        _borderWarning.color = Color.red;
+        Color startColor = Color.red;
+        Color endColor = Color.red;
+        
+        startColor.a = 0;
+        endColor.a = 1;
+        
+        float speed = 1f;
+        for (int i = 0; i < 20; i++) {
+            float tick = 0;
+            while (_borderWarning.color != endColor) {
+                tick += Time.deltaTime * speed;
+                _borderWarning.color = Color.Lerp(startColor, endColor, tick);
+                yield return null;
+            }
+            tick = 0;
+            while (_borderWarning.color != startColor) {
+                tick += Time.deltaTime * speed;
+                _borderWarning.color = Color.Lerp(endColor, startColor, tick);
+                yield return null;
+            }
+        }
+    }
+    
 
     public void HideInfinityText() {
         if (_currentRoutine == null) {
@@ -195,7 +258,6 @@ public class MessageUI : MonoBehaviour
         }
         _focus.gameObject.SetActive(false);
         HideInfinityText();
-        
     }
     
     public void HideArrows() {
@@ -250,7 +312,10 @@ public class MessageUI : MonoBehaviour
         
     }
     
-        
+    
+    
+    
+    // Tutor part
     [SerializeField] private GameObject _platesArrow;
     [SerializeField] private GameObject _ovenArrow;
     [SerializeField] private GameObject _stoveArrow;
@@ -269,8 +334,6 @@ public class MessageUI : MonoBehaviour
     [SerializeField] private GameObject _trashArrow;
     [SerializeField] private BaseCounter _upClearCounter;
     [SerializeField] private BaseCounter _rightClearCounter;
-    
-    
 
     public void ShowPlatesArrow(bool hidePrevious) {
         if (hidePrevious) {

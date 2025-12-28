@@ -34,9 +34,9 @@ public class ContainerCounter : BaseCounter {
     }
 
     public bool TryUseProduct() {
-        Debug.Log(ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO));
+        // // Debug.Log(ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO));
         if(ProductSaveManager.Instance.GetProductCount(_kitchenObjectSO) == 0) {
-            Debug.Log("У вас 0 продуктов");
+            // Debug.Log("У вас 0 продуктов");
             return false;
         }
         StartCoroutine(CloseDoorRoutine());
@@ -63,7 +63,7 @@ public class ContainerCounter : BaseCounter {
         // Оддат игроку
         if (!player.HasKitchenObject()) {
             
-            if (!TryUseProduct()) {
+            if (!TryUseProduct() && !TutorialManager.Instance.TutorialStarted) {
                 TutorialManager.Instance.ShowProductStoreArrow();
                 MessageUI.Instance.ShowPlayerPopup(LocalizationManager.Get("NeedCourier"));
                 return;

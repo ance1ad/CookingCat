@@ -10,6 +10,7 @@ public class CurrencyManager : MonoBehaviour {
     [SerializeField] private TMP_Text _comboText;
 
     [SerializeField] private TMP_Text _title;
+    [SerializeField] private TMP_Text _XPNew;
     
     
     public event Action<CurrencyActionArgs> OnBankChangedAction;
@@ -32,7 +33,7 @@ public class CurrencyManager : MonoBehaviour {
     private void OnGetSDKData() {
         Coins = YG2.saves.Coins;
         Gems = YG2.saves.Gems;
-        PlayerBankVisual.Instance.UpdateBank();
+        PlayerBankVisual.Instance?.UpdateBank();
     }
 
     public class CurrencyActionArgs {
@@ -40,7 +41,7 @@ public class CurrencyManager : MonoBehaviour {
         public int countRewardsGems;
     }
     
-    public void SetOrderResult(float newCoins, int newGems, string orderTime, string accuracy, string combo) {
+    public void SetOrderResult(float newCoins, int newGems, string orderTime, string accuracy, string combo, int xp) {
         ShowCanvas();
         UpdateCash(newCoins, newGems); // в окошке сверху визуал
         ShowRewardInfinity(newCoins, newGems); // визуал окна поздравления
@@ -57,6 +58,7 @@ public class CurrencyManager : MonoBehaviour {
             _comboText.text = combo;
             _comboText.enabled = true;
         }
+        SetNewXP(xp);
     }
     
     // Банк игрока
@@ -90,17 +92,15 @@ public class CurrencyManager : MonoBehaviour {
     }
 
     
-    [SerializeField] private TMP_Text _coinsCountText;
-    [SerializeField] private TMP_Text _gemsCountText;
     [SerializeField] private GameObject _canvas;
     [SerializeField] private TMP_Text _newCoinsText;
     [SerializeField] private TMP_Text _newGemsText;
+    
+    [SerializeField] private GameObject _gemsContainer;
 
     
 
     public void ShowRewardInfinity(float newCoins, int newGems) {
-        _coinsCountText.text = Coins.ToString("0");
-        _gemsCountText.text = Gems.ToString();
         
         _newCoinsText.enabled = true;
         _newGemsText.enabled = false;
@@ -117,14 +117,20 @@ public class CurrencyManager : MonoBehaviour {
             _newGemsText.enabled = true;
             _newGemsText.color = Color.green;
             _newGemsText.text = "+" + newGems;
+            _gemsContainer.SetActive(true);
         }
         
-        if (newGems < 0) {
+        if (newGems <= 0) {
+            _gemsContainer.SetActive(false);
             _newGemsText.enabled = true;
             _newGemsText.color = Color.red;
-            _newGemsText.text = "-" + newGems;
+            _newGemsText.text = newGems.ToString();
         }
         
         
+    }
+
+    public void SetNewXP(int xp) {
+        _XPNew.text = "+" + xp;
     }
 }

@@ -28,6 +28,17 @@ namespace YG
         public int tangerineCount;
         
         
+        // Уровень прогресс etc
+        public int countBurgers;
+        public int countPizza;
+        public int countDrinks;
+        
+        public int level;
+        public int xp;
+        
+        
+        
+        
         public List<string> OwnedPurchase = new (); // Что есть уже у игрока
         public List<SkinObject> AppliedSkins = new ();
         public List<UpgradeObject> Upgrades = new ();
